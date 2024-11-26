@@ -1,17 +1,132 @@
 import { WebcastPushConnection, signatureProvider } from 'tiktok-live-connector';
+import  { app, BrowserWindow, ipcMain } from 'electron';
+import { fileURLToPath } from 'url';
+import path, { join, dirname } from 'node:path';
+import fs from 'node:fs';
 import express from 'express';
 import { Server } from 'socket.io';
 import http from 'http';
 import cors from 'cors';
-
-const app = express();
-app.use(cors());
-const server = http.createServer(app);
-const io = new Server(server);
-
-app.use(express.static('public'));
-
-// app.get('/', (req, res) => {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+import WindowManager from './features/window-manager.js';
+const windowManager = new WindowManager();
+const essapp = express();
+essapp.use(cors());
+const httpServer = http.createServer(essapp);
+const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+const port = parseInt(process.env.PORT) || 9000;
+essapp.use(express.static('public'));
+class RoomManager {
+    constructor(io) {
+      this.io = io;
+      this.rooms = new Map(); // Almacena información de las salas
+    }
+  
+    // Unir usuario a sala
+    joinRoom(socket, roomId) {
+      socket.join(roomId);
+      
+      if (!this.rooms.has(roomId)) {
+        this.rooms.set(roomId, new Set());
+      }
+      
+      this.rooms.get(roomId).add(socket.id);
+      
+      return {
+        roomId,
+        usersCount: this.rooms.get(roomId).size
+      };
+    }
+  
+    // Salir de sala
+    leaveRoom(socket, roomId) {
+      socket.leave(roomId);
+      
+      if (this.rooms.has(roomId)) {
+        this.rooms.get(roomId).delete(socket.id);
+        
+        // Eliminar sala si está vacía
+        if (this.rooms.get(roomId).size === 0) {
+          this.rooms.delete(roomId);
+        }
+      }
+    }
+  
+    // Emitir a todos los usuarios en una sala
+    emitToRoom(roomId, eventName, data) {
+      this.io.to(roomId).emit(eventName, data);
+    }
+  
+    // Obtener usuarios en una sala
+    getRoomUsers(roomId) {
+      return this.rooms.get(roomId) || new Set();
+    }
+  
+    // Verificar si una sala existe
+    roomExists(roomId) {
+      return this.rooms.has(roomId);
+    }
+  
+    // Obtener número de usuarios en una sala
+    getRoomSize(roomId) {
+      return this.rooms.get(roomId)?.size || 0;
+    }
+}
+const roomManager = new RoomManager(io);
+essapp.get('/media/*', (req, res) => {
+    const requestedPath = decodeURIComponent(req.params[0]);
+    const filePath = path.resolve(requestedPath);
+    const extname = path.extname(filePath).toLowerCase();
+    const imageobj = {
+      '.jpg': 'jpeg',
+      '.jpeg': 'jpeg', 
+      '.png': 'png',
+      '.gif': 'gif',
+      '.webp': 'webp',
+      '.svg': 'svg+xml',
+      '.bmp': 'bmp',
+      '.ico': 'x-icon',
+      '.tiff': 'tiff',
+      '.avif': 'avif',
+      '.apng': 'apng'
+    };
+  
+    fs.stat(filePath, (err, stats) => {
+      if (err || !stats.isFile()) {
+        return res.status(404).send('File not found');
+      }
+  
+      if (extname === '.mp3' || extname === '.wav') {
+        res.setHeader('Content-Type', 'audio/' + extname.slice(1));
+      } else if (extname === '.mp4' || extname === '.webm') {
+        // Para videos, verificar que estén en formato compatible
+        res.setHeader('Content-Type', 'video/' + extname.slice(1));
+      } else if (imageobj[extname]) {
+        res.setHeader('Content-Type', 'image/' + imageobj[extname]);
+      } else {
+        return res.status(415).send('Unsupported file type');
+      }
+  
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    });
+  });
+function createWindow () {
+    const mainWindow = new BrowserWindow({
+      webPreferences: {
+        preload: join(__dirname, 'preload.js'), // Ruta absoluta al archivo preload        sandbox: false,
+      },
+    });
+    const url = `http://localhost:${port}`
+    mainWindow.loadURL(url)
+  }
+// essapp.get('/', (req, res) => {
 //     res.sendFile(__dirname + '/public/index.html');
 // });
 
@@ -186,8 +301,35 @@ io.on('connection', (socket) => {
         console.log('User disconnected:', socket.id);
     });
 });
+windowManager.on('window-created', (data) => {
+  io.emit('window-created', data);
+});
 
-const port = parseInt(process.env.PORT) || 9000;
-server.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+windowManager.on('window-closed', (id) => {
+  io.emit('window-closed', id);
+});
+
+windowManager.on('window-updated', (data) => {
+  io.emit('window-updated', data);
+});
+
+httpServer.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
+app.whenReady().then(() => {
+createWindow()
+app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+})
+})
+
+app.on('window-all-closed', function () {
+if (process.platform !== 'darwin') app.quit()
+})
+
+// Manejador IPC existente
+ipcMain.handle('get-file-paths', async (event, files) => {
+const filePaths = files.map(file => file.path);
+console.log('Rutas de archivos:', filePaths);
+return filePaths;
 });

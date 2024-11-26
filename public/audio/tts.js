@@ -1,18 +1,9 @@
 const TTS_API_ENDPOINT = 'https://api.streamelements.com/kappa/v2/speech?';
-import {Queue, Controlmedia, AudioPlayer } from './mediacontrol.js';
-import { voicelist, voicelistmap } from './voiceoptions.js';
-const audioPlayer = new AudioPlayer('audio',
-() => controlmedia.playPreviousAudio(),
-() => controlmedia.nextaudio()
-);
-const controlmedia = new Controlmedia(audioPlayer);
-audioPlayer.setAudioInfo('first player');
+const audioPlayer1 = document.querySelector('audio-player');
 
-let audioQueue = new Queue();
 let lastReadText = null;
 let audioMap = {};
 let audioKeys = [];
-let isPlaying = false;
 // let audio = document.getElementById('audio');
 function getTTSconfig() {
     const ttsconfig = JSON.parse(localStorage.getItem('voicedatastore'));
@@ -54,30 +45,22 @@ async function fetchAudio(txt) {
     }
 }
 
-function skipAudio() {
-    audioPlayer.audio.pause();
-    audioPlayer.audio.currentTime = 0;
-
-    if (!audioQueue.isEmpty()) {
-        controlmedia.nextaudio();
-    } else {
-        isPlaying = false;
-    }
-}
 const speaktext = document.getElementById('speaktext');
 const speakbutton = document.getElementById('speakbutton');
 speakbutton.addEventListener('click', () => {
-    handleleermensaje(speaktext.value);
+    leerMensajes(speaktext.value);
 });
 function leerMensajes(text) {
     console.log('leerMensajes', text);
     if (text) {
         fetchAudio(text).then(audioUrl => {
           if (getTTSconfig().voice1.audioQueue) {
-            controlmedia.addSong(audioUrl);
+            audioPlayer1.addToQueue(audioUrl);
           } else {
-            const newaudio = new Audio(audioUrl);
-            newaudio.play();
+            audioPlayer1.addToQueue(audioUrl);
+
+//       const newaudio = new Audio(audioUrl);
+    //        newaudio.play();
           }
         });
     }
@@ -180,4 +163,4 @@ async function handleleermensaje(text) {
 }
 
 
-export { leerMensajes, skipAudio, handleleermensaje };
+export { leerMensajes, handleleermensaje };

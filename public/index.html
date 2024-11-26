@@ -3,29 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speechchat-TL</title>
+    <title>kick-Tts</title>
+    <link rel="shortcut icon" href="./favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="./assets/styles.css">
     <link rel="stylesheet" href="./assets/modal.css">
     <link rel="stylesheet" href="./assets/fields.css">
   </head>
+  <script src="./server/tmi.min.js"></script>
   <script type="module" src="./components/webcomponents.js"></script>
   <script type="module" src="./main.js"></script>
   <script type="module" src="./audio/tts.js"></script>
+  <script type="module" src="./configtabhtml.js"></script>
 <script src="./assets/socket.io.min.js"></script>
 <body theme="dark" class="bg-gray-900">
     <responsive-nav-sidebar>
         <!-- Items base para el navbar (móvil) -->
         <div slot="nav-base-items">
-            <user-profile minimal></user-profile>
+            <user-profile group-id="main" id="kicklogin" minimal></user-profile>
         </div>
 
         <!-- Los mismos items base para el sidebar (desktop) -->
         <div slot="sidebar-base-items">
-                <user-profile></user-profile>
+                <user-profile group-id="main" id="kicklogin"></user-profile>
         </div>
 
         <!-- Items adicionales del menú -->
         <div slot="menu-items">
+            <p>TikTok login</p>
+            <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
+            <p>Twitch login</p>
+            <user-profile group-id="twitch" id="twitchlogin" minimal></user-profile>
             <div class="menu-item" data-target="#users">
               <translate-text key="home"></translate-text>
             </div>
@@ -47,17 +54,26 @@
         <!-- Contenido principal -->
         <div slot="main-content">
               <section id="users">
-                <h2>Usuarios</h2>
-                <div class="containerbox relative">
+                <h2>Chat</h2>
+                 
+                  <div class="containerbox relative">
                     <div class="LiveContainer">
-                      <div  id="chat-container" class="chat1 chatcontainer">Chats</div>
-                      <div class="gift2 giftcontainer">Gifts</div>
-                      <div class="events3 eventscontainer">Events</div>
-              
+                      <div  id="chat-container" class="chat1 chatcontainer">
+                        <message-container id="chatcontainer" wrapper-classes="maxh-15rem"></message-container>
+                      </div>
+                      <div class="gift2 giftcontainer">
+                        <message-container id="giftcontainer" wrapper-classes="maxh-15rem"></message-container>
+                      </div>
+                      <div class="events3 eventscontainer">
+                        <message-container id="eventscontainer" wrapper-classes="maxh-5rem"></message-container>
+                      </div>
                   </div>
                 </div>              
             </section>
               <section id="settings">
+                <div id="container" class="container"></div>
+                <audio-player></audio-player>
+
                 <h2><translate-text key="configuration"></translate-text></h2>
                   <div class="containerbox relative">
                       <h3><translate-text key="eventtable"></translate-text>
@@ -74,22 +90,20 @@
                       <div id="ActionModalContainer"></div>
                     </custom-modal>
                     <div id="table-containerAction" class="dynamic-table1"></div>
+                    <input type="text" id="speaktext" placeholder="Speak text" class="default-input">
+                    <button id="speakbutton" class="button default-button">Speak test</button>
                 </div>
                 <div class="containerbox relative grid-minmax-28rem-auto">
                   <div id="chatbotconfig" class="grid grid-cols-2 gap-4"></div>
-                  <div>                  <input type="text" id="speaktext" placeholder="Speak text" class="default-input">
-                    <button id="speakbutton" class="button default-button">Speak test</button>
+                   
                     <audio id="audio"></audio>
-                  </div>
-                    <div id="MinecraftModalContainer">                  <h3><translate-text key="minecraftPlugin"></translate-text></h3>
+                    <div id="MinecraftModalContainer"> 
                     </div>
                 </div>
               </section>
               <section id="dashboard">
                 <h2>Dashboard</h2>
                 <div class="containerbox relative grid-minmax-24rem-auto">
-
-                    <div id="voiceconfig" class="grid grid-cols-2 gap-4"></div>
                     <div class="card">
                       <div class="card-header">
                           <h2 class="card-title"><translate-text key="allowedusers"></translate-text></h2>
@@ -192,8 +206,18 @@
 
             <div id="lasteventParse"></div>
 
-            
-            <button id="openModal" class="modal-trigger">+</button>
+              <button id="openModal" class="modal-trigger" onclick="document.getElementById('Configurations').open()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+                
+          </button>
+          <custom-modal modal-type="form" id="Configurations">
+              <custom-tabs id="tabscontent">
+              </custom-tabs>
+              <div id="container123"></div>
+          </custom-modal>
         </div>
     </responsive-nav-sidebar>
 

@@ -1,5 +1,6 @@
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { getTranslation, translations } from '../translations.js';
+import { UserInteractionTracker } from '../utils/utils.js'
 const minecraftconfig = {
     ip: {
       class: 'input-default',
@@ -24,40 +25,38 @@ const minecraftconfig = {
       type: 'password',
       returnType: 'string',
       label: 'Contraseña',
-    }
+    },
+    savenbutton: {
+      class: 'default-button',
+      type: 'button',
+      label: getTranslation('connect'),
+      callback: async (data,modifiedData) => {
+        console.log("minecraftcallback",data,modifiedData);
+        localStorage.setItem("MinecraftPluginServer",JSON.stringify(modifiedData));
+        handlebotconnect("connect-plugin",modifiedData);
+      },
+    },
   }
-  const minecraftdata = {
-    ip: "localhost",
-    port: 4567,
-    username: "nglmercer",
-    password: "change_me",
-  }
-  const minecraftcallback = async (data,modifiedData) => {
-    console.log("minecraftcallback",data,modifiedData);
-    localStorage.setItem("MinecraftPluginServer",JSON.stringify(modifiedData));
-    handlebotconnect("connect-plugin",modifiedData);
-    }
-    const deletecallback =  async (data,modifiedData) => {
-      console.log("deletecallback",data,modifiedData);
-    }
-    const callbackconfig = {
-      callback: minecraftcallback,
-      deletecallback:  deletecallback,
-      callbacktext: getTranslation('connect'),
-      deletecallbacktext: getTranslation('close'),
-    }
-    const Aformelement = new EditModal('#MinecraftModalContainer',callbackconfig,minecraftconfig);
-  if (localStorage.getItem("MinecraftPluginServer")) {
-    const data = JSON.parse(localStorage.getItem("MinecraftPluginServer"));
-    console.log("MinecraftPluginServer", data);
-    Aformelement.updateData(data);
-    setTimeout(function () {
-      handlebotconnect("connect-plugin",data);
-    }, 1000);
-  } else {
-  Aformelement.render(minecraftdata);
+const minecraftdata = localStorage.getItem("MinecraftPluginServer") ? JSON.parse(localStorage.getItem("MinecraftPluginServer")) : {
+  ip: "localhost",
+  port: 4567,
+  username: "nglmercer",
+  password: "change_me",
+}
 
-  }
+const Aformelement = new EditModal(minecraftconfig);
+
+const trackerMultiple = new UserInteractionTracker({autoDestroy: true});
+trackerMultiple.addInteractionListener(async (interaction) => {
+    const interacted = trackerMultiple.getAllInteractionsByArray(['click','touchstart','keydown','input']);
+    if (interacted) {
+      console.log("interacted",interacted);
+      handlebotconnect("connect-plugin",minecraftdata);
+      trackerMultiple.destroy();
+    }
+});
+const htmlminecraft = Aformelement.ReturnHtml(minecraftdata);
+htmlminecraft.classList.add('grid');
 //   document.getElementById('sendcommandmc').addEventListener('submit', function(e) {
 //     e.preventDefault();
 //     const data = Object.fromEntries(new FormData(e.target).entries());
@@ -164,4 +163,4 @@ const minecraftconfig = {
       ws.sendCommand(`/say conectado `);
     }, 1000);
   }
-  export { sendcommandmc };
+  export { sendcommandmc, htmlminecraft };

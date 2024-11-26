@@ -1,3 +1,4 @@
+import { getTranslation } from '../translations.js';
 class TypeofData {
     // Verificar si el valor es un objeto
     static isObject(value) {
@@ -260,12 +261,9 @@ const EvaluerLikes = new LikeTracker(5000);
 const replaceVariables = (command, data, iscommand = false ) => {
   let playerName = localStorage.getItem('playerNameInput') || localStorage.getItem('playerName');
 
-  if (typeof command !== 'string') {
+  if (!command || typeof command !== 'string') {
     console.warn("Error: 'command' debe ser una cadena de texto.", typeof command);
     return command; // O lanzar un error si prefieres: throw new Error("'command' debe ser una cadena de texto.");
-  }
-  if (!command) {
-    return command;
   }
   if (iscommand && command.includes(" ")) {
     // Dividimos el string en máximo 2 partes usando el espacio como separador
@@ -477,8 +475,10 @@ logger.addCategory('minecraft', true);
 logger.addCategory('Event', true);
 logger.addCategory('Action', true);
 logger.addCategory('EventAction', true);
-logger.toggleCategory('debug', false);
-logger.toggleCategory('speechchat', false);
+logger.addCategory('renderhtml', true);
+logger.toggleCategory('renderhtml', false);
+logger.toggleCategory('debug', true);
+logger.toggleCategory('speechchat', true);
 console.log(logger.listCategories());
 // // Logs en diferentes categorías
 // logger.log('datos', 'Este es un mensaje de la categoría datos', {
@@ -663,5 +663,209 @@ class UserInteractionTracker {
     });
   }
 }
-export { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes };
+class ArrayStorageManager {
+  constructor(storageKey) {
+      this.storageKey = storageKey;
+      this.items = this.getAll();
+  }
+
+  getAll() {
+      const stored = localStorage.getItem(this.storageKey);
+      return stored ? JSON.parse(stored) : [];
+  }
+
+  saveToStorage() {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.items));
+  }
+
+  validateInput(item) {
+      if (typeof item !== 'string') return false;
+      if (item.length <= 1) return false;
+      return true;
+  }
+
+  existInItems(text) {
+      const normalizedText = text.toLowerCase();
+      return this.items.some(item =>
+          item.toLowerCase() === normalizedText
+      );
+  }
+  // Verificar si algún item está contenido en el texto
+  containswordInitems(text) {
+      const normalizedText = text.toLowerCase();
+      return this.items.some(item =>
+          normalizedText.includes(item.toLowerCase())
+      );
+  }
+
+  // Verificar si el texto existe como item o contiene algún item
+  containword(text) {
+      if (!this.validateInput(text)) return false;
+      return this.existInItems(text) || this.containswordInitems(text);
+  }
+  add(item) {
+      if (!this.validateInput(item)) return false;
+      if (!this.existInItems(item)) {
+          this.items.push(item);
+          this.saveToStorage();
+          return true;
+      }
+      return false;
+  }
+
+  remove(item) {
+      const initialLength = this.items.length;
+      this.items = this.items.filter(existingItem =>
+          existingItem.toLowerCase() !== item.toLowerCase()
+      );
+      if (this.items.length !== initialLength) {
+          this.saveToStorage();
+          return true;
+      }
+      return false;
+  }
+}
+class ArrayManagerUI {
+  constructor(storageManager,defaultelements) {
+      this.manager = storageManager;
+      this.defaultelements = defaultelements;
+  }
+
+  // Genera el contenedor del HTML como un nodo DOM
+  createElement(tag, options = {}, children = []) {
+      const element = document.createElement(tag);
+      
+      // Asignar propiedades del elemento
+      if (options.classes) element.className = options.classes;
+      if (options.attributes) {
+          Object.entries(options.attributes).forEach(([key, value]) => {
+              element.setAttribute(key, value);
+          });
+      }
+      if (options.textContent) element.textContent = options.textContent;
+      if (options.html) element.innerHTML = options.html;
+
+      // Añadir hijos
+      children.forEach(child => {
+          element.appendChild(child);
+      });
+
+      return element;
+  }
+
+  // Retorna el contenedor HTML como nodo DOM
+  getHTML() {
+      const storageKeyname = this.manager.storageKey;
+
+      const title = this.createElement('h2', {
+          classes: 'modal-title',
+          html: `<translate-text key="${storageKeyname}"></translate-text>`,
+      });
+
+      const input = this.createElement('input', {
+          classes: 'array-manager-input',
+          attributes: {
+              type: 'text',
+              placeholder: getTranslation('addelement'),
+          },
+      });
+
+      const addButton = this.createElement('button', {
+          classes: 'array-manager-add open-modal-btn',
+          textContent: getTranslation('add'),
+      });
+
+      const defaultButton = this.createElement('button', {
+          classes: 'array-manager-default open-modal-btn',
+          textContent: `${getTranslation('default')} ${getTranslation(storageKeyname)}`,
+      });
+
+      const inputContainer = this.createElement('div', {
+          classes: 'input-container',
+      }, [input, addButton, defaultButton]);
+
+      const errorMessage = this.createElement('div', {
+          classes: 'array-manager-error error-message',
+          textContent: 'El texto debe tener al menos 2 caracteres',
+      });
+
+      const itemsContainer = this.createElement('div', {
+          classes: 'array-manager-items items-container',
+      });
+
+      const container = this.createElement('div', {
+          classes: 'array-manager-container',
+          attributes: { 'data-component': 'array-manager' },
+      }, [title, inputContainer, errorMessage, itemsContainer]);
+
+      return container;
+  }
+
+  // Método para inicializar los event listeners
+  initializeEventListeners(containerElement) {
+      if (!containerElement) {
+          console.error('No se proporcionó un elemento contenedor válido');
+          return;
+      }
+
+      const input = containerElement.querySelector('.array-manager-input');
+      const addButton = containerElement.querySelector('.array-manager-add');
+      const defaultButton = containerElement.querySelector('.array-manager-default');
+      const errorMessage = containerElement.querySelector('.array-manager-error');
+      const itemsContainer = containerElement.querySelector('.array-manager-items');
+
+      const createItemElement = (text) => {
+          const itemDiv = this.createElement('div', { classes: 'item' }, [
+              this.createElement('span', { textContent: text }),
+              this.createElement('button', {
+                  classes: 'delete-btn',
+                  textContent: '×',
+              }),
+          ]);
+
+          const deleteButton = itemDiv.querySelector('.delete-btn');
+          deleteButton.addEventListener('click', () => {
+              this.manager.remove(text);
+              itemDiv.remove();
+          });
+
+          itemsContainer.appendChild(itemDiv);
+      };
+
+      const handleAddItem = (text = input.value.trim()) => {
+          errorMessage.style.display = 'none';
+          if (this.manager.validateInput(text)) {
+              if (this.manager.add(text)) {
+                  createItemElement(text);
+                  if (text === input.value.trim()) {
+                      input.value = '';
+                  }
+              }
+          } else {
+              errorMessage.style.display = 'block';
+          }
+      };
+
+      const loadItems = () => {
+          itemsContainer.innerHTML = '';
+          this.manager.getAll().forEach(item => createItemElement(item));
+      };
+
+      const handleAddDefault = () => {
+        this.defaultelements.forEach(text => handleAddItem(text));
+      };
+
+      addButton.addEventListener('click', () => handleAddItem());
+      defaultButton.addEventListener('click', handleAddDefault);
+      input.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') handleAddItem();
+      });
+
+      loadItems();
+
+      return { loadItems, addItem: handleAddItem, addDefault: handleAddDefault };
+  }
+}
+
+export { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI };
   

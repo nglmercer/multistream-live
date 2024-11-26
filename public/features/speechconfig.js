@@ -1,10 +1,11 @@
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { showAlert } from '../components/message.js';
-import {replaceVariables, logger} from '../utils/utils.js';
+import {replaceVariables, logger, ArrayStorageManager, ArrayManagerUI} from '../utils/utils.js';
 import { leerMensajes, handleleermensaje } from '../audio/tts.js';
 import { voicelistmap } from '../audio/voiceoptions.js';
 import { getTranslation, translations } from '../translations.js';
 import { filterworddefault } from '../assets/jsondata.js';
+console.log("filterworddefault",filterworddefault)
 const keys = [
     { key: 'chat', text: `uniqueId ${getTranslation('dice')} comment`, check: true },
     { key: 'gift', text:  `uniqueId ${getTranslation('regalo')} repeatcount giftName`, check: true },
@@ -47,13 +48,20 @@ function getTTSdatastore() {
     if (!ttsdatastore) localStorage.setItem('ttsdatastore', JSON.stringify(ttsdata));
     return ttsdatastore ? JSON.parse(ttsdatastore) : ttsdata;
 }
-const callbackconfig = { callback: async (data,modifiedData) => {
+const callbackconfig = { 
+    type: 'button',
+    label: getTranslation('savechanges'),
+    class: 'default-button',
+    callback: async (data,modifiedData) => {
     console.log("editcallback", data,modifiedData);
     localStorage.setItem('ttsdatastore', JSON.stringify(modifiedData));
   }
-  , deletecallback:  undefined };
-const configelement = new EditModal('#chatbotconfig',callbackconfig,ttsconfig);
-configelement.render(getTTSdatastore());
+ };
+const configelement = new EditModal({...ttsconfig,savebutton:callbackconfig});
+const newElement = document.createElement('div');
+newElement.textContent = 'Nuevo contenido';
+const htmlvoiceevents = configelement.ReturnHtml(getTTSdatastore());
+
 let voicesList = [];
 
 // Función para mapear las voces
@@ -163,6 +171,15 @@ const selectvoiceconfig = {
             max: 1,
             returnType: 'number',
         },
+    },
+    savebutton: {
+        class: 'default-button',
+        type: 'button',
+        label: getTranslation('savechanges'),
+        callback: async (data,modifiedData) => {
+            console.log("callbackconfig",data,modifiedData);
+            localStorage.setItem('voicedatastore', JSON.stringify(modifiedData));
+        },
     }
 };
 
@@ -173,12 +190,8 @@ if (typeof speechSynthesis !== "undefined" && speechSynthesis.onvoiceschanged !=
 }
 
 const voiceCheckInterval = setInterval(checkVoices, 100);
-const callbackvoice = { callback: async (data,modifiedData) => {
-  console.log("callbackvoice",data,modifiedData);
-  localStorage.setItem('voicedatastore', JSON.stringify(modifiedData));
-  }
-  , deletecallback:  undefined };
-const voiceelement = new EditModal('#voiceconfig',callbackvoice,selectvoiceconfig);
+
+const voiceelement = new EditModal(selectvoiceconfig);
 const defaultvoicedata = JSON.parse(localStorage.getItem('voicedatastore')) || {
     selectvoiceoption: 'selectvoice1', 
     voice1: {
@@ -196,7 +209,8 @@ const defaultvoicedata = JSON.parse(localStorage.getItem('voicedatastore')) || {
     },
 };
 if (!localStorage.getItem('voicedatastore')) localStorage.setItem('voicedatastore', JSON.stringify(defaultvoicedata));
-voiceelement.render(defaultvoicedata);
+const htmlvoice = voiceelement.ReturnHtml(defaultvoicedata);
+
 setTimeout(() => {
   if (mapVoiceList().length > 0) {
     voiceelement.updateData(defaultvoicedata);
@@ -220,193 +234,51 @@ function Replacetextoread(eventType = 'chat',data) {
     const textoread = replaceVariables(configtts[eventType].text, data);
     logger.log('speechchat',configtts,textoread,configtts[eventType].text)
     if (existwordinArray(textoread)) { showAlert('info',`${getTranslation('filterword')} ${textoread} `); return; }
+    if (data.uniqueId && existuserinArray(data.uniqueId)) { showAlert('info',`${getTranslation('blacklistuser')} ${data.uniqueId} `); return; }
     handleleermensaje(textoread);
 }
 /* setTimeout(() => {
   Replacetextoread('chat',{comment: "hola angelo con 8lo"})
   Replacetextoread('chat',{comment: "este si se lee"})
 },3000) */
-class ArrayStorageManager {
-    constructor(storageKey) {
-        this.storageKey = storageKey;
-        this.items = this.getAll();
-    }
-  
-    getAll() {
-        const stored = localStorage.getItem(this.storageKey);
-        return stored ? JSON.parse(stored) : [];
-    }
-  
-    saveToStorage() {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.items));
-    }
-  
-    validateInput(item) {
-        if (typeof item !== 'string') return false;
-        if (item.length <= 1) return false;
-        return true;
-    }
-  
-    existInItems(text) {
-        const normalizedText = text.toLowerCase();
-        return this.items.some(item =>
-            item.toLowerCase() === normalizedText
-        );
-    }
-    // Verificar si algún item está contenido en el texto
-    containswordInitems(text) {
-        const normalizedText = text.toLowerCase();
-        return this.items.some(item =>
-            normalizedText.includes(item.toLowerCase())
-        );
-    }
 
-    // Verificar si el texto existe como item o contiene algún item
-    containword(text) {
-        if (!this.validateInput(text)) return false;
-        return this.existInItems(text) || this.containswordInitems(text);
-    }
-    add(item) {
-        if (!this.validateInput(item)) return false;
-        if (!this.existInItems(item)) {
-            this.items.push(item);
-            this.saveToStorage();
-            return true;
-        }
-        return false;
-    }
-  
-    remove(item) {
-        const initialLength = this.items.length;
-        this.items = this.items.filter(existingItem =>
-            existingItem.toLowerCase() !== item.toLowerCase()
-        );
-        if (this.items.length !== initialLength) {
-            this.saveToStorage();
-            return true;
-        }
-        return false;
-    }
-  }
   
   // Clase para manejar la UI
-  class ArrayManagerUI {
-    constructor(storageManager, idelement) {
-        this.manager = storageManager;
-        this.setupModal();
-        this.setupEventListeners(idelement);
-    }
-  
-    setupModal() {
-        const modal = document.createElement('div');
-        const storageKeyname = this.manager.storageKey
-        modal.innerHTML = `
-          <custom-modal modal-type="form" id="ArrayManagerUI">
-                <h2 class="modal-title"><translate-text key="${storageKeyname}"></translate-text>
-                </h2>
-                <div class="input-container">
-                    <input type="text" id="itemInput" placeholder="${getTranslation('addelement')}">
-                    <button id="addButton" class="open-modal-btn">${getTranslation('add')}</button>
-                    <button id="Initialdata" class="open-modal-btn">${getTranslation('default')} ${getTranslation(storageKeyname)}</button>
-                </div>
-                <div id="errorMessage" class="error-message">
-                    El texto debe tener al menos 2 caracteres
-                </div>
-                <div id="itemsContainer" class="items-container">
-                </div>
-            </custom-modal>
-        `;
-        document.body.appendChild(modal);
-        this.modal = modal;
-    }
-  
-    setupEventListeners(idelement) {
-      const buttonid = idelement ||'openModal';
-        // Botón para abrir modal
-        document.getElementById(buttonid).addEventListener('click', () => {
-            this.openModal();
-        });
-  
-        // Agregar item
-        const input = this.modal.querySelector('#itemInput');
-        const addButton = this.modal.querySelector('#addButton');
-        const Initialdata = this.modal.querySelector('#Initialdata');
-        const addItem = (stringtext = input.value.trim()) => {
-            const text = stringtext;
-            const errorMessage = this.modal.querySelector('#errorMessage');
-            errorMessage.style.display = 'none';
-           
-            if (this.manager.validateInput(text)) {
-                if (this.manager.add(text)) {
-                    this.createItemElement(text);
-                    input.value = '';
-                }
-            } else {
-                errorMessage.style.display = 'block';
-            }
-        };
-        const addDefault = () => {
-            filterworddefault.forEach(text => {
-                addItem(text);
-            });
-        };
-        Initialdata.addEventListener('click', addDefault);
-        addButton.addEventListener('click', addItem);
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addItem();
-        });
-    }
-  
-    createItemElement(text) {
-        const itemsContainer = this.modal.querySelector('#itemsContainer');
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'item';
-       
-        const textSpan = document.createElement('span');
-        textSpan.textContent = text;
-       
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'delete-btn';
-        deleteButton.textContent = '×';
-        deleteButton.onclick = () => {
-            this.manager.remove(text);
-            itemDiv.remove();
-        };
-       
-        itemDiv.appendChild(textSpan);
-        itemDiv.appendChild(deleteButton);
-        itemsContainer.appendChild(itemDiv);
-    }
-  
-    loadItems() {
-        const itemsContainer = this.modal.querySelector('#itemsContainer');
-        itemsContainer.innerHTML = '';
-        this.manager.getAll().forEach(item => {
-            this.createItemElement(item);
-        });
-    }
-  
-    openModal() {
-        this.loadItems();
-        document.getElementById('ArrayManagerUI').open();
-    }
-  
-    closeModal() {
-        document.getElementById('ArrayManagerUI').close();
-  }
-  }
-  
-  // Inicialización
-  const manager = new ArrayStorageManager('filterwords');
-  const ui = new ArrayManagerUI(manager);
-  function addfilterword(word) {
-    manager.add(word);
-    ui.loadItems();
-  }
-  function existwordinArray(word) {
-    const response = manager.containword(word);
-    //console.log("existwordinArray",response,word)
-    return response;
-  }
-export { Replacetextoread, addfilterword}
+
+// Inicialización
+const manager = new ArrayStorageManager('filterwords');
+const ui = new ArrayManagerUI(manager,filterworddefault);
+
+// Uso del método getHTML para añadir el componente al DOM
+const uiElement = ui.getHTML();
+// appContainer.appendChild(uiElement);
+const uifunctions = ui.initializeEventListeners(uiElement);
+
+const bluemanager = new ArrayStorageManager('blacklistusers');
+const blueui = new ArrayManagerUI(bluemanager,["kickbot","nightbot","examplebot"]);    
+const blueuiElement = blueui.getHTML();
+const blueuifunctions = blueui.initializeEventListeners(blueuiElement);
+//{ loadItems, addItem: handleAddItem, addDefault: handleAddDefault }
+function addfilterword(word) {
+manager.add(word);
+uifunctions.loadItems();
+}
+function existwordinArray(word) {
+const response = manager.containword(word);
+//console.log("existwordinArray",response,word)
+return response;
+}
+function existuserinArray(word) {
+const response = bluemanager.containword(word);
+//console.log("existwordinArray",response,word)
+return response;
+}
+function adduserinArray(word) {
+const response = bluemanager.add(word);
+blueuifunctions.loadItems();
+//console.log("existwordinArray",response,word)
+return response;
+}
+  //existwordinArray("tedesku")
+export { Replacetextoread, addfilterword,existuserinArray,adduserinArray, htmlvoice, htmlvoiceevents,uiElement,blueuiElement}
 // asdasd como seria un metodo para hacer un string a json
