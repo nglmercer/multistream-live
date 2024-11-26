@@ -4452,103 +4452,133 @@ class LocalStorageManager {
   }
 }
 class GridContainer extends HTMLElement {
-constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.items = new Map(); // Usamos Map para mantener un registro de elementos con ID
-    this.nextId = 1; // Counter para generar IDs únicos
-    this.render();
-}
-
-  render() {
-    this.shadowRoot.innerHTML = /*html */`
-        <style>
-            :host {
-                display: block;
-                width: 100%;
-            }
-            :host(.dark-mode) {
-                background-color: #1a202c;
-                color: #f7fafc;
-            }
-            .container {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, auto));
-                gap: 1rem;
-                height: 100dvh;
-                padding: 1rem;
-                overflow-y: auto;
-            }
-            .search-container {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-            input {
-                width: 100%;
-                padding: 0.5rem;
-                border: 1px solid #e2e8f0;
-                border-radius: 0.25rem;
-                margin-bottom: 1rem;
-                background-color: #ffffff;
-                color: #1a202c;
-            }
-            :host(.dark-mode) input {
-                background-color: #2d3748;
-                color: #f7fafc;
-                border: 1px solid #4a5568;
-            }
-            .grid-item {
-                background-color: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 0.5rem;
-                padding: 1rem;
-                cursor: pointer;
-                transition: transform 0.2s, background-color 0.2s;
-            }
-            .grid-item:hover {
-                transform: scale(1.02);
-            }
-            :host(.dark-mode) .grid-item {
-                background-color: #2d3748;
-                border: 1px solid #4a5568;
-            }
-            .grid-item img, .grid-item video {
-                width: 100%;
-                height: auto;
-                object-fit: cover;
-                border-radius: 0.25rem;
-                margin-bottom: 0.5rem;
-            }
-            .hidden {
-                display: none !important;
-            }
-        </style>
-        <div class="search-container">
-            <input type="text" placeholder="Buscar elementos..." class="search-input">
-        </div>
-        <div class="container"></div>
-    `;
-
-    this.container = this.shadowRoot.querySelector('.container');
-    this.searchInput = this.shadowRoot.querySelector('.search-input');
-
-    this.searchInput.addEventListener('input', (e) => {
-        this.filterItems(e.target.value);
-    });
-}
-
-toggleDarkMode(isDark) {
-  if (isDark) {
-      this.classList.add('dark-mode');
-  } else {
-      this.classList.remove('dark-mode');
+  constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this.items = new Map(); // Usamos Map para mantener un registro de elementos con ID
+      this.nextId = 1; // Counter para generar IDs únicos
+      this.render();
   }
-}
 
-filterItems(searchText) {
+    render() {
+      this.shadowRoot.innerHTML = /*html */`
+          <style>
+              :host {
+                  display: block;
+                  width: 100%;
+              }
+              :host(.dark-mode) {
+                  background-color: #1a202c;
+                  color: #f7fafc;
+              }
+              .container {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(200px, auto));
+                  gap: 1rem;
+                  height: 100dvh;
+                  padding: 1rem;
+                  overflow-y: auto;
+              }
+              .search-container {
+                  padding: 1rem;
+              }
+              input {
+                  width: 100%;
+                  padding: 0.5rem;
+                  border: 1px solid #e2e8f0;
+                  border-radius: 0.25rem;
+                  margin-bottom: 1rem;
+                  background-color: #ffffff;
+                  color: #1a202c;
+              }
+              :host(.dark-mode) input {
+                  background-color: #2d3748;
+                  color: #f7fafc;
+                  border: 1px solid #4a5568;
+              }
+              .grid-item {
+                  background-color: #ffffff;
+                  border: 1px solid #e2e8f0;
+                  border-radius: 0.5rem;
+                  padding: 1rem;
+                  cursor: pointer;
+                  max-width: 25rem;
+                  transition: transform 0.2s, background-color 0.2s;
+              }
+              .grid-item:hover {
+                  transform: scale(1.02);
+              }
+              :host(.dark-mode) .grid-item {
+                  background-color: #2d3748;
+                  border: 1px solid #4a5568;
+              }
+              .grid-item img, .grid-item video {
+                  width: 100%;
+                  height: auto;
+                  object-fit: cover;
+                  border-radius: 0.25rem;
+                  margin-bottom: 0.5rem;
+              }
+              .item-content {
+                    position: relative;
+                }
+
+                .delete-btn {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background-color: rgba(255, 0, 0, 0.7);
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: background-color 0.3s;
+                }
+
+                .delete-btn:hover {
+                    background-color: rgba(255, 0, 0, 0.9);
+                }
+
+                .delete-btn.hidden {
+                    display: none !important;
+                }
+              .hidden {
+                  display: none !important;
+              }
+          </style>
+          <div class="search-container">
+              <input type="text" placeholder="Buscar elementos..." class="search-input">
+          </div>
+          <div class="container"></div>
+      `;
+
+      this.container = this.shadowRoot.querySelector('.container');
+      this.searchInput = this.shadowRoot.querySelector('.search-input');
+
+      this.searchInput.addEventListener('input', (e) => {
+          this.filterItems(e.target.value);
+      });
+  }
+
+  toggleDarkMode(isDark) {
+    if (isDark) {
+        this.classList.add('dark-mode');
+    } else {
+        this.classList.remove('dark-mode');
+    }
+  }
+
+  filterItems(searchText) {
     this.items.forEach((itemData, id) => {
-        const text = itemData.element.textContent.toLowerCase();
+        const input = itemData.element.querySelector('.content');
+        const text = input ? input.value.toLowerCase() : '';
         const searchLower = searchText.toLowerCase();
+        
         if (text.includes(searchLower)) {
             itemData.element.classList.remove('hidden');
         } else {
@@ -4557,8 +4587,8 @@ filterItems(searchText) {
     });
 }
 
-// Método para añadir un nuevo elemento
-addItem(content, mediaUrl = '', mediaType = '', additionalData = {}) {
+  // Método para añadir un nuevo elemento
+  addItem(content, mediaUrl = '', mediaType = '', additionalData = {}) {
     const id = this._generateId();
     const item = document.createElement('div');
     item.className = 'grid-item';
@@ -4574,9 +4604,30 @@ addItem(content, mediaUrl = '', mediaType = '', additionalData = {}) {
     }
 
     item.innerHTML = `
-        ${mediaElement}
-        <input class="content" value="${content}" readonly>
+        <div class="item-content">
+            ${mediaElement}
+            <input class="content" type="text" value="${content}" readonly>
+            <button class="delete-btn hidden">🗑️</button>
+        </div>
     `;
+
+    // Añadir eventos de hover para mostrar/ocultar botón de eliminar
+    item.addEventListener('mouseenter', () => {
+        const deleteBtn = item.querySelector('.delete-btn');
+        deleteBtn.classList.remove('hidden');
+    });
+
+    item.addEventListener('mouseleave', () => {
+        const deleteBtn = item.querySelector('.delete-btn');
+        deleteBtn.classList.add('hidden');
+    });
+
+    // Evento para eliminar el elemento
+    const deleteBtn = item.querySelector('.delete-btn');
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evitar que se dispare el evento de click del item
+        this.removeItem(id);
+    });
 
     item.addEventListener('click', () => {
         const detail = {
@@ -4603,79 +4654,78 @@ addItem(content, mediaUrl = '', mediaType = '', additionalData = {}) {
         mediaType
     });
 
-    return id; // Retornamos el ID para referencia futura
+    return id;
 }
+  // Método para limpiar todos los elementos
+  clearAll() {
+      this.container.innerHTML = '';
+      this.items.clear();
+      this.nextId = 1;
+  }
 
-// Método para limpiar todos los elementos
-clearAll() {
-    this.container.innerHTML = '';
-    this.items.clear();
-    this.nextId = 1;
-}
+  // Método para modificar un elemento específico
+  updateItem(id, newContent, newMediaUrl = '', newMediaType = '') {
+      const itemData = this.items.get(id);
+      if (!itemData) {
+          throw new Error(`No se encontró el elemento con ID: ${id}`);
+      }
 
-// Método para modificar un elemento específico
-updateItem(id, newContent, newMediaUrl = '', newMediaType = '') {
-    const itemData = this.items.get(id);
-    if (!itemData) {
-        throw new Error(`No se encontró el elemento con ID: ${id}`);
-    }
+      let mediaElement = '';
+      if (newMediaUrl) {
+          if (newMediaType === 'video') {
+              mediaElement = `<video src="${newMediaUrl}" controls></video>`;
+          } else {
+              mediaElement = `<img src="${newMediaUrl}" alt="Item media">`;
+          }
+      }
 
-    let mediaElement = '';
-    if (newMediaUrl) {
-        if (newMediaType === 'video') {
-            mediaElement = `<video src="${newMediaUrl}" controls></video>`;
-        } else {
-            mediaElement = `<img src="${newMediaUrl}" alt="Item media">`;
-        }
-    }
+      itemData.element.innerHTML = `
+          ${mediaElement}
+          <div class="content">${newContent}</div>
+      `;
 
-    itemData.element.innerHTML = `
-        ${mediaElement}
-        <div class="content">${newContent}</div>
-    `;
+      // Actualizar los datos almacenados
+      itemData.content = newContent;
+      itemData.mediaUrl = newMediaUrl;
+      itemData.mediaType = newMediaType;
+  }
 
-    // Actualizar los datos almacenados
-    itemData.content = newContent;
-    itemData.mediaUrl = newMediaUrl;
-    itemData.mediaType = newMediaType;
-}
+  // Método para eliminar un elemento específico
+  removeItem(id) {
+      const itemData = this.items.get(id);
+      if (!itemData) {
+          throw new Error(`No se encontró el elemento con ID: ${id}`);
+      }
 
-// Método para eliminar un elemento específico
-removeItem(id) {
-    const itemData = this.items.get(id);
-    if (!itemData) {
-        throw new Error(`No se encontró el elemento con ID: ${id}`);
-    }
+      itemData.element.remove();
+      this.items.delete(id);
 
-    itemData.element.remove();
-    this.items.delete(id);
+      // Emitir evento de eliminación
+      const event = new CustomEvent('itemRemoved', {
+          detail: { id },
+          bubbles: true,
+          composed: true
+      });
+      this.dispatchEvent(event);
+  }
 
-    // Emitir evento de eliminación
-    const event = new CustomEvent('itemRemoved', {
-        detail: { id },
-        bubbles: true,
-        composed: true
-    });
-    this.dispatchEvent(event);
-}
+  // Método para obtener todos los elementos
+  getAllItems() {
+      const items = {};
+      this.items.forEach((value, key) => {
+          items[key] = {
+              content: value.content,
+              mediaUrl: value.mediaUrl,
+              mediaType: value.mediaType
+          };
+      });
+      return items;
+  }
 
-// Método para obtener todos los elementos
-getAllItems() {
-    const items = {};
-    this.items.forEach((value, key) => {
-        items[key] = {
-            content: value.content,
-            mediaUrl: value.mediaUrl,
-            mediaType: value.mediaType
-        };
-    });
-    return items;
-}
-
-// Método privado para generar IDs únicos
-_generateId() {
-    return `item-${this.nextId++}`;
-}
+  // Método privado para generar IDs únicos
+  _generateId() {
+      return `item-${this.nextId++}`;
+  }
 }
 
 // Registrar el componente
@@ -4982,7 +5032,7 @@ class GaleriaElementos extends HTMLElement {
 }
 
 customElements.define('galeria-elementos', GaleriaElementos);
-/* const themes = {
+const themes = {
   default: {
     container: 'bg-gray-900/95 rounded-2xl p-6 shadow-xl',
     text: 'text-xl font-semibold text-gray-100',
@@ -5041,7 +5091,7 @@ const animations = {
     enter: 'shakeIn 0.8s ease-out, fadeIn 2s ease-out',
     exit: 'shakeOut 0.8s ease-in, fadeOut 2s ease-in'
   }
-}; */
+};
 
 class DonationAlert extends HTMLElement {
   constructor() {

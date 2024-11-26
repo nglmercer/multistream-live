@@ -33,6 +33,56 @@ function generatehtmlQRCode(qrCode, urlToQR) {
     `;
     return htmlQRCode;
 } */
+const filemanagerhtml = `
+    <drag-and-drop></drag-and-drop>
+    <grid-container id="myGrid"></grid-container>
+
+    <div id="galeria-elementos"></div>
+`
+function generatedropelement() {
+    const div = document.createElement('div');
+    const dropzone = document.createElement('drag-and-drop');
+    const GridContainer = document.createElement('grid-container');
+    GridContainer.id = "myGrid";
+    
+    div.appendChild(dropzone);
+    div.appendChild(GridContainer);
+    dropzone.addEventListener('DroppedFile', (event) => {
+        console.log('File dropped:', event.detail.file);
+        addfilesitems();  
+    });
+    function addfilesitems() {
+        GridContainer.clearAll();
+      setTimeout(() => {
+        const files = JSON.parse(localStorage.getItem('filePaths'));
+        console.log(files);
+        files.forEach(file => {
+            GridContainer.addItem(file.nombre, file.path, file.mediaType || file.type,file);
+        console.log(file)});
+      }, 250);
+    }
+    GridContainer.toggleDarkMode(true);
+    GridContainer.addEventListener('itemRemoved', (event) => {
+        console.log('Elemento eliminado:', event.detail.id);
+    });
+    GridContainer.addEventListener('itemClick', (event) => {
+        console.log('Elemento clickeado:', event.detail);
+        const mapconfig = mapdatatooverlay(event.detail.additionalData);
+        //socket.emit('create-overlay', {mapconfig,roomId:'sala1'});
+    });
+    function mapdatatooverlay(data) {
+      console.log(data);
+      const config = {
+        type: data.type.includes('video') ? 'video' : 'image',
+        content: data.path,
+        text: data.nombre,
+        duration: 5000
+      };
+      return config;
+    }
+    addfilesitems();
+    return div;
+}
 tabs.addContent(0, htmlvoiceevents); // Agrega al primer tab
 tabs.setTabTitle(0,`${getTranslation('chat')}`);
 tabs.addContent(1,htmlvoice); // Agrega al segundo tab
@@ -43,5 +93,7 @@ tabs.addContent(3,uiElement); // Agrega al tercer tab
 tabs.setTabTitle(3,`${getTranslation('filterwords')}`);
 tabs.addContent(4,blueuiElement); // Agrega al tercer tab
 tabs.setTabTitle(4,`${getTranslation('blacklist')}`);
+tabs.addContent(5,generatedropelement()); // Agrega al tercer tab
+tabs.setTabTitle(5,`${getTranslation('filemanager')}`);
 //tabs.addContent(3,htmlobselement); // Agrega al tercer tab
 //tabs.setTabTitle(3,`${getTranslation('obs')}`);
