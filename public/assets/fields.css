@@ -1,0 +1,342 @@
+
+/*
+# inputs and elements styles for checkboxes, radios, selects, sliders, textareas, and number inputs
+*/
+  .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+  }
+  
+  .checkbox-wrapper label {
+    margin-left: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .checkbox-wrapper input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+
+  .checkbox-wrapper.filled-in {
+      padding: 5px;
+      border-radius: 4px;
+  }
+  .checkbox-wrapper.filled-in:hover,
+  .checkbox-wrapper.filled-in:focus {
+    border: 1px solid #ccc;
+  }
+  .flex-reverse-column {
+    display: flex;
+    flex-direction: column-reverse; /* Cambia el orden de los elementos en columna */
+  }
+/* Contenedor flex para cada checkbox y su label */
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-wrapper label {
+    order: 1;
+    margin-right: auto;
+}
+
+.checkbox-wrapper input {
+    order: 2;
+}
+
+/* Ejemplo 1: Checkbox con transición de color */
+.checkbox-1 {
+    display: none;
+}
+.checkbox-1 + label {
+    cursor: pointer;
+    padding-right: 30px; /* Cambiado de padding-left a padding-right */
+    position: relative;
+}
+.checkbox-1 + label:before {
+    content: '';
+    position: absolute;
+    right: 0; /* Cambiado de left a right */
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    background-color: #fff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.checkbox-1:checked + label:before {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+.checkbox-1:checked + label:after {
+    content: '✓';
+    position: absolute;
+    right: 5px; /* Cambiado de left a right */
+    top: 2px;
+    color: white;
+    font-size: 14px;
+}
+
+/* Ejemplo 2: Checkbox con rotación */
+.checkbox-2 {
+    display: none;
+}
+.checkbox-2 + label {
+    cursor: pointer;
+    padding-right: 30px;
+    position: relative;
+}
+.checkbox-2 + label:before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    background-color: #fff;
+    transition: transform 0.3s;
+}
+.checkbox-2:checked + label:before {
+    transform: rotate(45deg);
+    border-color: #2196F3;
+    border-top-color: transparent;
+    border-left-color: transparent;
+    width: 10px;
+    height: 20px;
+    right: 6px;
+    top: -4px;
+}
+
+/* Ejemplo 3: Checkbox con escala */
+.checkbox-3 {
+    display: none;
+}
+.checkbox-3 + label {
+    cursor: pointer;
+    padding-right: 30px;
+    position: relative;
+}
+.checkbox-3 + label:before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    background-color: #fff;
+    transition: transform 0.3s, background-color 0.3s;
+}
+.checkbox-3:checked + label:before {
+    transform: scale(0.8);
+    background-color: #9C27B0;
+}
+
+/* Ejemplo 4: Checkbox con deslizamiento */
+.checkbox-4 {
+    display: none;
+}
+.checkbox-4 + label {
+    cursor: pointer;
+    padding-right: 50px;
+    position: relative;
+}
+.checkbox-4 + label:before {
+    content: '';
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 20px;
+    background-color: #ff5b5b;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+.checkbox-4 + label:after {
+    content: '';
+    position: absolute;
+    right: 22px;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+.checkbox-4:checked + label:before {
+    background-color: #4CAF50;
+}
+.checkbox-4:checked + label:after {
+    transform: translateX(+20px);
+}
+
+/* Ejemplo 5: Checkbox con pulsación */
+.checkbox-5 {
+    display: none;
+}
+.checkbox-5 + label {
+    cursor: pointer;
+    padding-right: 30px;
+    position: relative;
+}
+.checkbox-5 + label:before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    background-color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.checkbox-5:checked + label:before {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 8px rgba(76, 175, 80, 0.3);
+    border-color: #4CAF50;
+    background-color: #4CAF50;
+}
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+  }
+  th.sort-asc::after {
+    content: ' ▲';
+  }
+  
+  th.sort-desc::after {
+    content: ' ▼';
+  }
+  .grid-select {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    top: 60px;
+    overflow-y: auto;
+    height: 100%;
+    min-height: 200px;
+  }
+  .stateText {
+    color: red;
+  }
+  .input-field {
+    label {
+      font-size: 0.8rem !important;
+    }
+  }
+  .grid-select option {
+    display: block;
+    padding: 10px;
+    cursor: pointer;
+  }
+  /* Estilos para el contenedor del selector personalizado */
+  .custom-selector {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: antiquewhite;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 90vw;
+    width: 50%;
+    max-height: 80vh;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+  
+  .custom-selector h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .custom-selector-search {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .custom-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .items-container {
+    max-height: 70dvh;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 280px));
+    overflow-y: auto;
+    gap: 0.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.5rem;
+    .item {
+      text-overflow: ellipsis;
+      margin: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 12px;
+      background-color: var(--black-bg2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      gap: 0.5rem;
+    }
+  }
+  /* Estilos para el contenedor de elementos predefinidos de un contenedor */
+  .default-container {
+    background-color: var(--black-bg);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.default-item {
+    border-radius: 12px;
+    padding: 15px;
+    background-color: var(--black-bg2);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.default-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.default-image {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.default-label {
+    font-family: Arial, sans-serif;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.default-price {
+    color: #2c5282;
+    font-weight: bold;
+    font-size: 1.1em;
+}

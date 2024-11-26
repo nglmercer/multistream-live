@@ -1,0 +1,677 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-style: system-ui, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: var(--white-font);
+    background-color: var(--black-font);
+}
+:root {
+    --black-font: #212121;
+    --white-font: #f5f5f5;
+    --black-bg: #1c1c1c;
+    --black-bg1: #212121;
+    --black-bg2: #2d2d2d;
+    --black-bg3: #404040;
+    --blue-box-900: #091fc5;
+    --blue-box-200: #766ff9;
+    --dark-bg: #1a1a1a;
+    --dark-secondary: #2d2d2d;
+    --dark-border: #404040;
+    --dark-text: #e0e0e0;
+    --dark-accent: #4a9eff;
+    --dark-hover: #3d3d3d;
+    --dark-bg: #1a1a1a;
+    --dark-input-bg: #2d2d2d;
+    --dark-placeholder: #888888;
+    --dark-focus-border: #4a9eff;
+    --dark-disabled-bg: #1f1f1f;
+    --dark-disabled-text: #666666;
+    --dark-select-bg: #2d2d2d;
+    --dark-hover-bg: #333333;
+    --dark-option-hover: #404040;
+  }
+input {
+  box-sizing: content-box;
+  max-width: auto;
+  max-height: auto;
+}
+button {
+  border: none;
+}
+.default-button {
+  background-color: var(--dark-accent);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.default-button:hover {
+  background-color: #3d8ae5;
+}
+.default-button:active {
+  background-color: #3d8ae5;
+}
+.grid {
+  display: grid;
+}
+.flex {
+  display: flex;
+}
+* {
+
+    box-sizing: border-box;
+    field-sizing: content;
+    width: auto;
+    height: auto;
+}
+.containerbox {
+    box-sizing: content-box;
+    padding: 0.5rem;
+    position: relative;
+    border: 1px solid rgba(88, 88, 255, 0.123);
+    border-radius: 0.5rem;
+    background-color: #212121;
+    margin: 0.8rem;
+    min-width: 90%;
+    min-height: 50%;
+    gap: 0.5rem;
+  }
+  .containerbox:hover {
+    border: 1px solid var(--blue-box-900);
+  }
+  .sub-containerbox {
+    box-sizing: content-box;
+    position: relative;
+    border: 1px solid rgba(88, 88, 255, 0.123);
+    border-radius: 0.5rem;
+    background-color: #212121;
+    gap: 0.5rem;
+  }
+  .sub-containerbox:hover {
+    border: 1px solid var(--blue-box-900);
+  }
+  .card {
+    width: 100%;
+    max-width: 28rem;
+    font-size: large;
+    overflow: hidden; /* Oculta el desbordamiento del contenido */
+    text-overflow: ellipsis; /* Añade puntos suspensivos (...) */
+    background-color: #1c1c1c;
+    border: 10px solid var(--blue-box-900);
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    span {
+      font-size: 1rem;
+    }
+    span {
+      color: var(--blue-box-200);
+    }
+  }
+  
+  .flexbox {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 28rem));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .grid-minmax-16rem-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, auto));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .grid-minmax-20rem-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, auto));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .grid-minmax-24rem-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24rem, auto));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .grid-minmax-28rem-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(28rem, auto));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .grid-minmax-18rem-28rem {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 28rem));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .grid-minmax-24rem-32rem {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24rem, 32rem));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .grid-minmax-28rem-36rem {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(28rem, 36rem));
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .relative {
+    position: relative;
+  }
+  .absolute {
+    position: absolute;
+  }
+  .flexbox .card:nth-child(n+4) {
+    display: none;
+  }
+  .tabcontainer {
+    margin: 0%;
+    width: 100%;
+    overflow: auto;
+  }
+  .box-sizing-content-box {
+    box-sizing: content-box;
+    width: 40%;
+  }
+  .float {
+    float: initial;
+  }
+  .float-right {
+    float: right;
+  }
+  .float-left {
+    float: left;
+  }
+  .flex {
+    display: flex;
+  }
+  .hidden {
+    display: none;
+  }
+.LiveContainer {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    /* grid-template-rows: repeat(6, 1fr); */
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+.chat1 { grid-area: 1 / 1 / 5 / 4;  }
+.gift2 { grid-area: 1 / 4 / 5 / 7; }
+.events3 { grid-area: 5 / 1 / 7 / 7; }
+/* Variables para el tema oscuro */
+:root {
+  --dark-bg: #1a1a1a;
+  --dark-secondary: #2d2d2d;
+  --dark-border: #404040;
+  --dark-text: #e0e0e0;
+  --dark-accent: #4a9eff;
+  --dark-hover: #3d3d3d;
+  --succes-green: #4CAF50;
+  --info: #607d8b;
+  --warning-yellow: #FFCA28;
+  --error-red: #f44336;
+  --sidebar-width: 250px;
+  --sidebar-bg: #333;
+  --nav-bg: #333;
+  --text-color: #fff;
+  --nav-height: 60px;
+  --hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item {
+  padding: 12px 20px;
+  margin: 8px 0;
+  background-color: #2c3e50; /* Color de fondo predeterminado */
+  color: #ecf0f1; /* Color de texto predeterminado */
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Estilo para el elemento activo */
+.menu-item.active {
+  background-color: var(--active-bg);
+  color: #3498db; /* Color del texto activo */
+  border-left: 4px solid #3498db; /* Indicador de elemento activo */
+}
+
+/* Estilo de hover */
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Fondo de hover */
+  color: #ffffff; /* Color de texto en hover */
+}
+
+.alert {
+  padding: 15px 25px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  opacity: 1;
+  color: white;
+  font-weight: 500;
+}
+.alert-container {
+  position: fixed;
+  top: 1%;
+  right: 1%;
+  z-index: 1001;
+}
+.alert-success {
+  background-color: var(--succes-green);
+}  
+.alert-info {
+  background-color: var(--info);
+}
+.alert-warning {
+  background-color: var(--warning-yellow);
+}
+.alert-error {
+  background-color: var(--error-red);
+}
+/* Estilos base */
+.dynamic-row-container {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+  padding: 1.5rem;
+  border-radius: 8px;
+  display: grid;
+  grid-template-rows: minmax(1fr, 1fr);
+}
+
+/* Estilos para inputs y textareas */
+.input-default {
+  background-color: var(--dark-secondary);
+  border: 1px solid var(--dark-border);
+  color: var(--dark-text);
+  padding-block: 0.75rem;
+  padding-inline: auto;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.input-default:focus {
+  border-color: var(--dark-accent);
+  outline: none;
+}
+
+/* Estilos para el select */
+select {
+  background-color: var(--dark-secondary);
+  border: 1px solid var(--dark-border);
+  border-radius: 4px;
+}
+
+/* Estilos para el details y summary */
+details {
+  background-color: var(--dark-secondary);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+summary {
+  cursor: pointer;
+  padding: 0.5rem;
+  color: var(--dark-accent);
+  font-weight: 500;
+}
+
+/* Para mostrar el contenido por defecto */
+details[open] {
+  padding-bottom: 1rem;
+}
+
+/* También puedes usar el atributo open en HTML */
+/* <details open> ... </details> */
+
+/* Estilos para los botones */
+.custombutton {
+  background-color: var(--dark-accent);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.custombutton:hover {
+  background-color: #3d8ae5;
+}
+
+.deletebutton {
+  background-color: #dc3545;
+}
+
+.deletebutton:hover {
+  background-color: #c82333;
+}
+.gap-1 {
+  gap: 0.5rem;
+}
+/* Estilos base para todos los inputs */
+input[type="text"],
+input[type="number"],
+textarea {
+  box-sizing: border-box; /* Cambiado de content-box para mejor control del tamaño */
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  background-color: var(--dark-input-bg);
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Estilos específicos para textarea */
+textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Estilos para el estado hover */
+input[type="text"]:hover,
+input[type="number"]:hover,
+textarea:hover {
+  background-color: #333333;
+  border-color: #505050;
+}
+
+/* Estilos para el estado focus */
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--dark-focus-border);
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+  background-color: #333333;
+}
+
+/* Estilos para placeholder */
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder {
+  color: var(--dark-placeholder);
+}
+
+/* Estilos para inputs deshabilitados */
+input[type="text"]:disabled,
+input[type="number"]:disabled,
+textarea:disabled {
+  background-color: var(--dark-disabled-bg);
+  color: var(--dark-disabled-text);
+  cursor: not-allowed;
+  border-color: var(--dark-border);
+}
+
+/* Ocultar flechas de input number en Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Estilos para la selección de texto dentro de los inputs */
+input[type="text"]::selection,
+input[type="number"]::selection,
+textarea::selection {
+  background-color: rgba(74, 158, 255, 0.3);
+  color: var(--dark-text);
+}
+
+/* Estilos para cuando el input está en modo autofill */
+input[type="text"]:-webkit-autofill,
+input[type="number"]:-webkit-autofill,
+textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--dark-input-bg) inset !important;
+  -webkit-text-fill-color: var(--dark-text) !important;
+}
+
+/* Estilos para el scrollbar en textarea */
+textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: var(--dark-bg);
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: var(--dark-border);
+  border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}
+
+/* Estilos base para select */
+select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  background-color: var(--dark-select-bg);
+  color: var(--dark-text);
+  border: 1px solid var(--dark-border);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  
+  /* Eliminar la apariencia por defecto */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Flecha personalizada para el select */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  padding-right: 40px; /* Espacio para la flecha */
+}
+
+/* Eliminar la flecha por defecto en IE */
+select::-ms-expand {
+  display: none;
+}
+
+/* Estado hover */
+select:hover {
+  background-color: var(--dark-hover-bg);
+  border-color: #505050;
+}
+
+/* Estado focus */
+select:focus {
+  outline: none;
+  border-color: var(--dark-focus-border);
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+  background-color: var(--dark-hover-bg);
+}
+
+/* Select deshabilitado */
+select:disabled {
+  background-color: var(--dark-disabled-bg);
+  color: var(--dark-disabled-text);
+  cursor: not-allowed;
+  border-color: var(--dark-border);
+  opacity: 0.7;
+}
+
+/* Estilos para las opciones del select */
+select option {
+  background-color: var(--dark-select-bg);
+  color: var(--dark-text);
+  padding: 12px;
+}
+
+/* Hover en las opciones */
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked {
+  background-color: var(--dark-option-hover);
+}
+
+/* Estilos para múltiples selecciones */
+select[multiple] {
+  padding: 0;
+  overflow: auto;
+}
+
+select[multiple] option {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--dark-border);
+}
+
+select[multiple] option:last-child {
+  border-bottom: none;
+}
+
+/* Estilos para el scrollbar del select múltiple */
+select[multiple]::-webkit-scrollbar {
+  width: 8px;
+}
+
+select[multiple]::-webkit-scrollbar-track {
+  background: var(--dark-bg);
+  border-radius: 4px;
+}
+
+select[multiple]::-webkit-scrollbar-thumb {
+  background: var(--dark-border);
+  border-radius: 4px;
+}
+
+select[multiple]::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}
+
+/* Estilo para el grupo de opciones */
+optgroup {
+  font-weight: bold;
+  color: var(--dark-text);
+  background-color: var(--dark-bg);
+  padding: 8px;
+}
+
+optgroup option {
+  font-weight: normal;
+  padding-left: 20px;
+}
+
+/* Media queries para responsividad */
+@media screen and (max-width: 768px) {
+  select {
+    font-size: 16px;
+    padding: 10px 40px 10px 12px;
+  }
+  
+  select[multiple] option {
+    padding: 10px 12px;
+  }
+}
+table {
+  padding: 0.5rem 0;
+  margin: 0.5rem 0;
+  gap: 1rem;
+  border: 1px solid var(--dark-border);
+  width: 100%;
+  thead {
+    width: 100%;
+  }
+}
+.radio-default {
+  width: 100%;
+  margin: 0.5rem;
+}
+.message-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  align-self: flex-start;
+}
+
+.message-text {
+  margin: 0;
+  padding: 10px 15px;
+  background-color: #050504;
+  border-radius: 18px;
+  position: relative;
+}
+
+.message-text::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #1a1818;
+}
+.menu-container {
+  position: absolute;
+  right: 0;
+}
+
+/* Estilo del botón de tres puntos */
+.menu-button {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 10px;
+}
+
+/* Estilo para las opciones del menú, ocultas por defecto */
+.menu-options {
+  display: none; /* Ocultar opciones del menú por defecto */
+  position: absolute;
+  top: 0; /* Ajusta según el tamaño del botón */
+  right: +20px;
+  background-color: #333; /* Fondo del menú */
+  border-radius: 5px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Sombra para darle efecto de profundidad */
+  z-index: 1;
+  flex-direction: column;
+}
+
+/* Mostrar el menú al hacer hover sobre el botón */
+.menu-container:hover .menu-options {
+  display: flex;
+}
+
+/* Estilo para cada opción del menú */
+.menu-options button {
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  font-size: 14px;
+}
+
+/* Cambiar el fondo del botón al hacer hover */
+.menu-options button:hover {
+  background-color: #555; /* Color de fondo al hacer hover */
+  border-radius: 5px;
+}

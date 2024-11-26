@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speechchat-TL</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+    <link rel="stylesheet" href="./assets/modal.css">
+    <link rel="stylesheet" href="./assets/fields.css">
+  </head>
+  <script type="module" src="./components/webcomponents.js"></script>
+  <script type="module" src="./main.js"></script>
+  <script type="module" src="./audio/tts.js"></script>
+<script src="./assets/socket.io.min.js"></script>
+<body theme="dark" class="bg-gray-900">
+    <responsive-nav-sidebar>
+        <!-- Items base para el navbar (móvil) -->
+        <div slot="nav-base-items">
+            <user-profile minimal></user-profile>
+        </div>
+
+        <!-- Los mismos items base para el sidebar (desktop) -->
+        <div slot="sidebar-base-items">
+                <user-profile></user-profile>
+        </div>
+
+        <!-- Items adicionales del menú -->
+        <div slot="menu-items">
+            <div class="menu-item" data-target="#users">
+              <translate-text key="home"></translate-text>
+            </div>
+            <div class="menu-item" data-target="#settings">
+              <translate-text key="configuration"></translate-text>  
+            </div>
+            <div class="menu-item" data-target="#dashboard">Dashboard</div>
+  
+  <div>
+    <h2><translate-text key="selectlang"></translate-text></h2>
+    <language-selector id="selector2"></language-selector>
+    <!-- <language-selector id="selector1"></language-selector> -->
+    
+  </div>
+
+  <div id="languageInfo"></div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div slot="main-content">
+              <section id="users">
+                <h2>Usuarios</h2>
+                <div class="containerbox relative">
+                    <div class="LiveContainer">
+                      <div  id="chat-container" class="chat1 chatcontainer">Chats</div>
+                      <div class="gift2 giftcontainer">Gifts</div>
+                      <div class="events3 eventscontainer">Events</div>
+              
+                  </div>
+                </div>              
+            </section>
+              <section id="settings">
+                <h2><translate-text key="configuration"></translate-text></h2>
+                  <div class="containerbox relative">
+                      <h3><translate-text key="eventtable"></translate-text>
+                          <button id="EventsModalButton"><translate-text key="addevent"></translate-text></button>
+                      </h3>
+                      <custom-modal modal-type="form" id="EventsModal">
+                        <div id="EventsModalContainer"></div>
+                      </custom-modal>
+                      <div id="table-containerEvent" class="dynamic-table1"></div>
+                    <h3><translate-text key="actiontable"></translate-text>
+                        <button id="ActionModalButton"><translate-text key="addaction"></translate-text></button>
+                    </h3>
+                    <custom-modal modal-type="form" id="ActionModal">
+                      <div id="ActionModalContainer"></div>
+                    </custom-modal>
+                    <div id="table-containerAction" class="dynamic-table1"></div>
+                </div>
+                <div class="containerbox relative grid-minmax-28rem-auto">
+                  <div id="chatbotconfig" class="grid grid-cols-2 gap-4"></div>
+                  <div>                  <input type="text" id="speaktext" placeholder="Speak text" class="default-input">
+                    <button id="speakbutton" class="button default-button">Speak test</button>
+                    <audio id="audio"></audio>
+                  </div>
+                    <div id="MinecraftModalContainer">                  <h3><translate-text key="minecraftPlugin"></translate-text></h3>
+                    </div>
+                </div>
+              </section>
+              <section id="dashboard">
+                <h2>Dashboard</h2>
+                <div class="containerbox relative grid-minmax-24rem-auto">
+
+                    <div id="voiceconfig" class="grid grid-cols-2 gap-4"></div>
+                    <div class="card">
+                      <div class="card-header">
+                          <h2 class="card-title"><translate-text key="allowedusers"></translate-text></h2>
+                      </div>
+                      <div class="card-content space-y-4 text-lg">
+                          <div class="flex items-center">
+                            <label for="allUsers">
+                                <input type="checkbox" id="allUsers" checked>
+                                <span>All Users</span></label>
+                          </div>
+                          <div class="flex items-center">
+                            <label for="followRole">
+                                <input type="checkbox" id="followRole" checked>
+                                <span>Followers</span></label>
+                          </div>
+                          <div class="flex items-center">
+                            <label for="isSubscriber">
+                                <input type="checkbox" id="isSubscriber" checked>
+                                <span>isSubscriber</span>
+                              </label>
+                          </div>
+                          <div class="flex items-center">
+                            <label for="isModerator">
+                                <input type="checkbox" id="isModerator" checked>
+                                <span>isModerator</span>
+                              </label>
+                          </div>
+                          <div class="flex items-center">
+                            <label for="isNewGifter">
+                                <input type="checkbox" id="isNewGifter" checked>
+                                <span>isNewGifter</span>
+                              </label>
+                          </div>
+                          <div class="flex items-center">
+                            <label for="teamMemberLevel">
+                                <input type="checkbox" id="teamMemberLevel" checked>
+                                  <span>Team Members <span>Min. Level:</span></span>
+                              </label>
+                              <input type="number" id="teamMemberLevel-value" class="input input-bordered w-12" value="1" min="0">
+                          </div>
+                          <div class="flex items-center">
+                            <label for="topGifterRank">
+                                <input type="checkbox" id="topGifterRank" checked>
+                                <span>Top Gifters <span>Top:</span></span>
+            
+            
+            
+            
+                              </label>
+                              <input type="number" id="topGifterRank-value" class="input input-bordered w-12" value="3" min="0">
+                          </div>
+                      </div>
+            
+                  </div>
+                  <div class="card">
+                      <div class="card-header">
+                          <h2 class="card-title"><translate-text key="commenttypes"></translate-text></h2>
+                      </div>
+                      <div class="card-content space-y-4">
+                          <label>Read...</label>
+                          <div>
+                              <div class="flex items-center">
+                                <label for="any-comment">
+                                    <input type="radio" name="comment-type" value="any-comment" id="any-comment" class="radio checked:bg-blue-300" checked>
+                                    <span><translate-text key="commenttypes1"></translate-text></span></label>
+                              </div>
+                              <div class="flex items-center">
+                                <label for="dot-comment">
+                                    <input type="radio" name="comment-type" value="dot-comment" id="dot-comment" class="radio checked:bg-blue-300">
+                                    <span><translate-text key="commenttypes2"></translate-text></span></label>
+                              </div>
+                              <div class="flex items-center">
+                                <label for="slash-comment">
+                                    <input type="radio" name="comment-type" value="slash-comment" id="slash-comment" class="radio checked:bg-blue-300">
+                                    <span><translate-text key="commenttypes3"></translate-text></span></label>
+                              </div>
+                              <div class="flex items-center">
+                                <label for="command-comment">
+                                  <input type="radio" name="comment-type" value="command-comment" id="command-comment" class="radio checked:bg-blue-300">
+                                  <span><translate-text key="commenttypes4"></translate-text></span></label>
+                              </div>
+                          </div>
+                          <div class="space-y-2">
+                              <label for="command">Command</label>
+                              <input type="text" id="command" placeholder="!speak">
+                          </div>
+                      </div>
+                  </div>
+
+                
+                  </div>
+                  <div class="containerbox relative">
+                    <div id="giftmap">
+
+                    </div>
+                  </div>
+
+                  
+              </section>
+
+            <div id="lasteventParse"></div>
+
+            
+            <button id="openModal" class="modal-trigger">+</button>
+        </div>
+    </responsive-nav-sidebar>
+
+
+
+  <script>
+        document.querySelectorAll('responsive-nav-sidebar .menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelector(item.getAttribute('data-target')).scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    const sections = document.querySelectorAll('section');
+    const menuItems = document.querySelectorAll('responsive-nav-sidebar .menu-item');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          menuItems.forEach(item => item.classList.remove('active'));
+          document.querySelector(`.menu-item[data-target="#${entry.target.id}"]`).classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    sections.forEach(section => observer.observe(section));
+        // Obtener referencias a los selectores
+        const selectorlang = document.getElementById('selector1') || document.getElementById('selector2');
+        const languageInfo = document.getElementById('languageInfo');
+
+        // Ejemplo de escucha de eventos en un selector específico
+        selectorlang.addEventListener('languageChange', (e) => {
+          console.log(`Selector ${e.detail.selectorId} cambió a: ${e.detail.label} (${e.detail.language})`);
+          // Actualizar la información del idioma actual
+          languageInfo.innerHTML = `
+            <translate-text key="selectedLanguage"></translate-text>: 
+            ${e.detail.label} (${e.detail.language})
+          `;
+          const userProfile = document.querySelector('user-profile');
+          userProfile.setLanguage(e.detail.language);
+        });
+
+      // Función para obtener el idioma actual y su etiqueta
+      function getCurrentLanguage(selectorId) {
+        const selector = document.getElementById(selectorId);
+        if (selector) {
+          return {
+            code: selector.getValue(),
+            label: selector.getLanguageLabel()
+          };
+        }
+        return null;
+      }
+    </script>
+    <script type="module" src="./audio/tts.js"></script>
+    <script type="module" src="./features/Actions.js"></script>
+    <script type="module" src="./features/Events.js"></script>
+    <script type="module" src="./features/speechconfig.js"></script>
+    <script type="module" src="./features/Minecraftconfig.js"></script>
+</body>
+</html>

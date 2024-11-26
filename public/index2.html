@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .demo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+
+        #eventLog {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 20px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+  <user-profile minimal></user-profile>
+  <user-profile ></user-profile>
+  <div class="controls">
+    <button onclick="cambiarIdioma('es')">Español</button>
+    <button onclick="cambiarIdioma('en')">English</button>
+    <button onclick="cambiarImagen()">Cambiar Imagen</button>
+</div>
+
+<h3>Registro de Eventos:</h3>
+<div id="eventLog"></div>
+
+<div>
+    <h2><translate-text key="select1"></translate-text></h2>
+    <language-selector id="selector1"></language-selector>
+  </div>
+  
+  <div>
+    <h2><translate-text key="select2"></translate-text></h2>
+    <language-selector id="selector2"></language-selector>
+  </div>
+  
+  <div>
+    <h2><translate-text key="select3"></translate-text></h2>
+    <language-selector id="selector3"></language-selector>
+  </div>
+
+  <h1>
+    <translate-text key="hello"></translate-text> 
+    <translate-text key="world"></translate-text>!
+  </h1>
+
+  <div id="languageInfo"></div>
+
+    <script>
+class UserProfile extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        
+        // Singleton instance
+        if (!UserProfile.instance) {
+            UserProfile.instance = this;
+            
+            this.state = {
+                connected: false,
+                username: '',
+                imageUrl: 'https://via.placeholder.com/100/1a1a2e',
+                language: 'es'
+            };
+
+            this.translations = {
+                es: {
+                    connect: 'Conectar',
+                    disconnect: 'Desconectar',
+                    placeholder: 'Ingresa tu nombre'
+                },
+                en: {
+                    connect: 'Connect',
+                    disconnect: 'Disconnect',
+                    placeholder: 'Enter your name'
+                },
+                pr: {
+                    connect: 'Conectar',
+                    disconnect: 'Desconectar',
+                    placeholder: 'Digite seu nome'
+                }    
+            };
+            
+            this.loadFromLocalStorage();
+        }
+
+        // Registro de instancias
+        if (!UserProfile.instances) {
+            UserProfile.instances = new Set();
+        }
+        UserProfile.instances.add(this);
+
+        // Cada instancia mantiene sus propios listeners
+        this.activeListeners = new Set();
+
+        this.render();
+        return this;
+    }
+
+    static get observedAttributes() {
+        return ['minimal'];
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === 'minimal') {
+            this.render();
+        }
+    }
+
+    get isMinimal() {
+        return this.hasAttribute('minimal');
+    }
+
+    static updateAllInstances() {
+        UserProfile.instances.forEach(instance => {
+            instance.render();
+        });
+    }
+
+    getStyles() {
+        // ... (mismos estilos que antes) ...
+        return `
+            <style>
+                .container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 20px;
+                    padding: 20px;
+                    background-color: #1a1a2e;
+                    border-radius: 8px;
+                    color: #fff;
+                }
+
+                /* Estilos para modo minimal */
+                :host([minimal]) .container {
+                    flex-direction: row;
+                    padding: 8px;
+                    gap: 10px;
+                    background-color: transparent;
+                }
+
+                .profile-image {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 3px solid #4d7cff;
+                    box-shadow: 0 0 15px rgba(77, 124, 255, 0.3);
+                    transition: all 0.3s ease;
+                }
+
+                :host([minimal]) .profile-image {
+                    width: 36px;
+                    height: 36px;
+                    border-width: 2px;
+                }
+
+                .profile-image:hover {
+                    transform: scale(1.05);
+                    border-color: #4d9cff;
+                }
+
+                input {
+                    width: 100%;
+                    padding: 12px;
+                    background-color: #162447;
+                    border: 2px solid #4d9cff;
+                    border-radius: 8px;
+                    color: #fff;
+                    font-size: 14px;
+                    transition: all 0.3s ease;
+                    box-sizing: border-box;
+                }
+
+                :host([minimal]) input {
+                    width: auto;
+                    padding: 6px;
+                    font-size: 12px;
+                }
+
+                input:focus {
+                    outline: none;
+                    border-color: #e94560;
+                    box-shadow: 0 0 10px rgba(233, 69, 96, 0.2);
+                }
+
+                input::placeholder {
+                    color: #8a8a9e;
+                }
+
+                input:disabled {
+                    background-color: #1f1f3d;
+                    border-color: #404060;
+                    cursor: not-allowed;
+                }
+
+                button {
+                    width: 100%;
+                    padding: 12px 24px;
+                    background: linear-gradient(135deg, #4d7cff 0%, #3b5998 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+
+                :host([minimal]) button {
+                    width: auto;
+                    padding: 6px 12px;
+                    font-size: 12px;
+                }
+
+                button:hover {
+                    background: linear-gradient(135deg, #5a88ff 0%, #4866ab 100%);
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 15px rgba(77, 124, 255, 0.3);
+                }
+
+                button:active {
+                    transform: translateY(0);
+                }
+
+                button.connected {
+                    background: linear-gradient(135deg, #e94560 0%, #c23152 100%);
+                }
+
+                button.connected:hover {
+                    background: linear-gradient(135deg, #f25672 0%, #d4405f 100%);
+                }
+            </style>
+        `;
+    }
+
+    render() {
+        const state = UserProfile.instance.state;
+        const currentTranslations = UserProfile.instance.translations[state.language];
+        
+        this.shadowRoot.innerHTML = `
+            ${this.getStyles()}
+            <div class="container ${state.connected ? 'connected' : ''}">
+                <img 
+                    class="profile-image" 
+                    src="${state.imageUrl}"
+                    alt="Profile"
+                />
+                <input 
+                    type="text"
+                    placeholder="${currentTranslations.placeholder}"
+                    value="${state.username}"
+                    ${state.connected ? 'disabled' : ''}
+                />
+                <button class="${state.connected ? 'connected' : ''}">
+                    ${state.connected ? currentTranslations.disconnect : currentTranslations.connect}
+                </button>
+            </div>
+        `;
+
+        // Configurar listeners para cada instancia después de renderizar
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Limpia los listeners anteriores de esta instancia
+        this.activeListeners.forEach(({ element, type, handler }) => {
+            element.removeEventListener(type, handler);
+        });
+        this.activeListeners.clear();
+
+        const button = this.shadowRoot.querySelector('button');
+        const input = this.shadowRoot.querySelector('input');
+
+        // Los handlers usan la instancia singleton para la lógica
+        const buttonHandler = () => {
+            if (UserProfile.instance.state.connected) {
+                UserProfile.instance.disconnect();
+            } else if (input.value.trim()) {
+                UserProfile.instance.connect(input.value);
+            }
+        };
+
+        const inputHandler = (e) => {
+            UserProfile.instance.state.username = e.target.value;
+        };
+
+        button.addEventListener('click', buttonHandler);
+        input.addEventListener('input', inputHandler);
+
+        // Guarda las referencias para limpieza
+        this.activeListeners.add({ element: button, type: 'click', handler: buttonHandler });
+        this.activeListeners.add({ element: input, type: 'input', handler: inputHandler });
+    }
+
+    loadFromLocalStorage() {
+        const savedState = localStorage.getItem('userProfileState');
+        if (savedState) {
+            this.state = { ...this.state, ...JSON.parse(savedState) };
+        }
+    }
+
+    saveToLocalStorage() {
+        localStorage.setItem('userProfileState', JSON.stringify(this.state));
+    }
+
+    connect(username) {
+        if (this !== UserProfile.instance) return;
+        
+        this.state.connected = true;
+        this.state.username = username;
+        this.state.imageUrl = 'https://via.placeholder.com/100/4d7cff';
+        this.saveToLocalStorage();
+        UserProfile.updateAllInstances();
+        this.dispatchEvent(new CustomEvent('userConnected', { 
+            detail: { username: this.state.username }
+        }));
+    }
+
+    disconnect() {
+        if (this !== UserProfile.instance) return;
+        
+        this.state.connected = false;
+        this.state.imageUrl = 'https://via.placeholder.com/100/1a1a2e';
+        this.state.username = '';
+        this.saveToLocalStorage();
+        UserProfile.updateAllInstances();
+        this.dispatchEvent(new CustomEvent('userDisconnected'));
+    }
+
+    setLanguage(lang) {
+        if (this !== UserProfile.instance) return;
+        
+        if (this.translations[lang]) {
+            this.state.language = lang;
+            this.saveToLocalStorage();
+            UserProfile.updateAllInstances();
+        }
+    }
+
+    setProfileImage(url) {
+        if (this !== UserProfile.instance) return;
+        
+        this.state.imageUrl = url;
+        this.saveToLocalStorage();
+        UserProfile.updateAllInstances();
+    }
+
+    disconnectedCallback() {
+        UserProfile.instances.delete(this);
+        
+        // Limpia los listeners cuando se remueve el elemento
+        this.activeListeners.forEach(({ element, type, handler }) => {
+            element.removeEventListener(type, handler);
+        });
+        
+        if (this === UserProfile.instance) {
+            UserProfile.instance = null;
+        }
+    }
+}
+
+customElements.define('user-profile', UserProfile);
+const userProfile = document.querySelector('user-profile');
+
+// Escuchar eventos
+userProfile.addEventListener('userConnected', (e) => {
+    console.log('Usuario conectado:', e.detail.username);
+});
+
+userProfile.addEventListener('userDisconnected', () => {
+    console.log('Usuario desconectado');
+});
+        const eventLog = document.getElementById('eventLog');
+
+        // Función para registrar eventos
+        function logEvent(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            eventLog.innerHTML += `[${timestamp}] ${message}<br>`;
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        // Escuchar eventos del componente
+        userProfile.addEventListener('userConnected', (e) => {
+            logEvent(`Usuario conectado: ${e.detail.username}`);
+        });
+
+        userProfile.addEventListener('userDisconnected', () => {
+            logEvent('Usuario desconectado');
+        });
+
+        // Funciones de demostración
+        function cambiarIdioma(lang) {
+            userProfile.setLanguage(lang);
+            logEvent(`Idioma cambiado a: ${lang}`);
+        }
+
+        function cambiarImagen() {
+            // Array de colores para generar diferentes imágenes de placeholder
+            const colors = ['ff0000', '00ff00', '0000ff', 'ffff00', 'ff00ff'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const newImageUrl = `https://via.placeholder.com/100/${randomColor}`;
+            
+            userProfile.setProfileImage(newImageUrl);
+            logEvent('Imagen de perfil actualizada');
+        }
+
+        // Registrar el estado inicial
+        logEvent('Componente inicializado'+ JSON.stringify(userProfile));
+        console.log(userProfile);
+    </script>
+    <script>
+
+    // Definición del componente TranslateText
+class TranslateText extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  connectedCallback() {
+    this.updateContent();
+    document.addEventListener('languageChanged', () => this.updateContent());
+  }
+
+  updateContent() {
+    const key = this.getAttribute('key');
+    const text = TranslateText.translations[TranslateText.currentLanguage][key] || key;
+    this.shadowRoot.textContent = text;
+  }
+}
+
+// Definición del componente LanguageSelector mejorado
+class LanguageSelector extends HTMLElement {
+  static instances = new Set();
+  static STORAGE_KEY = 'selectedLanguage';
+  
+  // Definición de las etiquetas de idioma
+  static languageLabels = {
+    es: 'Español',
+    en: 'English',
+    fr: 'Français'
+  };
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  static get observedAttributes() {
+    return ['id'];
+  }
+
+  connectedCallback() {
+    LanguageSelector.instances.add(this);
+    
+    // Cargar el idioma guardado o usar el predeterminado
+    TranslateText.currentLanguage = this.loadStoredLanguage();
+    
+    this.render();
+    
+    const select = this.shadowRoot.querySelector('select');
+    
+    // Establecer el valor inicial desde localStorage
+    select.value = TranslateText.currentLanguage;
+    
+    // Agregar event listener para el cambio
+    select.addEventListener('change', (e) => {
+      const newLanguage = e.target.value;
+      
+      // Guardar en localStorage
+      this.saveLanguage(newLanguage);
+      
+      // Actualizar todos los selectores
+      LanguageSelector.updateAllSelectors(newLanguage, this);
+      
+      // Actualizar el idioma global
+      TranslateText.currentLanguage = newLanguage;
+      
+      // Disparar evento global de cambio de idioma
+      document.dispatchEvent(new Event('languageChanged'));
+      
+      // Disparar evento personalizado en el selector
+      this.dispatchEvent(new CustomEvent('languageChange', {
+        detail: {
+          language: newLanguage,
+          selectorId: this.getAttribute('id'),
+          label: LanguageSelector.languageLabels[newLanguage]
+        },
+        bubbles: true,
+        composed: true
+      }));
+    });
+  }
+
+  disconnectedCallback() {
+    LanguageSelector.instances.delete(this);
+  }
+
+  // Método para guardar el idioma en localStorage
+  saveLanguage(language) {
+    try {
+      localStorage.setItem(LanguageSelector.STORAGE_KEY, language);
+    } catch (e) {
+      console.warn('No se pudo guardar el idioma en localStorage:', e);
+    }
+  }
+
+  // Método para cargar el idioma desde localStorage
+  loadStoredLanguage() {
+    try {
+      const storedLanguage = localStorage.getItem(LanguageSelector.STORAGE_KEY);
+      return storedLanguage || TranslateText.currentLanguage; // Retorna el almacenado o el predeterminado
+    } catch (e) {
+      console.warn('No se pudo cargar el idioma desde localStorage:', e);
+      return TranslateText.currentLanguage;
+    }
+  }
+
+  static updateAllSelectors(newLanguage, exclude = null) {
+    LanguageSelector.instances.forEach(selector => {
+      if (selector !== exclude) {
+        selector.shadowRoot.querySelector('select').value = newLanguage;
+      }
+    });
+  }
+
+  // Método público para obtener el idioma actual
+  getValue() {
+    return this.shadowRoot.querySelector('select').value;
+  }
+
+  // Método público para obtener la etiqueta del idioma actual
+  getLanguageLabel() {
+    const currentLanguage = this.getValue();
+    return LanguageSelector.languageLabels[currentLanguage];
+  }
+
+  render() {
+    const style = `
+      <style>
+        select {
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid #ccc;
+          font-size: 14px;
+        }
+      </style>
+    `;
+
+    const currentId = this.getAttribute('id');
+    const selectId = currentId ? `id="${currentId}-select"` : '';
+
+    this.shadowRoot.innerHTML = `
+      ${style}
+      <select ${selectId}>
+        ${Object.entries(LanguageSelector.languageLabels).map(([code, label]) => 
+          `<option value="${code}">${label}</option>`
+        ).join('')}
+      </select>
+    `;
+  }
+}
+
+// Configuración global
+TranslateText.currentLanguage = 'es';
+TranslateText.translations = {
+  es: {
+    hello: 'Hola',
+    world: 'Mundo',
+    select1: 'Selector 1',
+    select2: 'Selector 2',
+    select3: 'Selector 3',
+    currentLang: 'Idioma actual',
+    selectedLanguage: 'Idioma seleccionado'
+  },
+  en: {
+    hello: 'Hello',
+    world: 'World',
+    select1: 'Selector 1',
+    select2: 'Selector 2',
+    select3: 'Selector 3',
+    currentLang: 'Current language',
+    selectedLanguage: 'Selected language'
+  },
+  fr: {
+    hello: 'Bonjour',
+    world: 'Monde',
+    select1: 'Sélecteur 1',
+    select2: 'Sélecteur 2',
+    select3: 'Sélecteur 3',
+    currentLang: 'Langue actuelle',
+    selectedLanguage: 'Langue sélectionnée'
+  }
+};
+
+// Registro de los componentes
+customElements.define('translate-text', TranslateText);
+customElements.define('language-selector', LanguageSelector);
+
+// Ejemplo de uso con múltiples selectores
+// Ejemplo de cómo acceder a los selectores y sus eventos
+document.addEventListener('DOMContentLoaded', () => {
+  // Obtener referencias a los selectores
+  const selector1 = document.getElementById('selector1');
+  const selector2 = document.getElementById('selector2');
+  const selector3 = document.getElementById('selector3');
+  const languageInfo = document.getElementById('languageInfo');
+
+  // Ejemplo de escucha de eventos en un selector específico
+  selector1.addEventListener('languageChange', (e) => {
+    console.log(`Selector ${e.detail.selectorId} cambió a: ${e.detail.label} (${e.detail.language})`);
+    // Actualizar la información del idioma actual
+    languageInfo.innerHTML = `
+      <translate-text key="selectedLanguage"></translate-text>: 
+      ${e.detail.label} (${e.detail.language})
+    `;
+  });
+
+});
+
+// Función para obtener el idioma actual y su etiqueta
+function getCurrentLanguage(selectorId) {
+  const selector = document.getElementById(selectorId);
+  if (selector) {
+    return {
+      code: selector.getValue(),
+      label: selector.getLanguageLabel()
+    };
+  }
+  return null;
+}
+</script>
+</body>
+</html>
