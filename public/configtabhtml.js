@@ -97,3 +97,53 @@ tabs.addContent(5,generatedropelement()); // Agrega al tercer tab
 tabs.setTabTitle(5,`${getTranslation('filemanager')}`);
 //tabs.addContent(3,htmlobselement); // Agrega al tercer tab
 //tabs.setTabTitle(3,`${getTranslation('obs')}`);
+const modalwindow = document.createElement('dynamic-form');
+modalwindow.initialize()
+    .addField({
+        type: 'url',
+        name: 'windowurl',
+        label: 'url',
+        value: `${window.location.href}`,
+        required: true,
+    })
+    .addField({
+        type: 'number',
+        name: 'windowwidth',
+        label: 'width',
+        value: 800,
+        required: true,
+    })
+    .addField({
+        type: 'number',
+        name: 'windowheight',
+        label: 'height',
+        value: 600,
+        required: true,
+    })
+    .addField({
+        type: 'checkbox',
+        name: 'alwaysontop',
+        label: 'alwaysOnTop',
+        value: false,
+    })
+    .addField({
+        type: 'checkbox',
+        name: 'ignoremouseevents',
+        label: 'ignoreMouseEvents',
+        value: false,
+    })
+    .render();
+const windowModalcontainer = document.getElementById('windowModal');
+modalwindow.toggleDarkMode();
+modalwindow.addEventListener('form-submit', (e) => {
+console.log('Window created:', e.detail);
+windowModalcontainer.close();
+});
+modalwindow.addEventListener('form-change', (e) => {
+  console.log('Form values changed:', e.detail);
+});
+modalwindow.setSubmitButton({ 
+    label: 'create window', 
+    disabled: undefined,
+});
+windowModalcontainer.appendChild(modalwindow);
