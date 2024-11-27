@@ -5479,3 +5479,616 @@ class DonationAlert extends HTMLElement {
 }
 
 customElements.define('donation-alert', DonationAlert);
+class DynamicForm extends HTMLElement {
+  constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this.fields = [];
+      this.initialState = null;
+      this.conditionalFields = new Map(); // Mapa para almacenar las relaciones condicionales
+      this.formConfig = {
+          submitLabel: 'Submit',
+          class: 'form-default',
+          validateOnSubmit: true
+      };
+      this.boundHandleSubmit = this.handleSubmit.bind(this);
+      const template = document.createElement('template');
+      template.innerHTML = /*html*/ `
+          <style>
+              :host {
+                  display: block;
+                  font-family: system-ui, -apple-system, sans-serif;
+              }
+              .form-default {
+                  padding: 1rem;
+                  border-radius: 0.5rem;
+                  background: white;
+                  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+              }
+              .form-group {
+                  display: flex;
+                  flex-wrap: wrap;
+                  align-items: center;
+                  justify-content: space-between;
+                  margin-bottom: 0.5rem;
+                  gap: 0.5rem;
+                  label {
+                      margin-left: 10px;
+                      font-size: 16px;
+                  }
+              }
+              .radio-group {
+                  
+              }
+              .radio-item {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  flex-wrap: wrap;    
+                  flex-flow: row-reverse;
+                  justify-content: space-between;
+                  label {
+                      font-weight: 600;
+                  }
+              }
+              .form-group input[type="checkbox"] {
+                  width: 20px; /* Tamaño constante del checkbox */
+                  height: 20px; /* Tamaño constante del checkbox */
+                  appearance: none; /* Elimina el estilo predeterminado del checkbox */
+                  background-color: #f0f0f0; /* Color de fondo cuando no está chequeado */
+                  border: 2px solid #ccc; /* Color del borde */
+                  border-radius: 4px; /* Bordes redondeados */
+                  transition: background-color 0.3s ease, border-color 0.3s ease; /* Transiciones suaves para el color */
+                  outline: none; /* Elimina el contorno */
+                  cursor: pointer; /* Cambia el cursor al pasar sobre el checkbox */
+              }
+
+              .form-group input[type="checkbox"]:checked {
+                  background-color: #668ffd; /* Color de fondo cuando está chequeado */
+                  border-color: #786bb4; /* Color del borde cuando está chequeado */
+              }
+
+              label {
+                  display: flex;
+                  color: #374151;
+              }
+              input, select, textarea {
+                  width: auto;
+                  padding: 0.5rem;
+                  border: 1px solid #d1d5db;
+                  border-radius: 0.375rem;
+                  font-size: 1rem;
+              }
+              input[type="number"]  {max-width: 5rem; box-sizing: content-box;}
+              input:focus, select:focus, textarea:focus {
+                  outline: none;
+                  border-color: #3b82f6;
+                  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+              }
+              .error-message {
+                  color: #dc2626;
+                  font-size: 0.875rem;
+                  margin-top: 0.25rem;
+              }
+              button[type="submit"] {
+                  background-color: #3b82f6;
+                  color: white;
+                  padding: 0.5rem 1rem;
+                  border: none;
+                  border-radius: 0.375rem;
+                  font-size: 1rem;
+                  cursor: pointer;
+                  transition: background-color 0.2s;
+              }
+              button[type="submit"]:hover {
+                  background-color: #2563eb;
+              }
+              .required label::after {
+                  content: " *";
+                  color: #dc2626;
+              }
+              .hidden-field {
+                  display: none;
+              }
+          </style>
+          <form></form>
+      `;
+
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+      this.form = this.shadowRoot.querySelector('form');
+      const styleTag = this.shadowRoot.querySelector('style');
+      styleTag.textContent += `
+          /* Dark Mode Styles */
+          .form-default.dark-mode {
+              background: #1f2937;
+              color: #f9fafb;
+              box-shadow: 0 1px 3px 0 rgb(255 255 255 / 0.1);
+          }
+          
+          .dark-mode label {
+              color: #e5e7eb;
+          }
+          
+          .dark-mode input, 
+          .dark-mode select, 
+          .dark-mode textarea {
+              background-color: #2d3748;
+              color: #f9fafb;
+              border-color: #4a5568;
+          }
+          
+          .dark-mode input[type="checkbox"] {
+              background-color: #4a5568;
+              border-color: #718096;
+          }
+          
+          .dark-mode input[type="checkbox"]:checked {
+              background-color: #4299e1;
+              border-color: #3182ce;
+          }
+          
+          .dark-mode .error-message {
+              color: #fc8181;
+          }
+          
+          .dark-mode button[type="submit"] {
+              background-color: #4299e1;
+              color: white;
+          }
+          
+          .dark-mode button[type="submit"]:hover {
+              background-color: #3182ce;
+          }
+      `;
+      this.formConfig.darkMode = false;
+      //this.emitchanges();
+  }
+
+  /*     emitchanges(){
+      setInterval(() => {
+          this.dispatchEvent(new CustomEvent('allchanges', {
+          detail: this.getValues(),
+          bubbles: true,
+          composed: true
+      }));
+      }, 10000);
+  } */
+  _deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+  }
+
+  initialize(config = {}, initialData = null) {
+      // Limpiar estado previo
+      this.fields = [];
+      this.formConfig = {
+          submitLabel: 'Submit',
+          class: 'form-default',
+          validateOnSubmit: true,
+          ...config
+      };
+
+      // Si hay datos iniciales, guardarlos como estado inicial
+      if (initialData) {
+          this.initialState = this._deepClone(initialData);
+      }
+
+      // Remover el formulario anterior y crear uno nuevo
+      const oldForm = this.shadowRoot.querySelector('form');
+      if (oldForm) {
+          oldForm.remove();
+      }
+      
+      const newForm = document.createElement('form');
+      newForm.className = this.formConfig.class;
+      this.shadowRoot.appendChild(newForm);
+      this.form = newForm;
+
+      return this;
+  }
+
+  addField(fieldConfig, options = {}) {
+      const defaultConfig = {
+          type: 'text',
+          required: false,
+          label: '',
+          name: '',
+          placeholder: '',
+          value: '',
+          options: [],
+          validators: [],
+          errorMessage: '',
+          showWhen: null // Nuevo: Configuración para mostrar condicionalmente
+      };
+      const config = { ...defaultConfig, ...fieldConfig,
+          rowGroup: options.rowGroup || null
+      };
+      // Si el campo tiene condiciones, registrarlas
+      if (config.showWhen) {
+          const { field: parentField, value: triggerValue } = config.showWhen;
+          if (!this.conditionalFields.has(parentField)) {
+              this.conditionalFields.set(parentField, []);
+          }
+          this.conditionalFields.get(parentField).push({
+              fieldName: config.name,
+              triggerValue
+          });
+      }
+
+      // Si hay estado inicial y existe un valor para este campo, usarlo
+      if (this.initialState && this.initialState[config.name] !== undefined) {
+          config.value = this.initialState[config.name];
+      }
+
+
+      this.fields.push(config);
+      return this;
+  }
+
+  createFieldHTML(field) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `form-group ${field.required ? 'required' : ''}`;
+      wrapper.setAttribute('data-field', field.name);
+      //console.log("init field",field)
+      if (field.showWhen) {
+          wrapper.classList.add('hidden-field');
+      }
+
+      const label = document.createElement('label');
+      label.textContent = field.label;
+      label.setAttribute('for', field.name);
+      wrapper.appendChild(label);
+
+      let input;
+
+  
+      switch (field.type) {
+          case 'modal-selector': // Nuevo tipo para el selector modal
+              input = document.createElement('modal-selector');
+              input.id = field.name;
+              input.setAttribute('name', field.name);
+              
+              // Configurar el evento change del modal-selector
+              input.addEventListener('change', (e) => {
+                  // Si hay campos condicionales que dependen de este
+                  if (this.conditionalFields.has(field.name)) {
+                      this.handleFieldChange(field.name, e.detail.value);
+                  }
+              });
+              if (field.options) input.setOptions(field.options);
+              // Si hay un valor inicial, establecerlo
+              if (field.value) {
+                  input.setValue(field.value, field.valueLabel || field.value);
+              }
+              break;
+          case 'radio':
+              const radioContainer = document.createElement('div');
+              radioContainer.className = 'radio-group';
+              
+              field.options.forEach(option => {
+                  const radioWrapper = document.createElement('div');
+                  radioWrapper.className = 'radio-item';
+                  
+                  const radioInput = document.createElement('input');
+                  radioInput.type = 'radio';
+                  radioInput.id = `${field.name}_${option.value}`;
+                  radioInput.name = field.name;
+                  radioInput.value = option.value;
+                  
+                  if (field.value === option.value) {
+                      radioInput.checked = true;
+                  }
+                  
+                  if (field.required) {
+                      radioInput.required = true;
+                  }
+                  
+                  // Agregar evento change para campos condicionales
+                  if (this.conditionalFields.has(field.name)) {
+                      radioInput.addEventListener('change', () => this.handleFieldChange(field.name, option.value));
+                  }
+                  
+                  const radioLabel = document.createElement('label');
+                  radioLabel.setAttribute('for', `${field.name}_${option.value}`);
+                  radioLabel.textContent = option.label;
+                  
+                  radioWrapper.appendChild(radioInput);
+                  radioWrapper.appendChild(radioLabel);
+                  radioContainer.appendChild(radioWrapper);
+              });
+              
+              input = radioContainer;
+              break;
+
+          case 'select':
+              input = document.createElement('select');
+              field.options.forEach(option => {
+                  const optionElement = document.createElement('option');
+                  optionElement.value = option.value;
+                  optionElement.textContent = option.label;
+                  if (field.value === option.value) {
+                      optionElement.selected = true;
+                  }
+                  input.appendChild(optionElement);
+              });
+              
+              // Agregar evento change para campos condicionales
+              if (this.conditionalFields.has(field.name)) {
+                  input.addEventListener('change', (e) => this.handleFieldChange(field.name, e.target.value));
+              }
+              break;
+              
+          case 'textarea':
+              input = document.createElement('textarea');
+              input.rows = field.rows || 3;
+              input.value = field.value;
+              break;
+              
+          default:
+              console.log("field",field)
+              input = document.createElement('input');
+              input.type = field.type;
+              input.value = field.value;
+              if(field.min) input.min = field.min;
+              if(field.max) input.max = field.max;
+              if(field.step) input.step = field.step;
+              if(field.placeholder) input.placeholder = field.placeholder;
+              if(field.required) input.required = true;
+              if(field.value) input.value = field.value;
+      }
+      
+      if (field.type !== 'radio') {
+          input.id = field.name;
+          input.name = field.name;
+          input.placeholder = field.placeholder;
+          if (field.required) input.required = true;
+      }
+      
+      wrapper.appendChild(input);
+      
+      if (field.errorMessage) {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.textContent = field.errorMessage;
+          wrapper.appendChild(errorDiv);
+      }
+      
+      return wrapper;
+  }
+  getValues() {
+      const formData = new FormData(this.form);
+      const values = {};
+      
+      // Iteramos sobre los campos definidos en lugar de FormData
+      this.fields.forEach(field => {
+          const element = this.form.querySelector(`[name="${field.name}"]`);
+          
+          if (!element) return;
+
+          switch (field.type) {
+              case 'checkbox':
+                  // Para checkboxes, usamos la propiedad checked
+                  values[field.name] = element.checked;
+                  break;
+                  
+              case 'number':
+              case 'range':
+                  // Para números, convertimos el valor a número
+                  const numValue = element.value === '' ? null : Number(element.value);
+                  values[field.name] = numValue;
+                  break;
+                  
+              case 'radio':
+                  // Para radio buttons, obtenemos el valor del seleccionado
+                  const checkedRadio = this.form.querySelector(`input[name="${field.name}"]:checked`);
+                  values[field.name] = checkedRadio ? checkedRadio.value : null;
+                  break;
+                  
+              default:
+                  // Para el resto de tipos, usamos el valor directo
+                  values[field.name] = formData.get(field.name);
+          }
+      });
+      
+      return values;
+  }
+
+  validateField(field, value) {
+      // Modificamos la validación para manejar correctamente los tipos
+      if (field.required) {
+          switch (field.type) {
+              case 'checkbox':
+                  // Para checkbox requerido, debe estar marcado
+                  if (!value) return 'Este campo es requerido';
+                  break;
+                  
+              case 'number':
+              case 'range':
+                  // Para números, verificamos que no sea null o undefined
+                  if (value === null || value === undefined) return 'Este campo es requerido';
+                  break;
+                  
+              default:
+                  // Para otros tipos, verificamos que no esté vacío
+                  if (!value && value !== 0) return 'Este campo es requerido';
+          }
+      }
+
+      // Ejecutamos los validadores personalizados
+      for (const validator of field.validators) {
+          const errorMessage = validator(value);
+          if (errorMessage) return errorMessage;
+      }
+
+      return '';
+  }
+
+
+  render() {
+      this.form.removeEventListener('submit', this.boundHandleSubmit);
+      this.form.innerHTML = '';
+
+      // Group fields by row
+      const rowGroups = new Map();
+      this.fields.forEach(field => {
+          if (field.rowGroup) {
+              if (!rowGroups.has(field.rowGroup)) {
+                  rowGroups.set(field.rowGroup, []);
+              }
+              rowGroups.get(field.rowGroup).push(field);
+          }
+      });
+              // Render fields
+      this.fields.forEach(field => {
+          // Skip fields that are part of a row group (they'll be rendered together)
+          if (field.rowGroup) return;
+
+          const fieldElement = this.createFieldHTML(field);
+          this.form.appendChild(fieldElement);
+      });
+      rowGroups.forEach(rowFields => {
+          const rowContainer = document.createElement('div');
+          rowContainer.className = 'form-row';
+
+          rowFields.forEach(field => {
+              const fieldElement = this.createFieldHTML(field);
+              rowContainer.appendChild(fieldElement);
+          });
+
+          this.form.appendChild(rowContainer);
+      });
+      this.conditionalFields.forEach((_, parentFieldName) => {
+          const parentField = this.fields.find(f => f.name === parentFieldName);
+          if (parentField) {
+              let currentValue;
+              if (parentField.type === 'radio') {
+                  const checkedRadio = this.form.querySelector(`input[name="${parentFieldName}"]:checked`);
+                  currentValue = checkedRadio ? checkedRadio.value : null;
+              } else {
+                  const input = this.form.querySelector(`[name="${parentFieldName}"]`);
+                  currentValue = input ? input.value : null;
+              }
+              if (currentValue) {
+                  this.handleFieldChange(parentFieldName, currentValue);
+              }
+          }
+      });
+
+      const submitButton = document.createElement('button');
+      submitButton.type = 'submit';
+      submitButton.textContent = this.formConfig.submitLabel;
+      this.form.appendChild(submitButton);
+
+      this.form.addEventListener('submit', this.boundHandleSubmit);
+
+      return this;
+  }
+  toggleDarkMode(enabled = !this.formConfig.darkMode) {
+      this.formConfig.darkMode = enabled;
+      const formContainer = this.shadowRoot.querySelector('.form-default');
+      
+      if (enabled) {
+          formContainer.classList.add('dark-mode');
+      } else {
+          formContainer.classList.remove('dark-mode');
+      }
+  }
+  disconnectedCallback() {
+      if (this.form) {
+          this.form.removeEventListener('submit', this.boundHandleSubmit);
+          const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+          this.toggleDarkMode(prefersDarkScheme.matches);
+
+          prefersDarkScheme.addListener((e) => {
+              this.toggleDarkMode(e.matches);
+          });
+
+      }
+  }
+  handleFieldChange(fieldName, value) {
+      const dependentFields = this.conditionalFields.get(fieldName) || [];
+      
+      dependentFields.forEach(({ fieldName: dependentFieldName, triggerValue }) => {
+          const fieldElement = this.form.querySelector(`[data-field="${dependentFieldName}"]`);
+          if (!fieldElement) return;
+
+          // Si triggerValue es un array, verificamos si el valor está incluido
+          const shouldShow = Array.isArray(triggerValue) 
+              ? triggerValue.includes(value)
+              : triggerValue === value;
+
+          fieldElement.classList.toggle('hidden-field', !shouldShow);
+
+          // Si el campo está oculto, limpiamos su valor
+          if (!shouldShow) {
+              const input = fieldElement.querySelector('input, select, textarea');
+              if (input) {
+                  if (input.type === 'radio') {
+                      const radios = fieldElement.querySelectorAll('input[type="radio"]');
+                      radios.forEach(radio => radio.checked = false);
+                  } else {
+                      input.value = '';
+                  }
+              }
+          }
+      });
+  }
+  handleSubmit(e) {
+      e.preventDefault();
+          
+      if (this.formConfig.validateOnSubmit) {
+          let isValid = true;
+          const values = this.getValues();
+
+          this.fields.forEach(field => {
+              const errorMessage = this.validateField(field, values[field.name]);
+              if (errorMessage) {
+                  isValid = false;
+                  const fieldElement = this.form.querySelector(`[name="${field.name}"]`);
+                  const errorDiv = fieldElement.parentNode.querySelector('.error-message') ||
+                      document.createElement('div');
+                  errorDiv.className = 'error-message';
+                  errorDiv.textContent = errorMessage;
+                  if (!fieldElement.parentNode.querySelector('.error-message')) {
+                      fieldElement.parentNode.appendChild(errorDiv);
+                  }
+              }
+          });
+
+          if (!isValid) return;
+      }
+
+      this.dispatchEvent(new CustomEvent('form-submit', {
+          detail: this.getValues(),
+          bubbles: true,
+          composed: true
+      }));
+  }
+
+  restoreInitialState() {
+      if (this.initialState) {
+          this.fields = this.fields.map(field => ({
+              ...field,
+              value: this.initialState[field.name] || '',
+              errorMessage: ''
+          }));
+          this.render();
+      }
+      return this;
+  }
+
+  setInitialState(data) {
+      this.initialState = this._deepClone(data);
+      return this.restoreInitialState();
+  }
+
+  hasChanges() {
+      if (!this.initialState) return true;
+      
+      const currentValues = this.getValues();
+      return Object.keys(this.initialState).some(key => 
+          this.initialState[key] !== currentValues[key]
+      );
+  }
+}
+
+customElements.define('dynamic-form', DynamicForm);

@@ -37,6 +37,7 @@
               <button data-tab-button="tab1">Home</button>
               <button data-tab-button="tab2">Configuration</button>
               <button data-tab-button="tab3">Dashboard</button>
+              <button data-tab-button="tab4">More configs</button>
             </div>
   <div>
     <h2><translate-text key="selectlang"></translate-text></h2>
@@ -53,11 +54,10 @@
           <tab-manager>
             <!-- Tab Buttons -->
             <div slot="tab-buttons" class="tab-buttons">
-              <button data-tab-button="tab1" class="tab-button">Tab 1</button>
-              <button data-tab-button="tab2" class="tab-button">
-                <strong>Tab 2</strong> with HTML
-              </button>
-              <button data-tab-button="tab3" class="tab-button">Tab 3</button>
+              <button data-tab-button="tab1" class="tab-button">1</button>
+              <button data-tab-button="tab2" class="tab-button">2</button>
+              <button data-tab-button="tab3" class="tab-button">3</button>
+              <button data-tab-button="tab4" class="tab-button">4</button>
             </div>
       
             <!-- Tab Content -->
@@ -220,6 +220,56 @@
 
                   
               </section>
+            </div>
+            <div slot="tab-content" data-tab-content="tab4">
+              <div class="container mx-auto p-6">
+                <h1 class="text-3xl font-bold mb-6">Window Manager (Web Interface)</h1>
+                
+                <button id="newWindowBtn" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded">
+                  Nueva Ventana
+                </button>
+            
+                <div id="windowsList" class="mt-6 space-y-4"></div>
+              </div>
+              <div id="windowModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-gray-800 p-6 rounded-lg w-96">
+                  <h2 class="text-xl font-bold mb-4">Nueva Ventana</h2>
+                  <form id="windowForm" class="space-y-4">
+                    <div>
+                      <label class="block mb-2">URL</label>
+                      <input type="text" name="url" value="${window.location.href}" class="w-full px-3 py-2 bg-gray-700 rounded text-white" required>
+                    </div>
+                    <div>
+                      <label class="block mb-2">Ancho</label>
+                      <input type="number" name="width" class="w-full px-3 py-2 bg-gray-700 rounded text-white" value="800">
+                    </div>
+                    <div>
+                      <label class="block mb-2">Alto</label>
+                      <input type="number" name="height" class="w-full px-3 py-2 bg-gray-700 rounded text-white" value="600">
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" name="alwaysOnTop" class="mr-2">
+                      <label>Siempre Visible</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" name="transparent" class="mr-2">
+                      <label>Transparente</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" name="ignoreMouseEvents" class="mr-2">
+                      <label>Ignorar Mouse</label>
+                    </div>
+                    <div class="flex justify-end space-x-4">
+                      <button type="button" id="cancelBtn" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded">
+                        Cancelar
+                      </button>
+                      <button type="submit" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded">
+                        Crear
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
           </tab-manager>
 
