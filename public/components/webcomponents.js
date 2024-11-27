@@ -1485,6 +1485,13 @@ class ResponsiveNavSidebar extends HTMLElement {
                 display: block;
               }
             }
+                      .section {
+            display: none;
+          }
+          
+          .section.active {
+            display: block;
+          }
           </style>
     
         
@@ -1511,27 +1518,164 @@ class ResponsiveNavSidebar extends HTMLElement {
           </div>
         </div>
       `;
-  
-      this.menuBtn = this.shadowRoot.querySelector('.menu-btn');
-      this.sidebar = this.shadowRoot.querySelector('.sidebar');
-      this.overlay = this.shadowRoot.querySelector('.overlay');
-  
-      this.menuBtn.addEventListener('click', () => this.toggleMenu());
-      this.overlay.addEventListener('click', () => this.closeMenu());
+
+    this.menuBtn = this.shadowRoot.querySelector('.menu-btn');
+    this.sidebar = this.shadowRoot.querySelector('.sidebar');
+    this.overlay = this.shadowRoot.querySelector('.overlay');
+
+    this.menuBtn.addEventListener('click', () => this.toggleMenu());
+    this.overlay.addEventListener('click', () => this.closeMenu());
+
+    // Add event delegation for menu items
+    this.addEventListener('click', (event) => {
+      const menuItem = event.target.closest('[data-section]');
+      if (menuItem) {
+        this.showSection(menuItem.getAttribute('data-section'));
+        this.closeMenu(); // Optional: close menu after selection
+      }
+    });
+  }
+
+  toggleMenu() {
+    this.sidebar.classList.toggle('active');
+    this.overlay.classList.toggle('active');
+  }
+
+  closeMenu() {
+    this.sidebar.classList.remove('active');
+    this.overlay.classList.remove('active');
+  }
+
+  /**
+   * Show a specific section by its data-section value
+   * @param {string} sectionName - The name of the section to show
+   */
+  showSection(sectionName) {
+    // Find all sections within the main-content slot
+    const sections = this.querySelector('slot[name="main-content"]')
+      .assignedElements()
+      .filter(el => el.classList.contains('section'));
+    
+    // Hide all sections
+    sections.forEach(section => {
+      section.classList.remove('active');
+    });
+
+    // Show the selected section
+    const activeSection = sections.find(
+      section => section.getAttribute('data-section') === sectionName
+    );
+
+    if (activeSection) {
+      activeSection.classList.add('active');
     }
-  
-    toggleMenu() {
-      this.sidebar.classList.toggle('active');
-      this.overlay.classList.toggle('active');
-    }
-  
-    closeMenu() {
-      this.sidebar.classList.remove('active');
-      this.overlay.classList.remove('active');
-    }
+  }
   }
   
   customElements.define('responsive-nav-sidebar', ResponsiveNavSidebar);
+  class TabManager extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+    }
+  
+    connectedCallback() {
+      this.render();
+      this.setupTabs();
+    }
+  
+    render() {
+      this.shadowRoot.innerHTML = `
+        <style>
+          :host {
+            display: block;
+          }
+          
+          .tab-content {
+            position: relative;
+            overflow: hidden;
+          }
+  
+          ::slotted([data-tab-content]) {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+            width: 100%;
+            transform: translateX(20px);
+            transition: all 0.3s ease-in-out;
+          }
+  
+          ::slotted([data-tab-content].active) {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+            transform: translateX(0);
+          }
+        </style>
+        <slot name="tab-buttons"></slot>
+        <div class="tab-content">
+          <slot name="tab-content"></slot>
+        </div>
+      `;
+    }
+  
+    setupTabs() {
+      // Get all tab buttons and content
+      const tabButtons = document.querySelectorAll('[data-tab-button]');
+      const tabContents = document.querySelectorAll('[data-tab-content]');
+      
+      // Get last active tab from localStorage or default to last tab
+      const lastActiveTab = localStorage.getItem('activeTab') || 
+        tabButtons[tabButtons.length - 1]?.getAttribute('data-tab-button');
+  
+      // Setup click handlers for tab buttons
+      tabButtons.forEach(button => {
+        const tabId = button.getAttribute('data-tab-button');
+        
+        // Set initial active state
+        if (tabId === lastActiveTab) {
+          this.activateTab(button, tabButtons, tabContents);
+        }
+  
+        button.addEventListener('click', () => {
+          this.activateTab(button, tabButtons, tabContents);
+        });
+      });
+  
+      // If no active tab, activate the last one
+      if (!localStorage.getItem('activeTab') && tabButtons.length) {
+        this.activateTab(
+          tabButtons[tabButtons.length - 1], 
+          tabButtons, 
+          tabContents
+        );
+      }
+    }
+  
+    activateTab(selectedButton, allButtons, allContents) {
+      const tabId = selectedButton.getAttribute('data-tab-button');
+      
+      // Update buttons state
+      allButtons.forEach(button => {
+        button.classList.remove('active');
+      });
+      selectedButton.classList.add('active');
+  
+      // Update content state
+      allContents.forEach(content => {
+        content.classList.remove('active');
+        if (content.getAttribute('data-tab-content') === tabId) {
+          content.classList.add('active');
+        }
+      });
+  
+      // Save active tab to localStorage
+      localStorage.setItem('activeTab', tabId);
+    }
+  }
+  
+  // Register the web component
+  customElements.define('tab-manager', TabManager);
   class TranslateText extends HTMLElement {
     constructor() {
       super();

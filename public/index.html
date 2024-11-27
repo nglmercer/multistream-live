@@ -33,14 +33,19 @@
             <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
             <p>Twitch login</p>
             <user-profile group-id="twitch" id="twitchlogin" minimal></user-profile>
-            <div class="menu-item" data-target="#users">
+            <div class="menu-item" data-section="users">
               <translate-text key="home"></translate-text>
             </div>
-            <div class="menu-item" data-target="#settings">
+            <div class="menu-item" data-section="settings">
               <translate-text key="configuration"></translate-text>  
             </div>
-            <div class="menu-item" data-target="#dashboard">Dashboard</div>
-  
+            <div class="menu-item" data-section="dashboard">Dashboard</div>
+            <div class="external-buttons">
+              <h3>External Tab Buttons</h3>
+              <button data-tab-button="tab1">Go to Tab 1</button>
+              <button data-tab-button="tab2">Go to Tab 2</button>
+              <button data-tab-button="tab3">Go to Tab 3</button>
+            </div>
   <div>
     <h2><translate-text key="selectlang"></translate-text></h2>
     <language-selector id="selector2"></language-selector>
@@ -53,7 +58,27 @@
 
         <!-- Contenido principal -->
         <div slot="main-content">
-              <section id="users">
+          <tab-manager>
+            <!-- Tab Buttons -->
+            <div slot="tab-buttons" class="tab-buttons">
+              <button data-tab-button="tab1" class="tab-button">Tab 1</button>
+              <button data-tab-button="tab2" class="tab-button">
+                <strong>Tab 2</strong> with HTML
+              </button>
+              <button data-tab-button="tab3" class="tab-button">Tab 3</button>
+            </div>
+      
+            <!-- Tab Content -->
+            <div slot="tab-content" data-tab-content="tab1">
+              <section class="section" id="users">
+                <div>
+                  <h1>Tab Manager Demo</h1>
+                  
+                  <!-- Tab Manager Component -->
+
+              
+
+                </div>
                 <h2>Chat</h2>
                  
                   <div class="containerbox relative">
@@ -70,7 +95,10 @@
                   </div>
                 </div>              
             </section>
-              <section id="settings">
+            </div>
+            
+            <div slot="tab-content" data-tab-content="tab2">
+              <section class="section" id="settings">
                 <div id="container" class="container"></div>
                 <audio-player></audio-player>
 
@@ -101,7 +129,10 @@
                     </div>
                 </div>
               </section>
-              <section id="dashboard">
+            </div>
+            
+            <div slot="tab-content" data-tab-content="tab3">
+              <section class="section" id="dashboard">
                 <h2>Dashboard</h2>
                 <div class="containerbox relative grid-minmax-24rem-auto">
                     <div class="card">
@@ -203,6 +234,11 @@
 
                   
               </section>
+            </div>
+          </tab-manager>
+
+
+
 
             <div id="lasteventParse"></div>
 
@@ -224,27 +260,10 @@
 
 
   <script>
-        document.querySelectorAll('responsive-nav-sidebar .menu-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-        item.classList.add('active');
-        document.querySelector(item.getAttribute('data-target')).scrollIntoView({ behavior: 'smooth' });
-      });
-    });
 
     const sections = document.querySelectorAll('section');
     const menuItems = document.querySelectorAll('responsive-nav-sidebar .menu-item');
 
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          menuItems.forEach(item => item.classList.remove('active'));
-          document.querySelector(`.menu-item[data-target="#${entry.target.id}"]`).classList.add('active');
-        }
-      });
-    }, { threshold: 0.1 });
-
-    sections.forEach(section => observer.observe(section));
         // Obtener referencias a los selectores
         const selectorlang = document.getElementById('selector1') || document.getElementById('selector2');
         const languageInfo = document.getElementById('languageInfo');
