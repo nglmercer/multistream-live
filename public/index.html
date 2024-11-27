@@ -33,18 +33,10 @@
             <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
             <p>Twitch login</p>
             <user-profile group-id="twitch" id="twitchlogin" minimal></user-profile>
-            <div class="menu-item" data-section="users">
-              <translate-text key="home"></translate-text>
-            </div>
-            <div class="menu-item" data-section="settings">
-              <translate-text key="configuration"></translate-text>  
-            </div>
-            <div class="menu-item" data-section="dashboard">Dashboard</div>
             <div class="external-buttons">
-              <h3>External Tab Buttons</h3>
-              <button data-tab-button="tab1">Go to Tab 1</button>
-              <button data-tab-button="tab2">Go to Tab 2</button>
-              <button data-tab-button="tab3">Go to Tab 3</button>
+              <button data-tab-button="tab1">Home</button>
+              <button data-tab-button="tab2">Configuration</button>
+              <button data-tab-button="tab3">Dashboard</button>
             </div>
   <div>
     <h2><translate-text key="selectlang"></translate-text></h2>
@@ -71,14 +63,6 @@
             <!-- Tab Content -->
             <div slot="tab-content" data-tab-content="tab1">
               <section class="section" id="users">
-                <div>
-                  <h1>Tab Manager Demo</h1>
-                  
-                  <!-- Tab Manager Component -->
-
-              
-
-                </div>
                 <h2>Chat</h2>
                  
                   <div class="containerbox relative">
@@ -92,6 +76,8 @@
                       <div class="events3 eventscontainer">
                         <message-container id="eventscontainer" wrapper-classes="maxh-5rem"></message-container>
                       </div>
+                      <audio-player></audio-player>
+
                   </div>
                 </div>              
             </section>
@@ -100,7 +86,6 @@
             <div slot="tab-content" data-tab-content="tab2">
               <section class="section" id="settings">
                 <div id="container" class="container"></div>
-                <audio-player></audio-player>
 
                 <h2><translate-text key="configuration"></translate-text></h2>
                   <div class="containerbox relative">
@@ -128,104 +113,105 @@
                     <div id="MinecraftModalContainer"> 
                     </div>
                 </div>
+                <div class="containerbox relative grid-minmax-24rem-auto">
+                  <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><translate-text key="allowedusers"></translate-text></h2>
+                    </div>
+                    <div class="card-content space-y-4 text-lg">
+                        <div class="flex items-center">
+                          <label for="allUsers">
+                              <input type="checkbox" id="allUsers" checked>
+                              <span>All Users</span></label>
+                        </div>
+                        <div class="flex items-center">
+                          <label for="followRole">
+                              <input type="checkbox" id="followRole" checked>
+                              <span>Followers</span></label>
+                        </div>
+                        <div class="flex items-center">
+                          <label for="isSubscriber">
+                              <input type="checkbox" id="isSubscriber" checked>
+                              <span>isSubscriber</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                          <label for="isModerator">
+                              <input type="checkbox" id="isModerator" checked>
+                              <span>isModerator</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                          <label for="isNewGifter">
+                              <input type="checkbox" id="isNewGifter" checked>
+                              <span>isNewGifter</span>
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                          <label for="teamMemberLevel">
+                              <input type="checkbox" id="teamMemberLevel" checked>
+                                <span>Team Members <span>Min. Level:</span></span>
+                            </label>
+                            <input type="number" id="teamMemberLevel-value" class="input input-bordered w-12" value="1" min="0">
+                        </div>
+                        <div class="flex items-center">
+                          <label for="topGifterRank">
+                              <input type="checkbox" id="topGifterRank" checked>
+                              <span>Top Gifters <span>Top:</span></span>
+          
+          
+          
+          
+                            </label>
+                            <input type="number" id="topGifterRank-value" class="input input-bordered w-12" value="3" min="0">
+                        </div>
+                    </div>
+          
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><translate-text key="commenttypes"></translate-text></h2>
+                    </div>
+                    <div class="card-content space-y-4">
+                        <label>Read...</label>
+                        <div>
+                            <div class="flex items-center">
+                              <label for="any-comment">
+                                  <input type="radio" name="comment-type" value="any-comment" id="any-comment" class="radio checked:bg-blue-300" checked>
+                                  <span><translate-text key="commenttypes1"></translate-text></span></label>
+                            </div>
+                            <div class="flex items-center">
+                              <label for="dot-comment">
+                                  <input type="radio" name="comment-type" value="dot-comment" id="dot-comment" class="radio checked:bg-blue-300">
+                                  <span><translate-text key="commenttypes2"></translate-text></span></label>
+                            </div>
+                            <div class="flex items-center">
+                              <label for="slash-comment">
+                                  <input type="radio" name="comment-type" value="slash-comment" id="slash-comment" class="radio checked:bg-blue-300">
+                                  <span><translate-text key="commenttypes3"></translate-text></span></label>
+                            </div>
+                            <div class="flex items-center">
+                              <label for="command-comment">
+                                <input type="radio" name="comment-type" value="command-comment" id="command-comment" class="radio checked:bg-blue-300">
+                                <span><translate-text key="commenttypes4"></translate-text></span></label>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="command">Command</label>
+                            <input type="text" id="command" placeholder="!speak">
+                        </div>
+                    </div>
+                </div>
+
+              
+                </div>
               </section>
             </div>
             
             <div slot="tab-content" data-tab-content="tab3">
               <section class="section" id="dashboard">
                 <h2>Dashboard</h2>
-                <div class="containerbox relative grid-minmax-24rem-auto">
-                    <div class="card">
-                      <div class="card-header">
-                          <h2 class="card-title"><translate-text key="allowedusers"></translate-text></h2>
-                      </div>
-                      <div class="card-content space-y-4 text-lg">
-                          <div class="flex items-center">
-                            <label for="allUsers">
-                                <input type="checkbox" id="allUsers" checked>
-                                <span>All Users</span></label>
-                          </div>
-                          <div class="flex items-center">
-                            <label for="followRole">
-                                <input type="checkbox" id="followRole" checked>
-                                <span>Followers</span></label>
-                          </div>
-                          <div class="flex items-center">
-                            <label for="isSubscriber">
-                                <input type="checkbox" id="isSubscriber" checked>
-                                <span>isSubscriber</span>
-                              </label>
-                          </div>
-                          <div class="flex items-center">
-                            <label for="isModerator">
-                                <input type="checkbox" id="isModerator" checked>
-                                <span>isModerator</span>
-                              </label>
-                          </div>
-                          <div class="flex items-center">
-                            <label for="isNewGifter">
-                                <input type="checkbox" id="isNewGifter" checked>
-                                <span>isNewGifter</span>
-                              </label>
-                          </div>
-                          <div class="flex items-center">
-                            <label for="teamMemberLevel">
-                                <input type="checkbox" id="teamMemberLevel" checked>
-                                  <span>Team Members <span>Min. Level:</span></span>
-                              </label>
-                              <input type="number" id="teamMemberLevel-value" class="input input-bordered w-12" value="1" min="0">
-                          </div>
-                          <div class="flex items-center">
-                            <label for="topGifterRank">
-                                <input type="checkbox" id="topGifterRank" checked>
-                                <span>Top Gifters <span>Top:</span></span>
-            
-            
-            
-            
-                              </label>
-                              <input type="number" id="topGifterRank-value" class="input input-bordered w-12" value="3" min="0">
-                          </div>
-                      </div>
-            
-                  </div>
-                  <div class="card">
-                      <div class="card-header">
-                          <h2 class="card-title"><translate-text key="commenttypes"></translate-text></h2>
-                      </div>
-                      <div class="card-content space-y-4">
-                          <label>Read...</label>
-                          <div>
-                              <div class="flex items-center">
-                                <label for="any-comment">
-                                    <input type="radio" name="comment-type" value="any-comment" id="any-comment" class="radio checked:bg-blue-300" checked>
-                                    <span><translate-text key="commenttypes1"></translate-text></span></label>
-                              </div>
-                              <div class="flex items-center">
-                                <label for="dot-comment">
-                                    <input type="radio" name="comment-type" value="dot-comment" id="dot-comment" class="radio checked:bg-blue-300">
-                                    <span><translate-text key="commenttypes2"></translate-text></span></label>
-                              </div>
-                              <div class="flex items-center">
-                                <label for="slash-comment">
-                                    <input type="radio" name="comment-type" value="slash-comment" id="slash-comment" class="radio checked:bg-blue-300">
-                                    <span><translate-text key="commenttypes3"></translate-text></span></label>
-                              </div>
-                              <div class="flex items-center">
-                                <label for="command-comment">
-                                  <input type="radio" name="comment-type" value="command-comment" id="command-comment" class="radio checked:bg-blue-300">
-                                  <span><translate-text key="commenttypes4"></translate-text></span></label>
-                              </div>
-                          </div>
-                          <div class="space-y-2">
-                              <label for="command">Command</label>
-                              <input type="text" id="command" placeholder="!speak">
-                          </div>
-                      </div>
-                  </div>
 
-                
-                  </div>
                   <div class="containerbox relative">
                     <div id="giftmap">
 
@@ -240,9 +226,9 @@
 
 
 
-            <div id="lasteventParse"></div>
-
-              <button id="openModal" class="modal-trigger" onclick="document.getElementById('Configurations').open()">
+          
+          <div id="lasteventParse"></div>
+          <button id="openModal" class="modal-trigger" onclick="document.getElementById('Configurations').open()">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />

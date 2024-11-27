@@ -726,3 +726,32 @@ table {
   opacity: 1;
   height: auto;
 }
+.tab-buttons {
+  margin-bottom: 20px;
+}
+
+.tab-button, [data-tab-button] {
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: none;
+  background: #1a1a1a;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.tab-button:hover, [data-tab-button]:hover {
+  background: #2a2a2a;
+}
+
+.tab-button.active, [data-tab-button].active {
+  background: #646cff;
+}
+
+.external-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid #444;
+  gap: 0.1rem;
+}
