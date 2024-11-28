@@ -16,10 +16,11 @@
   </head>
   <body>
     <div id="app" class="h-100dvh w-100dvw"></div>
-    <script type="module" src="./webcomponents/webc.js"></script>
+    <div>
 
+    </div>
     <script>
-      const themes = {
+    const themes = {
       default: {
         container: 'bg-gray-900/95 rounded-2xl p-6 shadow-xl',
         text: 'text-xl font-semibold text-gray-100',
@@ -80,7 +81,7 @@
     }
   };
 
-class DonationAlert extends HTMLElement {
+ class DonationAlert extends HTMLElement {
     constructor() {
       super();
       this.attachShadow({ mode: 'open' });
@@ -135,83 +136,130 @@ class DonationAlert extends HTMLElement {
       ).join('');
     }
   
-    renderMediaGrid(items, type, theme) {
-      const isVideo = type === 'video';
+    renderMediaGrid(items) {
+        const mediaTypes = {
+            // Images
+            'image/png': 'image',
+            'image/jpg': 'image',
+            'image/jpeg': 'image',
+            'image/gif': 'image',
+            'image/webp': 'image',
+            'image/svg+xml': 'image',
+            'image/bmp': 'image',
+            'image/tiff': 'image',
+
+            // Videos
+            'video/mp4': 'video',
+            'video/webm': 'video',
+            'video/ogg': 'video',
+            'video/quicktime': 'video',
+            'video/x-msvideo': 'video',
+            'video/x-flv': 'video',
+            'video/3gpp': 'video',
+
+            // Audio
+            'audio/mpeg': 'audio',
+            'audio/mp3': 'audio',
+            'audio/wav': 'audio',
+            'audio/webm': 'audio',
+            'audio/ogg': 'audio',
+            'audio/aac': 'audio',
+            'audio/flac': 'audio',
+            'audio/x-wav': 'audio',
+            'audio/x-m4a': 'audio'
+        };
+  
       const columns = Math.min(items.length, 2);
   
-      return `
+      return /*html*/`
         <div class="media-grid columns-${columns}">
-          ${items.map(src => {
-            const sanitizedSrc = src.startsWith('http') ? src : `/media/${src}`;
-            return isVideo ? `
-              <video autoplay loop muted class="media-item">
-                <source src="${sanitizedSrc}" type="video/mp4">
-              </video>
-            ` : `
-              <img src="${sanitizedSrc}" alt="Donation media" class="media-item" />
-            `;
+          ${items.map(item => {
+            const type = mediaTypes[item.mediaType];
+            const sanitizedSrc = item.path.startsWith('http') ? item.path : `/media/${item.path}`;
+            
+            switch (type) {
+              case 'image':
+                return `<img src="${sanitizedSrc}" alt="${item.nombre}" class="media-item" />`;
+              case 'video':
+                return `
+                  <video autoplay loop muted class="media-item">
+                    <source src="${sanitizedSrc}" type="${item.mediaType}">
+                  </video>
+                `;
+              case 'audio':
+                return `
+                  <audio controls class="media-item">
+                    <source src="${sanitizedSrc}" type="${item.mediaType}">
+                  </audio>
+                `;
+              default:
+                return '';
+            }
           }).join('')}
         </div>
       `;
     }
-    getallTypesrender(){
-        return ['multi-image','video-grid','image-grid','video-image','image','video','text']
-    }
+  
     renderContent(alert, theme) {
-        let mediaprefix = "/media/";
-        if(alert.image && alert.image.startsWith("http") || alert.video && alert.video.startsWith("http")){
-            mediaprefix = "";
-        }
-      switch (alert.type) {
-        case 'multi-image':
-          const sanitizedImages = alert.images.map(img => 
-            img.startsWith('http') ? img : `/media/${img}`
-          );
-          return this.renderMediaGrid(sanitizedImages, 'image', theme);
-        case 'video-grid':
-          const sanitizedVideos = alert.videos.map(video => 
-            video.startsWith('http') ? video : `/media/${video}`
-          );
-          return this.renderMediaGrid(sanitizedVideos, 'video', theme);
-        case 'image-grid':
-          const sanitizedGridImages = alert.images.map(img => 
-            img.startsWith('http') ? img : `/media/${img}`
-          );
-          return this.renderMediaGrid(sanitizedGridImages, 'image', theme);
-        case 'video-image':
-          const videoSrc = alert.video.startsWith('http') ? alert.video : `/media/${alert.video}`;
-          const imageSrc = alert.image.startsWith('http') ? alert.image : `/media/${alert.image}`;
-          return `
-            <div class="media-combo">
-              <video autoplay loop muted class="media-item">
-                <source src="${videoSrc}" type="video/mp4">
-              </video>
-              <img src="${imageSrc}" alt="Donation media" class="media-item" />
+  const textContent = alert.content 
+    ? `<div class="text-content">${this.animateText(alert.content, theme.textAnimation)}</div>` 
+    : '';
+    
+  switch (alert.template) {
+    case 'user-grid':
+      if (alert.src && alert.src.length > 0) {
+        const [firstImage, ...otherMedia] = alert.src;
+        
+        return /*html*/`
+          <div class="user-grid-container">
+            <div class="user-image-container">
+              <img src="${firstImage.path.startsWith('http') ? firstImage.path : `/media/${firstImage.path}`}" 
+                   alt="${firstImage.nombre}" 
+                   class="user-main-image" />
             </div>
-          `;
-        case 'image':
-          const imgSrc = alert.content.startsWith('http') ? alert.content : `/media/${alert.content}`;
-          return `<img src="${imgSrc}" alt="Donation alert" class="media-item" />`;
-        case 'video':
-          const vidSrc = alert.content.startsWith('http') ? alert.content : `/media/${alert.content}`;
-          return `
-            <video autoplay loop muted class="media-item">
-              <source src="${vidSrc}" type="video/mp4">
-            </video>
-          `;
-        case 'text':
-        default:
-          return `<div class="text-content">${this.animateText(alert.content, theme.textAnimation)}</div>`;
+            <div class="user-content-container">
+              ${textContent}
+              ${otherMedia.length > 0 ? this.renderMediaGrid(otherMedia) : ''}
+            </div>
+          </div>
+        `;
       }
-    }
-    render() {
-      const alert = this._alert;
-      if (!alert) return;
-  
+      return textContent;
+
+    case 'multi-grid':
+      return /*html*/`
+        ${textContent}
+        ${this.renderMediaGrid(alert.src)}
+      `;
+
+    case 'video-grid':
+      const videoItems = alert.src.filter(item => 
+        item.mediaType.startsWith('video/')
+      );
+      return /*html*/`
+        ${textContent}
+        ${this.renderMediaGrid(videoItems)}
+      `;
+
+    case 'image-grid':
+      const imageItems = alert.src.filter(item => 
+        item.mediaType.startsWith('image/')
+      );
+      return /*html*/`
+        ${this.renderMediaGrid(imageItems)}
+        ${textContent}
+      `;
+
+    case 'text':
+    default:
+      return textContent;
+  }
+}
+
+    getStyles() {
       const theme = themes[this._theme];
-  
-      this.shadowRoot.innerHTML = /*html*/`
-        <style>
+      return /*html*/`
+      <style>
           :host {
             display: flex;
             position: fixed;
@@ -233,7 +281,7 @@ class DonationAlert extends HTMLElement {
             padding: 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background: ${theme.container.background || 'rgba(17, 24, 39, 0.95)'};
+            background: ${theme.container.background || 'rgba(17, 24, 39, 0.75)'};
             border: ${theme.container.border || 'none'};
           }
   
@@ -309,114 +357,94 @@ class DonationAlert extends HTMLElement {
           .text-wave { animation: waveY 2s ease-in-out infinite; }
           .text-rotate { animation: rotate 2s linear infinite; }
           .text-glitch { animation: glitch 0.3s linear infinite; }
+          .user-grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+          }
+
+          .user-image-container {
+            max-width: 300px;
+            margin-bottom: 1rem;
+          }
+
+          .user-main-image {
+            width: 100%;
+            border-radius: ${theme.media.borderRadius || '0.5rem'};
+            border: ${theme.media.border || 'none'};
+          }
+
+          .user-content-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+          }
+
+          @media (min-width: 768px) {
+            .user-grid-container {
+              flex-direction: row;
+              align-items: flex-start;
+            }
+
+            .user-image-container {
+              flex: 0 0 300px;
+              margin-right: 1rem;
+              margin-bottom: 0;
+            }
+          }
         </style>
+      `;
+    }
+    render() {
+      const alert = this._alert;
+      if (!alert) return;
   
+      const theme = themes[this._theme];
+      /*${alert.content ? `<div class="text-content">${this.animateText(alert.content, theme.textAnimation)}</div>` : ''}*/
+    this.shadowRoot.innerHTML = /*html*/`
+        ${this.getStyles()}
         <div class="alert-container">
           <div class="content">
             ${this.renderContent(alert, theme)}
-            ${alert.text ? `<div class="text-content">${this.animateText(alert.text, theme.textAnimation)}</div>` : ''}
           </div>
         </div>
       `;
     }
   }
-
+  
   customElements.define('donation-alert', DonationAlert);
-    const socket = io();
-    socket.emit('join-room', 'sala1');
-    socket.on('user-joined', ({ userId, usersCount }) => {
-      console.log(`Usuario ${userId} se unió. Total usuarios: ${usersCount}`);
-    });
-
-    socket.on('user-left', ({ userId, usersCount }) => {
-      console.log(`Usuario ${userId} salió. Total usuarios: ${usersCount}`);
-    });
-    // Enhanced alerts data with more media combinations
-    const alerts = [
-      {
-        type: 'text',
-        content: 'John Doe donated $50! Thank you!',
-        duration: 5000
-      },
-      {
-        type: 'multi-image',
-        images: [
-          'https://picsum.photos/200/200',
-          'https://picsum.photos/201/200',
-          'https://picsum.photos/200/201'
-        ],
-        text: 'Amazing triple donation from our top supporters!',
-        duration: 8000
-      },
-      {
-        type: 'video-image',
-        video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        image: 'https://picsum.photos/200/200',
-        text: 'SuperFan123 with the mega combo donation!',
-        duration: 10000
-      },
-      {
-        type: 'image-grid',
-        images: [
-          'https://picsum.photos/150/150',
-          'https://picsum.photos/151/150',
-          'https://picsum.photos/150/151',
-          'https://picsum.photos/151/151'
-        ],
-        text: 'Squad donation achieved! Thank you team!',
-        duration: 7000
-      },
-      {
-        type: 'video-grid',
-        videos: [
-          'https://www.w3schools.com/html/mov_bbb.mp4',
-          'https://www.w3schools.com/html/mov_bbb.mp4'
-        ],
-        text: 'Double feature donation! You\'re amazing!',
-        duration: 9000
-      }
-    ];
-    // ['multi-image','video-grid','image-grid','video-image','image','video','text']
-    let currentIndex = 0;
-    const themeNames = Object.keys(themes);
-    console.log(themes,themeNames)
-    function showNextAlert(currentTheme = 'default') {
-      const alertContainer = document.createElement('donation-alert');
-      alertContainer.theme = currentTheme;
-      alertContainer.alert = alerts[currentIndex];
-      console.log(alerts[currentIndex])
-      document.querySelector('#app').appendChild(alertContainer);
-      
-      setTimeout(() => {
-        alertContainer.remove();
-        currentIndex = (currentIndex + 1) % alerts.length;
-        // Change theme every two alerts
-        if (currentIndex % 2 === 0) {
-          currentTheme = themeNames[(themeNames.indexOf(currentTheme) + 1) % themeNames.length];
-        }
-        setTimeout(showNextAlert, 5000); // 2 second gap between alerts
-      }, alerts[currentIndex].duration);
-    }
-
-
-    //showNextAlert();
-    function createOverlay(config, currentTheme = 'neon') {
-      if (!config ||!config.type || !config.content && !config.duration) return;
-      const alertContainer = document.createElement('donation-alert');
-      alertContainer.theme = currentTheme;
-      alertContainer.alert = config;
-      document.querySelector('#app').appendChild(alertContainer);
-      setTimeout(() => {
-        alertContainer.remove();
-      }, 15000);//config.duration 
-    }
-    const testevent = alerts[3];
-    createOverlay(testevent,'neon');
-    console.log(testevent);
-    socket.on('create-overlay', (config) => {
-      console.log('create-window', config);
-      createOverlay(config);
-    });
+  const alertoverlay = document.createElement('donation-alert');
+  const alertobj = {
+    template: 'user-grid',
+    content: 'John Doe donated $50! Thank you!',
+    duration: 50001,
+    src: [
+        {
+            nombre: 'imagen1.png',
+            path: 'https://picsum.photos/200/200',
+            mediaType: 'image/png'
+        },
+        {
+            nombre: 'imagen2.jpg',
+            path: 'https://picsum.photos/200/201',
+            mediaType: 'image/png'
+        },
+        {
+            nombre: 'video.mp4',
+            path: 'https://www.w3schools.com/html/mov_bbb.mp4',
+            mediaType: 'video/mp4'
+        },
+        
+    ]
+};
+  alertoverlay.alert = alertobj;
+  alertoverlay.theme = 'neon';
+  setTimeout(() => {
+    alertoverlay.remove();
+  }, alertobj.duration);
+document.body.appendChild(alertoverlay);
     </script>
-  </body>
+</body>
 </html>
