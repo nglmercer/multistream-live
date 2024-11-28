@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./styles.css">
     <!-- a;anidmos tailwind css -->
      <script src="https://cdn.tailwindcss.com"></script>
      <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>    <script src="https://cdn.tailwindcss.com"></script>
@@ -12,14 +11,61 @@
       body,html {
         background-color: transparent;
       }
+      .control-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background-color: #333;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+      display: none;
+      app-region: drag;
+    }
+
+    .control-bar button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .control-bar button:hover {
+      background-color: #555;
+    }
     </style>
   </head>
   <body>
+    <div class="control-bar" id="controlBar">
+      <button id="closeBtn" onclick="window.close()">Cerrar</button>
+    </div>
+    <script>
+          let isMaximized = false;
+
+// Show the control bar when the window is focused
+window.addEventListener('focus', () => {
+  controlBar.style.display = 'flex';
+});
+
+// Hide the control bar when the window is blurred
+window.addEventListener('blur', () => {
+  controlBar.style.display = 'none';
+});
+
+    </script>
     <div id="app" class="h-100dvh w-100dvw"></div>
     <div>
 
     </div>
     <script>
+      const socket = io();
     const themes = {
       default: {
         container: 'bg-gray-900/95 rounded-2xl p-6 shadow-xl',
@@ -417,7 +463,7 @@
   customElements.define('donation-alert', DonationAlert);
   const alertoverlay = document.createElement('donation-alert');
   const alertobj = {
-    template: 'user-grid',
+    template: 'multi-grid',
     content: 'John Doe donated $50! Thank you!',
     duration: 50001,
     src: [
@@ -440,11 +486,34 @@
     ]
 };
   alertoverlay.alert = alertobj;
-  alertoverlay.theme = 'neon';
+  //alertoverlay.theme = 'neon';
   setTimeout(() => {
     alertoverlay.remove();
   }, alertobj.duration);
 document.body.appendChild(alertoverlay);
+socket.emit('join-room', 'sala1');
+socket.on('create-overlay', (config) => {
+  console.log('create-overlay', config);
+  createOverlay(config);
+});
+socket.on('user-joined', ({ userId, usersCount }) => {
+  console.log(`Usuario ${userId} se unió. Total usuarios: ${usersCount}`);
+});
+
+socket.on('user-left', ({ userId, usersCount }) => {
+  console.log(`Usuario ${userId} salió. Total usuarios: ${usersCount}`);
+});
+function createOverlay(config, theme = 'neon') {
+  if (!config || !config.content && !config.duration) return;
+  console.log("createoverlay",config)
+  const alertContainer = document.createElement('donation-alert');
+  alertContainer.theme = theme;
+  alertContainer.alert = config;
+  document.body.appendChild(alertContainer);
+  setTimeout(() => {
+      alertContainer.remove();
+  }, config.duration);
+}
     </script>
 </body>
 </html>

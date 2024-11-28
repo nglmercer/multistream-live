@@ -4,7 +4,7 @@ import { htmlminecraft } from './features/Minecraftconfig.js';
 import { getTranslation, translations } from './translations.js';
 import socketManager , { socketurl } from "./server/socketManager.js";
 const tabs = document.querySelector('custom-tabs');
-
+socketManager.emitMessage("join-room", "sala1");
 /* socketManager.onMessage("QRCode", (data) => {
     console.log("QRCode", data,socketurl.constructSocketUrl(8090));
     const localip = socketurl.constructSocketUrl(8090);
@@ -71,15 +71,21 @@ function generatedropelement() {
     GridContainer.addEventListener('itemClick', (event) => {
         console.log('Elemento clickeado:', event.detail);
         const mapconfig = mapdatatooverlay(event.detail.additionalData);
-        socket.emit('create-overlay', {mapconfig,roomId:'sala1'});
+        socketManager.emitMessage('create-overlay', {mapconfig,roomId:'sala1'});
     });
     function mapdatatooverlay(data) {
       console.log(data);
       const config = {
-        type: data.type.includes('video') ? 'video' : 'image',
-        content: data.path,
-        text: data.nombre,
-        duration: 5000
+        template: 'multi-grid',
+        content: data.nombre || data.path,
+        duration: 5000,
+        src: [
+          {
+            nombre: data.nombre,
+            path: data.path,
+            mediaType: data.mediaType || data.type,
+          },
+        ],
       };
       return config;
     }

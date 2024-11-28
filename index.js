@@ -296,6 +296,15 @@ io.on('connection', (socket) => {
             });
         }
     });
+    socket.on('join-room', (roomId) => {
+      const roomInfo = roomManager.joinRoom(socket, roomId);
+      
+      // Notificar a todos en la sala
+      roomManager.emitToRoom(roomId, 'user-joined', {
+        userId: socket.id,
+        usersCount: roomInfo.usersCount
+      });
+    });
     socket.on('update-window', ({ id, config }) => {
       windowManager.updateWindow(id, config);
     });
@@ -305,7 +314,15 @@ io.on('connection', (socket) => {
     socket.on('close-window', (id) => {
       windowManager.closeWindow(id);
     });
+    socket.on('create-overlay', ({ roomId, mapconfig }) => {
+      console.log('create-overlay', roomId, mapconfig);
+      if (roomManager.roomExists(roomId)) {
+        console.log('create-overlay', mapconfig);
+        roomManager.emitToRoom(roomId, 'create-overlay', mapconfig);
+      }
+      // emitimos a todos los usuarios en la sala
   
+    });
     // Enviar lista inicial de ventanas
     socket.emit('window-list', 
       Array.from(windowManager.getWindows().entries())
