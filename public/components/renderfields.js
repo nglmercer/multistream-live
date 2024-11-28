@@ -310,6 +310,7 @@ class DynamicRow {
       select: () => this.createSelectElement(key, subKey, value, typeConfig, HtmlContainer),
       select2: () => this.createSelect2Element(key, subKey, value, typeConfig, HtmlContainer),
       multiSelect: () => this.createMultiSelectElement(key, subKey, value, typeConfig),
+      multiSelect2: () => this.createMultiSelectElement2(key, subKey, value, typeConfig),
       color: () => this.createColorField(key, subKey, value, typeConfig, HtmlContainer),
       radio: () => this.createRadioElement(key, subKey, value, typeConfig, HtmlContainer),
       button: () => this.createButtonElement(key, subKey, value, typeConfig, HtmlContainer),

@@ -47,6 +47,22 @@ function replaceMultipleValues(obj, replacements) {
 
   return newObject;
 }
+function getallfilesmap(objetc) {
+  try {
+    console.log("files",objetc);
+    const filesmap = objetc.map(file => ({
+      value: file.nombre,
+      label: file.nombre,
+      path: file.path,
+      mediaType: file.mediaType,
+      mediaUrl: file.mediaUrl,
+    }));
+    return filesmap;
+  } catch (error) {
+    console.error('Error getting all files:', error);
+    return {};
+  }
+}
 const actionsconfig = {
   nombre: {
     class: 'input-default',
@@ -95,6 +111,27 @@ const actionsconfig = {
       type: 'text2',
       returnType: 'string',
     },
+  },
+  overlay: {
+    type: 'object',
+    check: {
+      class: 'filled-in',
+      type: 'checkbox',
+      returnType: 'boolean',
+      label: 'Overlay action',
+    },
+    src:{
+      class: 'input-default',
+      type: 'multiSelect',
+      returnType: 'array',
+      options: getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))) ,
+    },
+    duration: {
+      class: 'input-default',
+      type: 'number',
+      returnType: 'number',
+      label: 'duration',
+    }
   },
 /*   obs: {
     type: 'object',
