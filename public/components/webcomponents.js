@@ -1,5 +1,533 @@
 // import en el lado del cliente... html
 // Define el componente personalizado
+class ModalSelector extends HTMLElement {
+  constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this.selectedValues = []; // Para múltiples valores
+      this.selectedLabels = [];
+      this._hiddenInput = null; // Input oculto para FormData
+      this.options = []; // Opciones para el modal
+      this.multiple = false; // Modo de selección múltiple
+
+      const template = document.createElement('template');
+      template.innerHTML = /*html*/ `
+          <style>
+              .input-wrapper {
+                  position: relative;
+                  width: 100%;
+              }
+              input {
+                  box-sizing: content-box;
+                  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+                  border: 1px solid #e2e8f0;
+                  border-radius: 0.375rem;
+                  outline: none;
+                  background: white;
+                  cursor: pointer;
+              }
+              input:focus {
+                  border-color: #3b82f6;
+                  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+              }
+              .toggle-btn {
+                  position: absolute;
+                  right: 0.5rem;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  padding: 0.25rem;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  color: #6b7280;
+              }
+              ::slotted(input[type="hidden"]) {
+                  display: none;
+              }
+              .option {
+                  padding: 0.5rem;
+                  cursor: pointer;
+                  border: 1px solid #e2e8f0;
+                  margin-bottom: 0.5rem;
+                  border-radius: 0.375rem;
+                  background: white;
+              }
+              .option.selected {
+                  background: #3b82f6;
+                  color: white;
+              }
+              .confirm-btn {
+                  padding: 0.5rem 1rem;
+                  background: #3b82f6;
+                  color: white;
+                  border: none;
+                  border-radius: 0.375rem;
+                  cursor: pointer;
+              }
+          </style>
+          <div class="input-wrapper">
+              <slot></slot>
+              <input type="text" readonly placeholder="Seleccione valores">
+              <button class="toggle-btn">▼</button>
+          </div>
+      `;
+
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+      this.input = this.shadowRoot.querySelector('input[type="text"]');
+      this.toggleBtn = this.shadowRoot.querySelector('.toggle-btn');
+
+      this.setupEventListeners();
+  }
+
+  connectedCallback() {
+      if (!this._hiddenInput) {
+          this._hiddenInput = document.createElement('input');
+          this._hiddenInput.type = 'hidden';
+          this._hiddenInput.name = this.getAttribute('name') || '';
+          this.appendChild(this._hiddenInput);
+      }
+
+      const initialValues = this.getAttribute('value');
+      if (initialValues) {
+          const values = initialValues.split(',');
+          this.setValues(values, values);
+      }
+
+      this.multiple = this.hasAttribute('multiple');
+  }
+
+  static get observedAttributes() {
+      return ['name', 'value', 'multiple'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'name' && this._hiddenInput) {
+          this._hiddenInput.name = newValue;
+      }
+      if (name === 'value' && newValue !== oldValue) {
+          const values = newValue.split(',');
+          this.setValues(values, values);
+      }
+      if (name === 'multiple') {
+          this.multiple = newValue !== null;
+      }
+  }
+
+  setValues(values, labels) {
+      this.selectedValues = values;
+      this.selectedLabels = labels;
+      this.input.value = labels.join(', ');
+      if (this._hiddenInput) {
+          this._hiddenInput.value = values.join(',');
+      }
+
+      this.dispatchEvent(new CustomEvent('change', {
+          detail: { values, labels },
+          bubbles: true,
+      }));
+
+      this.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  setupEventListeners() {
+      const openSelector = () => {
+          this.showSelectorModal();
+      };
+
+      this.input.addEventListener('click', openSelector);
+      this.toggleBtn.addEventListener('click', openSelector);
+  }
+
+  async showSelectorModal() {
+      try {
+          const result = await createSelectorModal({
+              selectedValues: this.selectedValues,
+              options: this.options,
+              multiple: this.multiple, // Pasar modo múltiple
+          });
+          if (result) {
+              this.setValues(result.values, result.labels);
+          }
+      } catch (error) {
+          console.log('Selector cancelado');
+      }
+  }
+
+  /**
+   * Método para establecer opciones externas.
+   * @param {Array} options - Lista de opciones con `value`, `label` y `description`.
+   */
+  setOptions(options) {
+      this.options = options;
+  }
+
+  get value() {
+      return this.multiple ? this.selectedValues : this.selectedValues[0] || '';
+  }
+
+  set value(newValue) {
+      const values = Array.isArray(newValue) ? newValue : [newValue];
+      this.setValues(values, values);
+  }
+}
+
+customElements.define('modal-selector', ModalSelector);
+class FlexibleModalSelector extends HTMLElement {
+constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.selectedValues = []; 
+    this._hiddenInput = null;
+    this.options = [];
+    this.mode = 'single'; 
+
+    const template = document.createElement('template');
+    template.innerHTML =/*html*/ `
+        <style>
+            .input-wrapper {
+                position: relative;
+                width: 100%;
+            }
+            input {
+                box-sizing: content-box;
+                padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 0.375rem;
+                outline: none;
+                background: white;
+                cursor: pointer;
+                width: 100%;
+            }
+            input:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+            .toggle-btn {
+                position: absolute;
+                right: 0.5rem;
+                top: 50%;
+                transform: translateY(-50%);
+                padding: 0.25rem;
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #6b7280;
+            }
+            ::slotted(input[type="hidden"]) {
+                display: none;
+            }
+        </style>
+        <div class="input-wrapper">
+            <slot></slot>
+            <input type="text" readonly placeholder="Seleccione un valor">
+            <button class="toggle-btn">▼</button>
+        </div>
+    `;
+
+    this.shadowRoot.appendChild(template.content.cloneNode(true));
+    this.input = this.shadowRoot.querySelector('input[type="text"]');
+    this.toggleBtn = this.shadowRoot.querySelector('.toggle-btn');
+
+    this.setupEventListeners();
+}
+
+connectedCallback() {
+    // Set mode from attribute
+    this.mode = this.getAttribute('mode') || 'single';
+
+    if (!this._hiddenInput) {
+        this._hiddenInput = document.createElement('input');
+        this._hiddenInput.type = 'hidden';
+        this._hiddenInput.name = this.getAttribute('name') || '';
+        this.appendChild(this._hiddenInput);
+    }
+
+    // Support initial values
+    const initialValue = this.getAttribute('value');
+    if (initialValue) {
+        // Split values if multi-select mode, otherwise use as single value
+        const values = this.mode === 'multi' 
+            ? initialValue.split(',').map(v => v.trim()) 
+            : [initialValue];
+        this.setValues(values);
+    }
+}
+
+static get observedAttributes() {
+    return ['name', 'value', 'mode'];
+}
+
+attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'name' && this._hiddenInput) {
+        this._hiddenInput.name = newValue;
+    }
+    
+    if (name === 'mode') {
+        this.mode = newValue || 'single';
+        // Reset selection if mode changes
+        this.selectedValues = [];
+        this.input.value = '';
+        if (this._hiddenInput) this._hiddenInput.value = '';
+    }
+
+    if (name === 'value' && newValue !== oldValue) {
+        // Handle value based on current mode
+        const values = this.mode === 'multi' 
+            ? newValue.split(',').map(v => v.trim()) 
+            : [newValue];
+        this.setValues(values);
+    }
+}
+
+setValues(values) {
+    // Ensure values is always an array
+    const valuesArray = Array.isArray(values) ? values : [values];
+    
+    // In single mode, take only the first value
+    this.selectedValues = this.mode === 'single' ? valuesArray.slice(0, 1) : valuesArray;
+    
+    // Get labels for selected values
+    const labels = this.options
+        .filter(option => this.selectedValues.includes(option.value))
+        .map(option => option.label);
+    
+    // Update input display
+    this.input.value = labels.join(', ');
+
+    // Update hidden input
+    if (this._hiddenInput) {
+        this._hiddenInput.value = this.selectedValues.join(',');
+    }
+
+    // Dispatch events
+    this.dispatchEvent(new CustomEvent('change', {
+        detail: { 
+            values: this.selectedValues,
+            mode: this.mode 
+        },
+        bubbles: true
+    }));
+
+    this.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+setupEventListeners() {
+    const openSelector = () => {
+        this.showSelectorModal();
+    };
+
+    this.input.addEventListener('click', openSelector);
+    this.toggleBtn.addEventListener('click', openSelector);
+}
+
+async showSelectorModal() {
+    try {
+        const result = await this.createSelectorModal({
+            selectedValues: this.selectedValues,
+            options: this.options,
+            mode: this.mode
+        });
+        
+        if (result && result.values) {
+            this.setValues(result.values);
+        }
+    } catch (error) {
+        console.log('Selector modal cancelled');
+    }
+}
+
+/**
+ * Method to create selector modal dynamically based on mode
+ */
+async createSelectorModal({ selectedValues, options, mode }) {
+    return new Promise((resolve, reject) => {
+        // Crear modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        `;
+
+        // Buscador
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Buscar...';
+        searchInput.style.cssText = `
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.25rem;
+        `;
+
+        // Contenedor de opciones
+        const optionList = document.createElement('div');
+        optionList.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        `;
+
+        // Lógica de búsqueda en tiempo real
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            optionElements.forEach(optionElement => {
+                const label = optionElement.querySelector('span').textContent.toLowerCase();
+                optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Track selected values
+        const currentlySelectedValues = new Set(selectedValues);
+        const optionElements = [];
+
+        // Crear opciones
+        options.forEach(option => {
+            const optionElement = document.createElement('div');
+            optionElement.style.cssText = `
+                display: flex;
+                align-items: center;
+                padding: 0.5rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 0.25rem;
+                cursor: pointer;
+                background-color: ${currentlySelectedValues.has(option.value) ? '#3b82f6' : 'white'};
+                color: ${currentlySelectedValues.has(option.value) ? 'white' : 'black'};
+            `;
+
+            // Checkbox para modo multi
+            if (mode === 'multi') {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = currentlySelectedValues.has(option.value);
+                checkbox.style.marginRight = '0.5rem';
+                optionElement.appendChild(checkbox);
+            }
+
+            const label = document.createElement('span');
+            label.textContent = option.label;
+            optionElement.appendChild(label);
+
+            // Lógica de selección
+            optionElement.addEventListener('click', () => {
+                if (mode === 'single') {
+                    // Modo single: selección inmediata
+                    document.body.removeChild(modal);
+                    resolve({ values: [option.value] });
+                } else {
+                    // Modo multi: toggle selección
+                    const checkbox = optionElement.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                    if (checkbox.checked) {
+                        currentlySelectedValues.add(option.value);
+                        optionElement.style.backgroundColor = '#3b82f6';
+                        optionElement.style.color = 'white';
+                    } else {
+                        currentlySelectedValues.delete(option.value);
+                        optionElement.style.backgroundColor = 'white';
+                        optionElement.style.color = 'black';
+                    }
+                }
+            });
+
+            optionElements.push(optionElement);
+            optionList.appendChild(optionElement);
+        });
+
+        // Botones para modo multi
+        if (mode === 'multi') {
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = 'Confirmar Selección';
+            confirmButton.style.cssText = `
+                margin-top: 1rem;
+                padding: 0.5rem 1rem;
+                background-color: #3b82f6;
+                color: white;
+                border: none;
+                border-radius: 0.25rem;
+                cursor: pointer;
+            `;
+
+            confirmButton.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                resolve({
+                    values: Array.from(currentlySelectedValues)
+                });
+            });
+
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancelar';
+            cancelButton.style.cssText = `
+                margin-top: 1rem;
+                margin-left: 0.5rem;
+                padding: 0.5rem 1rem;
+                background-color: #f3f4f6;
+                color: black;
+                border: 1px solid #e2e8f0;
+                border-radius: 0.25rem;
+                cursor: pointer;
+            `;
+
+            cancelButton.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                reject();
+            });
+
+            // Agregar buscador, lista de opciones y botones
+            modal.appendChild(searchInput);
+            modal.appendChild(optionList);
+            modal.appendChild(confirmButton);
+            modal.appendChild(cancelButton);
+        } else {
+            // Modo single: buscador y opciones
+            modal.appendChild(searchInput);
+            modal.appendChild(optionList);
+        }
+
+        // Agregar al documento
+        document.body.appendChild(modal);
+
+        // Enfocar buscador al abrir
+        searchInput.focus();
+    });
+}
+
+/**
+ * Method to set external options
+ * @param {Array} options - List of options with `value`, `label`, and optional `description`
+ */
+setOptions(options) {
+    this.options = options;
+}
+
+get value() {
+    // Return single value or array based on mode
+    return this.mode === 'single' ? this.selectedValues[0] : this.selectedValues;
+}
+
+set value(newValues) {
+    // Ensure newValues is an array
+    const valuesArray = Array.isArray(newValues) ? newValues : [newValues];
+    this.setValues(valuesArray);
+}
+}
+
+customElements.define('flexible-modal-selector', FlexibleModalSelector);
+
 class DynamicForm extends HTMLElement {
   constructor() {
       super();
@@ -169,15 +697,6 @@ class DynamicForm extends HTMLElement {
       //this.emitchanges();
   }
 
-  /*     emitchanges(){
-      setInterval(() => {
-          this.dispatchEvent(new CustomEvent('allchanges', {
-          detail: this.getValues(),
-          bubbles: true,
-          composed: true
-      }));
-      }, 10000);
-  } */
   _deepClone(obj) {
       return JSON.parse(JSON.stringify(obj));
   }
@@ -453,7 +972,6 @@ class DynamicForm extends HTMLElement {
 
       return '';
   }
-
 
   render() {
       this.form.removeEventListener('submit', this.boundHandleSubmit);
