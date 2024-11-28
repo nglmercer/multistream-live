@@ -173,357 +173,457 @@ class ModalSelector extends HTMLElement {
 
 customElements.define('modal-selector', ModalSelector);
 class FlexibleModalSelector extends HTMLElement {
-constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.selectedValues = []; 
-    this._hiddenInput = null;
-    this.options = [];
-    this.mode = 'single'; 
+  constructor() {
+      super();
+      this.attachShadow({ mode: 'open' });
+      this.selectedValues = [];
+      this._hiddenInput = null;
+      this.options = [];
+      this.mode = 'single';
+      this.theme = 'dark'
+      this.isDarkMode = false;
+      this.separator = '||'; // Unique separator to handle values with commas
+      const template = document.createElement('template');
+      template.innerHTML =/*html*/ `
+          <style>
+              :host {
+                  --bg-primary: white;
+                  --bg-secondary: #f8f9fa;
+                  --text-primary: black;
+                  --text-secondary: #6b7280;
+                  --border-color: #e2e8f0;
+                  --accent-color: #3b82f6;
+                  --accent-light: rgba(59, 130, 246, 0.1);
+              }
+              :host(.dark) {
+                  --bg-primary: #1a202c;
+                  --bg-secondary: #2d3748;
+                  --text-primary: white;
+                  --text-secondary: #cbd5e0;
+                  --border-color: #4a5568;
+                  --accent-color: #4299e1;
+                  --accent-light: rgba(66, 153, 225, 0.1);
+              }
+              .input-wrapper {
+                  position: relative;
+                  width: 100%;
+              }
+              input {
+                  box-sizing: content-box;
+                  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+                  border: 1px solid var(--border-color);
+                  border-radius: 0.375rem;
+                  outline: none;
+                  background: var(--bg-primary);
+                  color: var(--text-primary);
+                  cursor: pointer;
+              }
+              input:focus {
+                  border-color: var(--accent-color);
+                  box-shadow: 0 0 0 3px var(--accent-light);
+              }
+              .toggle-btn {
+                  position: absolute;
+                  right: 0.5rem;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  padding: 0.25rem;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  color: var(--text-secondary);
+              }
+              ::slotted(input[type="hidden"]) {
+                  display: none;
+              }
+          </style>
+          <div class="input-wrapper">
+              <slot></slot>
+              <input type="text" readonly placeholder="Seleccione un valor">
+              <button class="toggle-btn">▼</button>
+          </div>
+      `;
 
-    const template = document.createElement('template');
-    template.innerHTML =/*html*/ `
-        <style>
-            .input-wrapper {
-                position: relative;
-                width: 100%;
-            }
-            input {
-                box-sizing: content-box;
-                padding: 0.5rem 2.5rem 0.5rem 0.75rem;
-                border: 1px solid #e2e8f0;
-                border-radius: 0.375rem;
-                outline: none;
-                background: white;
-                cursor: pointer;
-                width: 100%;
-            }
-            input:focus {
-                border-color: #3b82f6;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            }
-            .toggle-btn {
-                position: absolute;
-                right: 0.5rem;
-                top: 50%;
-                transform: translateY(-50%);
-                padding: 0.25rem;
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: #6b7280;
-            }
-            ::slotted(input[type="hidden"]) {
-                display: none;
-            }
-        </style>
-        <div class="input-wrapper">
-            <slot></slot>
-            <input type="text" readonly placeholder="Seleccione un valor">
-            <button class="toggle-btn">▼</button>
-        </div>
-    `;
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+      this.input = this.shadowRoot.querySelector('input[type="text"]');
+      this.toggleBtn = this.shadowRoot.querySelector('.toggle-btn');
 
-    this.shadowRoot.appendChild(template.content.cloneNode(true));
-    this.input = this.shadowRoot.querySelector('input[type="text"]');
-    this.toggleBtn = this.shadowRoot.querySelector('.toggle-btn');
+      this.setupEventListeners();
+  }
 
-    this.setupEventListeners();
+
+  connectedCallback() {
+      // Set mode from attribute
+      this.mode = this.getAttribute('mode') || 'single';
+      if (!this._hiddenInput) {
+          this._hiddenInput = document.createElement('input');
+          this._hiddenInput.type = 'hidden';
+          this._hiddenInput.name = this.getAttribute('name') || '';
+          this.appendChild(this._hiddenInput);
+      }
+      // Support initial values
+      const initialValue = this.getAttribute('value');
+      if (initialValue) {
+          // Use new parsing method
+          const values = this.parseValue(initialValue);
+          this.setValues(values);
+      }
+  }
+
+  static get observedAttributes() {
+      return ['name', 'value', 'mode', 'theme'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'name' && this._hiddenInput) {
+          this._hiddenInput.name = newValue;
+      }
+      
+      if (name === 'mode') {
+          this.mode = newValue || 'single';
+          // Reset selection if mode changes
+          this.selectedValues = [];
+          this.input.value = '';
+          if (this._hiddenInput) this._hiddenInput.value = '';
+      }
+     
+      if (name === 'value' && newValue !== oldValue) {
+          // Use new parsing method
+          const values = this.parseValue(newValue);
+          this.setValues(values);
+      }
+  }
+  parseValue(value) {
+      if (!value) return [];
+
+      // If the value contains our separator, split by it
+      if (value.includes(this.separator)) {
+          return value.split(this.separator).map(v => v.trim());
+      }
+
+      // Fallback to comma splitting, but only if the comma is not inside quotes or special values
+      return this.splitValueSafely(value);
+  }
+  splitValueSafely(value) {
+      // If no commas, return as single value
+      if (!value.includes(',')) return [value.trim()];
+
+      // Use a regex to split while respecting quotes and special characters
+      const values = value.match(/(?:[^\s,"]|"(?:\\"|[^"])*")+/g);
+      
+      return values ? values.map(v => {
+          // Remove surrounding quotes if present
+          return v.trim().replace(/^["']|["']$/g, '');
+      }) : [value.trim()];
+  }
+  setValues(values) {
+  // Ensure values is always an array
+  const valuesArray = Array.isArray(values) ? values : [values];
+  
+  // Normalize values for consistent handling
+  const normalizedValues = valuesArray.map(this.normalizeValue);
+  
+  // Filter out values that are not in the available options
+  const availableValues = normalizedValues.filter(value => {
+      const matchingOption = this.options.some(option => 
+          this.normalizeValue(option.value) === value
+      );
+      return matchingOption;
+  });
+  
+  // In single mode, take only the first available value
+  this.selectedValues = this.mode === 'single' ? availableValues.slice(0, 1) : availableValues;
+  
+  // Get labels for selected values
+  const labels = this.options
+      .filter(option => {
+          const normalizedOptionValue = this.normalizeValue(option.value);
+          return this.selectedValues.includes(normalizedOptionValue);
+      })
+      .map(option => option.label);
+  
+  // Update input display
+  this.input.value = labels.join(', ');
+
+  // Update hidden input using the separator method
+  if (this._hiddenInput) {
+      this._hiddenInput.value = this.selectedValues.join(this.separator);
+  }
+  
+  // Dispatch events
+  this.dispatchEvent(new CustomEvent('change', {
+      detail: {
+          values: this.selectedValues,
+          mode: this.mode
+      },
+      bubbles: true
+  }));
+  this.dispatchEvent(new Event('input', { bubbles: true }));
+}
+  setupEventListeners() {
+      const openSelector = () => {
+          this.showSelectorModal();
+      };
+
+      this.input.addEventListener('click', openSelector);
+      this.toggleBtn.addEventListener('click', openSelector);
+  }
+
+  async showSelectorModal() {
+      try {
+          const result = await this.createSelectorModal({
+          selectedValues: this.selectedValues,
+          options: this.options,
+          mode: this.mode,
+          theme: this.isDarkMode ? 'dark' : 'light' // Use isDarkMode to determine theme
+      });
+          
+          if (result && result.values) {
+              this.setValues(result.values);
+          }
+      } catch (error) {
+          console.log('Selector modal cancelled');
+      }
+  }
+
+  /**
+   * Method to create selector modal dynamically based on mode
+   */
+   async createSelectorModal({ selectedValues, options, mode, theme = 'light' }) {
+  return new Promise((resolve, reject) => {
+      // Color schemes
+      const colors = {
+          light: {
+              background: 'white',
+              border: '#e2e8f0',
+              text: 'black',
+              selectedBackground: '#3b82f6',
+              selectedText: 'white',
+              searchBg: 'white',
+              cancelBg: '#f3f4f6'
+          },
+          dark: {
+              background: '#1e293b', // slate-800
+              border: '#334155', // slate-700
+              text: 'white',
+              selectedBackground: '#2563eb', // blue-600
+              selectedText: 'white',
+              searchBg: '#334155', // slate-700
+              cancelBg: '#334155' // slate-700
+          }
+      };
+
+      const currentColors = colors[theme];
+
+      // Crear modal
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: ${currentColors.background};
+          border: 1px solid ${currentColors.border};
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          padding: 1rem;
+          max-width: 400px;
+          width: 90%;
+          max-height: 70vh;
+          display: flex;
+          flex-direction: column;
+          color: ${currentColors.text};
+      `;
+
+      // Buscador
+      const searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.placeholder = 'Buscar...';
+      searchInput.style.cssText = `
+          width: 100%;
+          padding: 0.5rem;
+          margin-bottom: 1rem;
+          border: 1px solid ${currentColors.border};
+          border-radius: 0.25rem;
+          background-color: ${currentColors.searchBg};
+          color: ${currentColors.text};
+      `;
+
+      // Contenedor de opciones
+      const optionList = document.createElement('div');
+      optionList.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          max-height: 300px;
+          overflow-y: auto;
+      `;
+
+      // Lógica de búsqueda en tiempo real
+      searchInput.addEventListener('input', (e) => {
+          const searchTerm = e.target.value.toLowerCase().trim();
+          optionElements.forEach(optionElement => {
+              const label = optionElement.querySelector('span').textContent.toLowerCase();
+              optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
+          });
+      });
+
+      // Track selected values
+      const currentlySelectedValues = new Set(selectedValues);
+      const optionElements = [];
+
+      // Crear opciones
+      options.forEach(option => {
+          const optionElement = document.createElement('div');
+          optionElement.style.cssText = `
+              display: flex;
+              align-items: center;
+              padding: 0.5rem;
+              border: 1px solid ${currentColors.border};
+              border-radius: 0.25rem;
+              cursor: pointer;
+              background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
+              color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
+          `;
+
+          // Checkbox para modo multi
+          if (mode === 'multi') {
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.checked = currentlySelectedValues.has(option.value);
+              checkbox.style.marginRight = '0.5rem';
+              checkbox.style.accentColor = currentColors.selectedBackground;
+              optionElement.appendChild(checkbox);
+          }
+
+          const label = document.createElement('span');
+          label.textContent = option.label;
+          optionElement.appendChild(label);
+
+          // Lógica de selección
+          optionElement.addEventListener('click', () => {
+              if (mode === 'single') {
+                  // Modo single: selección inmediata
+                  document.body.removeChild(modal);
+                  resolve({ values: [option.value] });
+              } else {
+                  // Modo multi: toggle selección
+                  const checkbox = optionElement.querySelector('input[type="checkbox"]');
+                  checkbox.checked = !checkbox.checked;
+                  if (checkbox.checked) {
+                      currentlySelectedValues.add(option.value);
+                      optionElement.style.backgroundColor = currentColors.selectedBackground;
+                      optionElement.style.color = currentColors.selectedText;
+                  } else {
+                      currentlySelectedValues.delete(option.value);
+                      optionElement.style.backgroundColor = currentColors.background;
+                      optionElement.style.color = currentColors.text;
+                  }
+              }
+          });
+
+          optionElements.push(optionElement);
+          optionList.appendChild(optionElement);
+      });
+
+      // Botones para modo multi
+      if (mode === 'multi') {
+          const confirmButton = document.createElement('button');
+          confirmButton.textContent = 'Confirmar Selección';
+          confirmButton.style.cssText = `
+              margin-top: 1rem;
+              padding: 0.5rem 1rem;
+              background-color: ${currentColors.selectedBackground};
+              color: ${currentColors.selectedText};
+              border: none;
+              border-radius: 0.25rem;
+              cursor: pointer;
+          `;
+
+          confirmButton.addEventListener('click', () => {
+              document.body.removeChild(modal);
+              resolve({
+                  values: Array.from(currentlySelectedValues)
+              });
+          });
+
+          const cancelButton = document.createElement('button');
+          cancelButton.textContent = 'Cancelar';
+          cancelButton.style.cssText = `
+              margin-top: 1rem;
+              margin-left: 0.5rem;
+              padding: 0.5rem 1rem;
+              background-color: ${currentColors.cancelBg};
+              color: ${currentColors.text};
+              border: 1px solid ${currentColors.border};
+              border-radius: 0.25rem;
+              cursor: pointer;
+          `;
+
+          cancelButton.addEventListener('click', () => {
+              document.body.removeChild(modal);
+              reject();
+          });
+
+          // Agregar buscador, lista de opciones y botones
+          modal.appendChild(searchInput);
+          modal.appendChild(optionList);
+          modal.appendChild(confirmButton);
+          modal.appendChild(cancelButton);
+      } else {
+          // Modo single: buscador y opciones
+          modal.appendChild(searchInput);
+          modal.appendChild(optionList);
+      }
+
+      // Agregar al documento
+      document.body.appendChild(modal);
+
+      // Enfocar buscador al abrir
+      searchInput.focus();
+  });
 }
 
-connectedCallback() {
-    // Set mode from attribute
-    this.mode = this.getAttribute('mode') || 'single';
+  /**
+   * Method to set external options
+   * @param {Array} options - List of options with `value`, `label`, and optional `description`
+   */
+  setOptions(options) {
+      this.options = options;
+  }
+  normalizeValue(value) {
+      // For primitive types (number, string, boolean), return as-is
+      if (['number', 'string', 'boolean'].includes(typeof value)) {
+          return value;
+      }
+      
+      // For objects and arrays, use JSON stringify
+      return JSON.stringify(value);
+  }
 
-    if (!this._hiddenInput) {
-        this._hiddenInput = document.createElement('input');
-        this._hiddenInput.type = 'hidden';
-        this._hiddenInput.name = this.getAttribute('name') || '';
-        this.appendChild(this._hiddenInput);
-    }
+  get value() {
+      return this.mode === 'single' ? this.selectedValues[0] : this.selectedValues;
+  }
 
-    // Support initial values
-    const initialValue = this.getAttribute('value');
-    if (initialValue) {
-        // Split values if multi-select mode, otherwise use as single value
-        const values = this.mode === 'multi' 
-            ? initialValue.split(',').map(v => v.trim()) 
-            : [initialValue];
-        this.setValues(values);
-    }
-}
+  toggleDarkMode() {
+      this.isDarkMode = !this.isDarkMode;
+      if (this.isDarkMode) {
+          this.classList.add('dark');
+      } else {
+          this.classList.remove('dark');
+      }
+      
+      // Dispatch dark mode change event
+      this.dispatchEvent(new CustomEvent('darkModeChange', {
+          detail: { isDarkMode: this.isDarkMode },
+          bubbles: true
+      }));
+  }
+      set value(newValues) {
+      const valuesArray = Array.isArray(newValues) ? newValues : [newValues];
+      this.setValues(valuesArray);
+  }
 
-static get observedAttributes() {
-    return ['name', 'value', 'mode'];
-}
-
-attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'name' && this._hiddenInput) {
-        this._hiddenInput.name = newValue;
-    }
-    
-    if (name === 'mode') {
-        this.mode = newValue || 'single';
-        // Reset selection if mode changes
-        this.selectedValues = [];
-        this.input.value = '';
-        if (this._hiddenInput) this._hiddenInput.value = '';
-    }
-
-    if (name === 'value' && newValue !== oldValue) {
-        // Handle value based on current mode
-        const values = this.mode === 'multi' 
-            ? newValue.split(',').map(v => v.trim()) 
-            : [newValue];
-        this.setValues(values);
-    }
-}
-
-setValues(values) {
-    // Ensure values is always an array
-    const valuesArray = Array.isArray(values) ? values : [values];
-    
-    // In single mode, take only the first value
-    this.selectedValues = this.mode === 'single' ? valuesArray.slice(0, 1) : valuesArray;
-    
-    // Get labels for selected values
-    const labels = this.options
-        .filter(option => this.selectedValues.includes(option.value))
-        .map(option => option.label);
-    
-    // Update input display
-    this.input.value = labels.join(', ');
-
-    // Update hidden input
-    if (this._hiddenInput) {
-        this._hiddenInput.value = this.selectedValues.join(',');
-    }
-
-    // Dispatch events
-    this.dispatchEvent(new CustomEvent('change', {
-        detail: { 
-            values: this.selectedValues,
-            mode: this.mode 
-        },
-        bubbles: true
-    }));
-
-    this.dispatchEvent(new Event('input', { bubbles: true }));
-}
-
-setupEventListeners() {
-    const openSelector = () => {
-        this.showSelectorModal();
-    };
-
-    this.input.addEventListener('click', openSelector);
-    this.toggleBtn.addEventListener('click', openSelector);
-}
-
-async showSelectorModal() {
-    try {
-        const result = await this.createSelectorModal({
-            selectedValues: this.selectedValues,
-            options: this.options,
-            mode: this.mode
-        });
-        
-        if (result && result.values) {
-            this.setValues(result.values);
-        }
-    } catch (error) {
-        console.log('Selector modal cancelled');
-    }
-}
-
-/**
- * Method to create selector modal dynamically based on mode
- */
-async createSelectorModal({ selectedValues, options, mode }) {
-    return new Promise((resolve, reject) => {
-        // Crear modal
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 1rem;
-            max-width: 400px;
-            width: 90%;
-            max-height: 70vh;
-            display: flex;
-            flex-direction: column;
-        `;
-
-        // Buscador
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = 'Buscar...';
-        searchInput.style.cssText = `
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.25rem;
-        `;
-
-        // Contenedor de opciones
-        const optionList = document.createElement('div');
-        optionList.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-height: 300px;
-            overflow-y: auto;
-        `;
-
-        // Lógica de búsqueda en tiempo real
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            optionElements.forEach(optionElement => {
-                const label = optionElement.querySelector('span').textContent.toLowerCase();
-                optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
-            });
-        });
-
-        // Track selected values
-        const currentlySelectedValues = new Set(selectedValues);
-        const optionElements = [];
-
-        // Crear opciones
-        options.forEach(option => {
-            const optionElement = document.createElement('div');
-            optionElement.style.cssText = `
-                display: flex;
-                align-items: center;
-                padding: 0.5rem;
-                border: 1px solid #e2e8f0;
-                border-radius: 0.25rem;
-                cursor: pointer;
-                background-color: ${currentlySelectedValues.has(option.value) ? '#3b82f6' : 'white'};
-                color: ${currentlySelectedValues.has(option.value) ? 'white' : 'black'};
-            `;
-
-            // Checkbox para modo multi
-            if (mode === 'multi') {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = currentlySelectedValues.has(option.value);
-                checkbox.style.marginRight = '0.5rem';
-                optionElement.appendChild(checkbox);
-            }
-
-            const label = document.createElement('span');
-            label.textContent = option.label;
-            optionElement.appendChild(label);
-
-            // Lógica de selección
-            optionElement.addEventListener('click', () => {
-                if (mode === 'single') {
-                    // Modo single: selección inmediata
-                    document.body.removeChild(modal);
-                    resolve({ values: [option.value] });
-                } else {
-                    // Modo multi: toggle selección
-                    const checkbox = optionElement.querySelector('input[type="checkbox"]');
-                    checkbox.checked = !checkbox.checked;
-                    if (checkbox.checked) {
-                        currentlySelectedValues.add(option.value);
-                        optionElement.style.backgroundColor = '#3b82f6';
-                        optionElement.style.color = 'white';
-                    } else {
-                        currentlySelectedValues.delete(option.value);
-                        optionElement.style.backgroundColor = 'white';
-                        optionElement.style.color = 'black';
-                    }
-                }
-            });
-
-            optionElements.push(optionElement);
-            optionList.appendChild(optionElement);
-        });
-
-        // Botones para modo multi
-        if (mode === 'multi') {
-            const confirmButton = document.createElement('button');
-            confirmButton.textContent = 'Confirmar Selección';
-            confirmButton.style.cssText = `
-                margin-top: 1rem;
-                padding: 0.5rem 1rem;
-                background-color: #3b82f6;
-                color: white;
-                border: none;
-                border-radius: 0.25rem;
-                cursor: pointer;
-            `;
-
-            confirmButton.addEventListener('click', () => {
-                document.body.removeChild(modal);
-                resolve({
-                    values: Array.from(currentlySelectedValues)
-                });
-            });
-
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = 'Cancelar';
-            cancelButton.style.cssText = `
-                margin-top: 1rem;
-                margin-left: 0.5rem;
-                padding: 0.5rem 1rem;
-                background-color: #f3f4f6;
-                color: black;
-                border: 1px solid #e2e8f0;
-                border-radius: 0.25rem;
-                cursor: pointer;
-            `;
-
-            cancelButton.addEventListener('click', () => {
-                document.body.removeChild(modal);
-                reject();
-            });
-
-            // Agregar buscador, lista de opciones y botones
-            modal.appendChild(searchInput);
-            modal.appendChild(optionList);
-            modal.appendChild(confirmButton);
-            modal.appendChild(cancelButton);
-        } else {
-            // Modo single: buscador y opciones
-            modal.appendChild(searchInput);
-            modal.appendChild(optionList);
-        }
-
-        // Agregar al documento
-        document.body.appendChild(modal);
-
-        // Enfocar buscador al abrir
-        searchInput.focus();
-    });
-}
-
-/**
- * Method to set external options
- * @param {Array} options - List of options with `value`, `label`, and optional `description`
- */
-setOptions(options) {
-    this.options = options;
-}
-
-get value() {
-    // Return single value or array based on mode
-    return this.mode === 'single' ? this.selectedValues[0] : this.selectedValues;
-}
-
-set value(newValues) {
-    // Ensure newValues is an array
-    const valuesArray = Array.isArray(newValues) ? newValues : [newValues];
-    this.setValues(valuesArray);
-}
 }
 
 customElements.define('flexible-modal-selector', FlexibleModalSelector);
@@ -5625,138 +5725,189 @@ customElements.define('message-container', MessageContainer);
 
 class LocalStorageManager {
   constructor(key) {
-      this.key = key;
-      this.initializeStorage();
+    this.key = key;
+    this.initializeStorage();
   }
 
   async initializeStorage() {
-      try {
-          const currentData = await this.getAll();
-          if (!currentData.length) {
-              await this.saveItems([]);
-          }
-      } catch (error) {
-          this.handleError('Error initializing storage', error);
+    try {
+      const currentData = await this.getAll();
+      if (!currentData.length) {
+        await this.saveItems([]);
       }
+    } catch (error) {
+      this.handleError('Error initializing storage', error);
+    }
   }
 
-  // Método para crear una copia profunda de un objeto
   deepCopy(obj) {
-      try {
-          return JSON.parse(JSON.stringify(obj));
-      } catch (error) {
-          this.handleError('Error creating deep copy', error);
-          return null;
+    try {
+      return JSON.parse(JSON.stringify(obj));
+    } catch (error) {
+      this.handleError('Error creating deep copy', error);
+      return null;
+    }
+  }
+
+  // Método para generar un nuevo ID único o reusar un ID existente
+  generateUniqueId(items, proposedId = null) {
+    // Convertir ID a número si es un string
+    proposedId = proposedId !== null ? Number(proposedId) : null;
+
+    const existingIds = new Set(items.map(item => item.id));
+    
+    // Encontrar espacios vacíos
+    const findEmptySpace = () => {
+      for (let i = 0; i <= items.length; i++) {
+        if (!existingIds.has(i)) {
+          return i;
+        }
       }
+      return items.length;
+    };
+
+    // Si se propone un ID específico
+    if (proposedId !== null) {
+      // Si el ID propuesto no existe, usarlo
+      if (!existingIds.has(proposedId)) {
+        return proposedId;
+      }
+      
+      // Buscar el primer espacio vacío
+      return findEmptySpace();
+    }
+    
+    // Si no hay ID propuesto, encontrar el primer espacio vacío
+    return findEmptySpace();
+  }
+
+  // Método para asegurar que un objeto tenga un ID único
+  ensureObjectHasId(item, items) {
+    const itemCopy = this.deepCopy(item);
+    
+    // Convertir ID a número si es un string
+    if (itemCopy.id !== undefined) {
+      itemCopy.id = Number(itemCopy.id);
+    }
+    
+    // Generar o ajustar el ID
+    itemCopy.id = this.generateUniqueId(items, itemCopy.id);
+    
+    return itemCopy;
   }
 
   async add(item) {
-      try {
-          const items = await this.getAll();
-          // Creamos una copia profunda del item antes de comparar
-          const itemCopy = this.deepCopy(item);
-          
-          // Verificamos si ya existe un objeto similar
-          const exists = items.some(existingItem => 
-              this.areObjectsEqual(existingItem, itemCopy)
-          );
-
-          if (!exists) {
-              // Guardamos la copia del objeto, no el original
-              items.push(itemCopy);
-              await this.saveItems(items);
-              return true;
-          }
-          return false;
-      } catch (error) {
-          this.handleError('Error adding item', error);
+    try {
+      const items = await this.getAll();
+      
+      // Aseguramos que el item tenga un ID único
+      const itemWithId = this.ensureObjectHasId(item, items);
+      
+      // Verificamos si ya existe un objeto similar
+      const exists = items.some(existingItem =>
+        this.areObjectsEqual(existingItem, itemWithId)
+      );
+      
+      if (!exists) {
+        items.push(itemWithId);
+        await this.saveItems(items);
+        return itemWithId.id;
       }
+      
+      return false;
+    } catch (error) {
+      this.handleError('Error adding item', error);
+    }
   }
 
+  // Los demás métodos permanecen igual que en la versión anterior
   async remove(identifier) {
-      try {
-          const items = await this.getAll();
-          const updatedItems = items.filter(item => 
-              item.id !== identifier && item.name !== identifier
-          );
-          
-          if (updatedItems.length !== items.length) {
-              await this.saveItems(updatedItems);
-              return true;
-          }
-          return false;
-      } catch (error) {
-          this.handleError('Error removing item', error);
+    try {
+      const items = await this.getAll();
+      // Convertir identificador a número si es posible
+      const numIdentifier = isNaN(Number(identifier)) ? identifier : Number(identifier);
+      
+      const updatedItems = items.filter(item =>
+        item.id !== numIdentifier && item.name !== numIdentifier
+      );
+      
+      if (updatedItems.length !== items.length) {
+        await this.saveItems(updatedItems);
+        return true;
       }
+      return false;
+    } catch (error) {
+      this.handleError('Error removing item', error);
+    }
   }
 
   async get(identifier) {
-      try {
-          const items = await this.getAll();
-          const item = items.find(item => 
-              item.id === identifier || item.name === identifier
-          );
-          // Retornamos una copia profunda del item encontrado
-          return item ? this.deepCopy(item) : null;
-      } catch (error) {
-          this.handleError('Error getting item', error);
-      }
+    try {
+      const items = await this.getAll();
+      // Convertir identificador a número si es posible
+      const numIdentifier = isNaN(Number(identifier)) ? identifier : Number(identifier);
+      
+      const item = items.find(item =>
+        item.id === numIdentifier || item.name === numIdentifier
+      );
+      
+      return item ? this.deepCopy(item) : null;
+    } catch (error) {
+      this.handleError('Error getting item', error);
+    }
   }
 
   async getAll() {
-      try {
-          const items = localStorage.getItem(this.key);
-          // Retornamos una copia profunda de todos los items
-          return items ? this.deepCopy(JSON.parse(items)) : [];
-      } catch (error) {
-          this.handleError('Error getting all items', error);
-      }
+    try {
+      const items = localStorage.getItem(this.key);
+      return items ? this.deepCopy(JSON.parse(items)) : [];
+    } catch (error) {
+      this.handleError('Error getting all items', error);
+    }
   }
 
   async saveItems(items) {
-      try {
-          // Creamos una copia profunda antes de guardar
-          const itemsCopy = this.deepCopy(items);
-          localStorage.setItem(this.key, JSON.stringify(itemsCopy));
-      } catch (error) {
-          this.handleError('Error saving items', error);
-      }
+    try {
+      const itemsCopy = this.deepCopy(items);
+      localStorage.setItem(this.key, JSON.stringify(itemsCopy));
+    } catch (error) {
+      this.handleError('Error saving items', error);
+    }
   }
 
   async clear() {
-      try {
-          await this.saveItems([]);
-      } catch (error) {
-          this.handleError('Error clearing storage', error);
-      }
+    try {
+      await this.saveItems([]);
+    } catch (error) {
+      this.handleError('Error clearing storage', error);
+    }
   }
 
   async exists(item) {
-      try {
-          const items = await this.getAll();
-          // Creamos una copia profunda del item antes de comparar
-          const itemCopy = this.deepCopy(item);
-          return items.some(existingItem => 
-              this.areObjectsEqual(existingItem, itemCopy)
-          );
-      } catch (error) {
-          this.handleError('Error checking existence', error);
-      }
+    try {
+      const items = await this.getAll();
+      const itemWithId = this.ensureObjectHasId(item, items);
+      
+      return items.some(existingItem =>
+        this.areObjectsEqual(existingItem, itemWithId)
+      );
+    } catch (error) {
+      this.handleError('Error checking existence', error);
+    }
   }
 
   areObjectsEqual(obj1, obj2) {
-      try {
-          // Comparamos las representaciones JSON de los objetos
-          return JSON.stringify(obj1) === JSON.stringify(obj2);
-      } catch (error) {
-          this.handleError('Error comparing objects', error);
-          return false;
-      }
+    try {
+      return JSON.stringify(obj1) === JSON.stringify(obj2);
+    } catch (error) {
+      this.handleError('Error comparing objects', error);
+      return false;
+    }
   }
 
   handleError(message, error) {
-      console.error(message, error);
-      throw error;
+    console.error(message, error);
+    throw error;
   }
 }
 class GridContainer extends HTMLElement {

@@ -54,9 +54,11 @@ function getallfilesmap(objetc) {
       value: file.nombre,
       label: file.nombre,
       path: file.path,
-      mediaType: file.mediaType,
-      mediaUrl: file.mediaUrl,
+      mediaType: file.mediaType || file.type,
+      mediaUrl: file.mediaUrl || file.path,
+      id: file.id,
     }));
+    console.log("filesmap",filesmap);
     return filesmap;
   } catch (error) {
     console.error('Error getting all files:', error);
@@ -74,12 +76,6 @@ const actionsconfig = {
     label: 'color',
     type: 'color',
     returnType: 'string',
-  },
-  image: {
-    class: 'input-default',
-    type: 'select2',
-    returnType: 'string',
-    options: mapsvgoutline,
   },
   minecraft:{
     type: 'object',
@@ -271,7 +267,6 @@ const Buttonform  = document.getElementById('ActionModalButton');
 const testdata = {
   nombre: getTranslation('nombre de la accion'),
   color: "#000000",
-  image: "",
   minecraft: {
     check: false,
     command: getTranslation('command_mc'),
@@ -389,7 +384,7 @@ const table = new DynamicTable('#table-containerAction',replaceMultipleValues(ac
   // envez de foreach usar un for
    for (let i = 0; i < alldata.length; i++) {
      table.addRow(alldata[i]);
-    const newbutton = addCustomButton(alldata[i]);
+    //const newbutton = addCustomButton(alldata[i]);
     //renderer.addCustomElement(alldata[i].id,newbutton);
   }
   console.log("alldata render table",alldata);

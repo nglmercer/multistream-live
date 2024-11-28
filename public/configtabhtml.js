@@ -52,18 +52,8 @@ function generatedropelement() {
     div.appendChild(GridContainer);
     dropzone.addEventListener('DroppedFile', (event) => {
         console.log('File dropped:', event.detail.file);
-        addfilesitems();  
+        addfilesitems(GridContainer);  
     });
-    function addfilesitems() {
-        GridContainer.clearAll();
-      setTimeout(() => {
-        const files = JSON.parse(localStorage.getItem('filePaths'));
-        console.log(files);
-        files.forEach(file => {
-            GridContainer.addItem(file.nombre, file.path, file.mediaType || file.type,file);
-        console.log(file)});
-      }, 250);
-    }
     GridContainer.toggleDarkMode(true);
     GridContainer.addEventListener('itemRemoved', (event) => {
         console.log('Elemento eliminado:', event.detail.id);
@@ -73,24 +63,33 @@ function generatedropelement() {
         const mapconfig = mapdatatooverlay(event.detail.additionalData);
         socketManager.emitMessage('create-overlay', {mapconfig,roomId:'sala1'});
     });
-    function mapdatatooverlay(data) {
-      console.log(data);
-      const config = {
-        template: 'multi-grid',
-        content: data.nombre || data.path,
-        duration: 5000,
-        src: [
-          {
-            nombre: data.nombre,
-            path: data.path,
-            mediaType: data.mediaType || data.type,
-          },
-        ],
-      };
-      return config;
-    }
-    addfilesitems();
+    addfilesitems(GridContainer);
     return div;
+}
+function mapdatatooverlay(data) {
+  const config = {
+    template: 'multi-grid',
+    content: data.nombre || data.path,
+    duration: 5000,
+    src: [
+      {
+        nombre: data.nombre,
+        path: data.path,
+        mediaType: data.mediaType || data.type,
+      },
+    ],
+  };
+  return config;
+}
+function addfilesitems(GridContainer) {
+  GridContainer.clearAll();
+  setTimeout(() => {
+    const files = JSON.parse(localStorage.getItem('filePaths'));
+    console.log(files);
+    files.forEach(file => {
+        GridContainer.addItem(file.nombre, file.path, file.mediaType || file.type,file);
+    console.log(file)});
+  }, 250);
 }
 tabs.addContent(0, htmlvoiceevents); // Agrega al primer tab
 tabs.setTabTitle(0,`${getTranslation('chat')}`);
