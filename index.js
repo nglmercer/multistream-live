@@ -296,9 +296,32 @@ io.on('connection', (socket) => {
             });
         }
     });
-
+    socket.on('update-window', ({ id, config }) => {
+      windowManager.updateWindow(id, config);
+    });
+    socket.on('create-window', (config) => {
+      windowManager.createWindow(config);
+    });
+    socket.on('close-window', (id) => {
+      windowManager.closeWindow(id);
+    });
+  
+    // Enviar lista inicial de ventanas
+    socket.emit('window-list', 
+      Array.from(windowManager.getWindows().entries())
+        .map(([id, config]) => ({ id, ...config }))
+    );
     socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
+      // Limpiar todas las salas donde estaba el usuario
+      for (const [roomId, users] of roomManager.rooms.entries()) {
+        if (users.has(socket.id)) {
+          roomManager.leaveRoom(socket, roomId);
+          roomManager.emitToRoom(roomId, 'user-left', {
+            userId: socket.id,
+            usersCount: roomManager.getRoomSize(roomId)
+          });
+        }
+      }
     });
 });
 windowManager.on('window-created', (data) => {

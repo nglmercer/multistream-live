@@ -2,7 +2,7 @@ import { htmlvoice, htmlvoiceevents, uiElement,blueuiElement} from './features/s
 import { htmlminecraft } from './features/Minecraftconfig.js';
 //import { htmlobselement } from './features/obcontroller.js';
 import { getTranslation, translations } from './translations.js';
-//import socketManager , { socketurl } from "./server/socketManager.js";
+import socketManager , { socketurl } from "./server/socketManager.js";
 const tabs = document.querySelector('custom-tabs');
 
 /* socketManager.onMessage("QRCode", (data) => {
@@ -39,6 +39,9 @@ const filemanagerhtml = `
 
     <div id="galeria-elementos"></div>
 `
+const windows = new Map();
+const windowsList = document.getElementById('windowsList');
+
 function generatedropelement() {
     const div = document.createElement('div');
     const dropzone = document.createElement('drag-and-drop');
@@ -68,7 +71,7 @@ function generatedropelement() {
     GridContainer.addEventListener('itemClick', (event) => {
         console.log('Elemento clickeado:', event.detail);
         const mapconfig = mapdatatooverlay(event.detail.additionalData);
-        //socket.emit('create-overlay', {mapconfig,roomId:'sala1'});
+        socket.emit('create-overlay', {mapconfig,roomId:'sala1'});
     });
     function mapdatatooverlay(data) {
       console.log(data);
@@ -136,8 +139,16 @@ modalwindow.initialize()
 const windowModalcontainer = document.getElementById('windowModal');
 modalwindow.toggleDarkMode();
 modalwindow.addEventListener('form-submit', (e) => {
-console.log('Window created:', e.detail);
+console.log('Window data submitted:', e.detail);
 windowModalcontainer.close();
+const config = {
+    url: e.detail.windowurl,
+    width: e.detail.windowwidth,
+    height: e.detail.windowheight,
+    alwaysOnTop: e.detail.alwaysontop,
+    ignoreMouseEvents: e.detail.ignoremouseevents,
+  };
+  socketManager.emitMessage('create-window', config);
 });
 modalwindow.addEventListener('form-change', (e) => {
   console.log('Form values changed:', e.detail);
@@ -146,4 +157,76 @@ modalwindow.setSubmitButton({
     label: 'create window', 
     disabled: undefined,
 });
+socketManager.on('window-list', (windowList) => {
+    windowList.forEach(({ id, ...config }) => {
+      console.log("window-list",id, config);
+      windows.set(id, config);
+      const card = createWindowCard(id, config);
+      card.setAttribute('data-window-id', id);
+      windowsList.appendChild(card);
+    });
+  });
+socketManager.on('window-created', ({ id, config }) => {
+    windows.set(id, config);
+    const card = createWindowCard(id, config);
+    card.setAttribute('data-window-id', id);
+    windowsList.appendChild(card);
+  });
+socketManager.on('window-closed', (id) => {
+    windows.delete(id);
+    const card = document.querySelector(`[data-window-id="${id}"]`);
+    if (card) {
+      card.remove();
+    }
+  });
+socketManager.on('window-updated', (data) => {
+  console.log('window-updated', data);
+});
+function createWindowCard(id, config) {
+    const card = document.createElement('div');
+    card.className = 'bg-gray-800 p-4 rounded-lg';
+    card.innerHTML = `
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">${config.url}</h3>
+        <button class="text-red-500 hover:text-red-600" onclick="closeWindow('${id}')">
+          Cerrar
+        </button>
+      </div>
+      <div class="space-y-2">
+        <label class="flex items-center">
+          <input type="checkbox" ${config.alwaysOnTop ? 'checked' : ''}
+                 onchange="updateWindow('${id}', 'alwaysOnTop', this.checked)"
+                 class="mr-2">
+          Siempre Visible
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" ${config.transparent ? 'checked' : ''}
+                 onchange="updateWindow('${id}', 'transparent', this.checked)"
+                 class="mr-2">
+          Transparente
+        </label>
+        <label class="flex items-center">
+          <input type="checkbox" ${config.ignoreMouseEvents ? 'checked' : ''}
+                 onchange="updateWindow('${id}', 'ignoreMouseEvents', this.checked)"
+                 class="mr-2">
+          Ignorar Mouse
+        </label>
+      </div>
+    `;
+    return card;
+  }
+  window.updateWindow = (id, property, value) => {
+    const currentConfig = windows.get(id) || {};
+    const newConfig = { ...currentConfig };
+    newConfig[property] = value;
+    
+    // Actualizar el mapa local antes de enviar
+    windows.set(id, newConfig);
+    
+    // Enviar la configuración completa, no solo la propiedad actualizada
+    socketManager.emitMessage('update-window', { id, config: newConfig });
+  };
+  window.closeWindow = (id) => {
+    socketManager.emitMessage('close-window', id);
+  };
 windowModalcontainer.appendChild(modalwindow);
