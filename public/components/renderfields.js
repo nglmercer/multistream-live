@@ -771,7 +771,7 @@ function createMultiSelectField(field, onChangeCallback, initialValue) {
   
   multiSelect.id = field.name;
   multiSelect.setAttribute('name', field.name);
-  multiSelect.setAttribute('mode', field.mode || 'single');
+  multiSelect.setAttribute('mode', field.mode || 'multi');
   console.log(field.theme);
   multiSelect.setAttribute('theme', field.theme || 'light');
   multiSelect.toggleDarkMode();

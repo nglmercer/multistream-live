@@ -51,7 +51,7 @@ function getallfilesmap(objetc) {
   try {
     console.log("files",objetc);
     const filesmap = objetc.map(file => ({
-      value: file.nombre,
+      value: file.id,
       label: file.nombre,
       path: file.path,
       mediaType: file.mediaType || file.type,
@@ -119,6 +119,7 @@ const actionsconfig = {
     src:{
       class: 'input-default',
       type: 'multiSelect',
+      mode: 'multi',
       returnType: 'array',
       options: getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))) ,
     },
@@ -245,7 +246,7 @@ const newactionform = document.createElement('dynamic-form');
                 type: 'flexible-modal-selector',
                 name: 'overlay_src',
                 label: 'overlay',
-                value: 5655,
+                mode: 'multi',
                 options: getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))),
                 showWhen: {
                   field: 'overlay_check',

@@ -1,4 +1,4 @@
-import { Counter, compareObjects, replaceVariables, logger, UserInteractionTracker, EvaluerLikes } from './utils/utils.js';
+import { Counter, compareObjects, replaceVariables, logger, UserInteractionTracker, EvaluerLikes, LocalStorageManager } from './utils/utils.js';
 import { ChatContainer, ChatMessage, showAlert } from './components/message.js';
 import { Replacetextoread, addfilterword, existuserinArray,adduserinArray } from './features/speechconfig.js';
 import { handleleermensaje } from './audio/tts.js';
@@ -6,9 +6,10 @@ import { getTranslation, translations } from './translations.js';
 import { ActionsManager } from './features/Actions.js';
 import { EventsManager } from './features/Events.js';
 import { sendcommandmc } from './features/Minecraftconfig.js';
+import  socketManager  from './server/socketManager.js';
 //import { text } from 'express';
 let client = tmi.client();
-
+const overlayfilesmanager = new LocalStorageManager('filePaths');
 const socket = io();
 const userProfile = document.querySelector('#kicklogin');
 userProfile.setConnectionStatus('offline');
@@ -721,8 +722,9 @@ function processAction(data,userdata) {
   }
 }
 const processActioncallbacks = {
-  minecraft: (data,userdata) => handleMinecraft(data,userdata),
-  tts: (data,userdata) => handletts(data,userdata),
+/*   minecraft: (data,userdata) => handleMinecraft(data,userdata),
+  tts: (data,userdata) => handletts(data,userdata), */
+  overlay: (data,userdata) => handleOverlay(data,userdata),
 }
 async function Actionsprocessmanager(id,userdata) {
   console.log("accionesprocessmanager",id)
@@ -732,8 +734,8 @@ async function Actionsprocessmanager(id,userdata) {
     Object.keys(processActioncallbacks).forEach(key => {
       if (action[key]) {
           console.log("accionesprocessmanager",action[key])
-/*         processActioncallbacks[key](action[key],userdata)
- */      }
+        processActioncallbacks[key](action[key],userdata)
+      }
     });
   }
 }
@@ -757,7 +759,25 @@ function handletts(data,userdata) {
     console.log("tts no check",data)
   }
 }
+function handleOverlay(data,userdata) {
+  console.log("overlay",data,userdata)
+  if (data?.check) {
+    if (data.src && data.src.length > 0) {
+      if (Array.isArray(data.src)) {
+        data.src.forEach(async (src) => {
+          const filedata = await overlayfilesmanager.get(src);
+          console.log("overlay check",data,filedata)
+        });
+      } else {
+        const filedata = overlayfilesmanager.get(data.src);
+        console.log("overlay check",data,filedata)
+      }
+    }
+/*     const mapconfig = data;
+    socketManager.emitMessage('create-overlay', {mapconfig,roomId:'sala1'}); */
+  }
+}
 // processActioncallbacks
-/* setTimeout(() => {
-  HandleAccionEvent('chat',{nombre: "coloca tu nombre",eventType: "chat",chat: "default text",like: 10,gift: 5655,Actions: [],id: undefined})
-}, 1000); */
+setTimeout(() => {
+  HandleAccionEvent('gift',{nombre: "coloca tu nombre",eventType: "gift",chat: "default text",like: 10,gift: 5655,Actions: [8],id: undefined})
+}, 1000);
