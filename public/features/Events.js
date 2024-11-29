@@ -26,7 +26,107 @@ async function EventsManagermap(data) {
     label: data.nombre,
   }))
 }
-
+const eventform = document.createElement('dynamic-form');
+        eventform.initialize()
+            .addField({
+                type: 'text',
+                name: 'nombre',
+                label: 'nombre de evento',
+                value: 'nombre de evento',
+            })
+            .addField({
+                type: 'radio',
+                name: 'eventType',
+                label: 'type',
+                options: [
+                    { value: 'chat', label: 'chat' },
+                    { value: 'gift', label: 'gift' },
+                    { value: 'bits', label: 'bits' },
+                    { value: 'follow', label: 'follow' },
+                    { value: 'subscribe', label: 'subscribe' },
+                ],
+                value: 'chat',
+            })
+            .addField({
+                type: 'textarea',
+                name: 'chat',
+                label: 'chat',
+                value: 'chat',
+                showWhen: {
+                    field: 'eventType',
+                    value: 'chat'
+                }
+            })
+            .addField({
+                type: 'flexible-modal-selector',
+                name: 'gift',
+                label: 'gift',
+                value: '5565',
+                options: mapselectgift,
+                showWhen: {
+                    field: 'eventType',
+                    value: 'gift'
+                }
+            })
+            .addField({
+                type: 'number',
+                name: 'bits',
+                label: 'bits',
+                value: 'bits',
+                showWhen: {
+                    field: 'eventType',
+                    value: 'bits'
+                }
+            })
+            .addField({
+                type: 'text',
+                name: 'follow',
+                label: 'follow',
+                value: 'follow',
+                showWhen: {
+                    field: 'eventType',
+                    value: 'follow'
+                }
+            })
+            .addField({
+                type: 'text',
+                name: 'subscribe',
+                label: 'subscribe',
+                value: 'subscribe',
+                showWhen: {
+                    field: 'eventType',
+                    value: 'subscribe'
+                }
+            })
+            .addField({
+                type: 'number',
+                name: 'id',
+                label: '',
+                hidden: true,
+            })
+            .addField({
+                type: 'flexible-modal-selector',
+                name: 'Actions',
+                label: 'Selecciona un valor',
+                mode: 'multi',
+                options: [
+                    { value: 'option1', label: 'Opción 1' },
+                    { value: 'option2', label: 'Opción 2' },
+                    { value: 'option3', label: 'Opción 3' },
+                ],
+                value: ['option1', 'option2'],
+            })
+            .render()
+            .toggleDarkMode(true);
+eventform.addEventListener('form-submit', (e) => {
+  console.log('Datos modificados:', e.detail);
+});
+eventform.addEventListener('form-change', (e) => {
+  console.log('Form values changed:', e.detail);
+});
+const newmodalevent = document.getElementById('eventformModal')
+newmodalevent.appendChild(eventform);
+newmodalevent.open();
 
 
 const editcallback = async (data,modifiedData) => {

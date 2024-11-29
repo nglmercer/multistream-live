@@ -289,6 +289,7 @@ class FlexibleModalSelector extends HTMLElement {
                     --border-color: #e2e8f0;
                     --accent-color: #3b82f6;
                     --accent-light: rgba(59, 130, 246, 0.1);
+                    z-index: 1002;
                 }
                 :host(.dark) {
                     --bg-primary: #1a202c;
@@ -528,6 +529,7 @@ class FlexibleModalSelector extends HTMLElement {
             display: flex;
             flex-direction: column;
             color: ${currentColors.text};
+           z-index: 1002;
         `;
 
         // Buscador
@@ -1251,11 +1253,13 @@ class DynamicForm extends HTMLElement {
             case 'flexible-modal-selector':
                 // For flexible-modal-selector, parse the value
                 const rawValue = element.value;
-                if (rawValue) {
-                    values[field.name] = rawValue.includes(',') 
-                        ? rawValue.split(',').map(v => v.trim())  // Multiple values
-                        : rawValue;  // Single value
-                }
+                if (rawValue !== undefined && rawValue !== null) {
+                  values[field.name] = typeof rawValue === 'string' && rawValue.includes(',')
+                      ? rawValue.split(',').map(v => v.trim())  // Múltiples valores como cadena
+                      : Array.isArray(rawValue) 
+                          ? rawValue  // Ya es un arreglo
+                          : rawValue;  // Número u otro tipo, envuelto en un arreglo
+              }
                 break;
               case 'checkbox':
                   // Para checkboxes, usamos la propiedad checked

@@ -186,7 +186,9 @@ const actionsconfig = {
     returnType: 'number',
     hidden: true,
   }
-} 
+}
+
+
 //console.log(mapgetAllscenesScenenameSceneindex(getlastdatafromstorage("getScenesList",[])?.scenes),"mapgetAllscenesScenenameSceneindex");
 function getlastdatafromstorage(key,type=[]) {
     console.log("getlastdatafromstorage",JSON.parse(localStorage.getItem(key)),key);
