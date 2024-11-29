@@ -289,6 +289,7 @@ class FlexibleModalSelector extends HTMLElement {
                     --border-color: #e2e8f0;
                     --accent-color: #3b82f6;
                     --accent-light: rgba(59, 130, 246, 0.1);
+                    transition: all 0.5s ease-in-out;
                     z-index: 1002;
                 }
                 :host(.dark) {
@@ -413,49 +414,72 @@ class FlexibleModalSelector extends HTMLElement {
         }) : [value.trim()];
     }
     setValues(values) {
-    // Ensure values is always an array
-    const valuesArray = Array.isArray(values) ? values : [values];
-    
-    // Normalize values for consistent handling
-    const normalizedValues = valuesArray.map(this.normalizeValue);
-    
-    // Filter out values that are not in the available options
-    const availableValues = normalizedValues.filter(value => {
-        const matchingOption = this.options.some(option => 
-            this.normalizeValue(option.value) === value
-        );
-        return matchingOption;
-    });
-    
-    // In single mode, take only the first available value
-    this.selectedValues = this.mode === 'single' ? availableValues.slice(0, 1) : availableValues;
-    
-    // Get labels for selected values
-    const labels = this.options
-        .filter(option => {
-            const normalizedOptionValue = this.normalizeValue(option.value);
-            return this.selectedValues.includes(normalizedOptionValue);
-        })
-        .map(option => option.label);
-    
-    // Update input display
-    this.input.value = labels.join(', ');
-
-    // Update hidden input using the separator method
-    if (this._hiddenInput) {
-        this._hiddenInput.value = this.selectedValues.join(this.separator);
-    }
-    
-    // Dispatch events
-    this.dispatchEvent(new CustomEvent('change', {
-        detail: {
-            values: this.selectedValues,
-            mode: this.mode
-        },
-        bubbles: true
-    }));
-    this.dispatchEvent(new Event('input', { bubbles: true }));
-}
+      // Ensure values is always an array
+      const valuesArray = Array.isArray(values) ? values : [values];
+  
+      // Normalize values for consistent handling
+      const normalizedValues = valuesArray.map(this.normalizeValue);
+  
+      // Filter out values that are not in the available options
+      const availableValues = normalizedValues.filter(value => {
+          const matchingOption = this.options.some(option => 
+              this.normalizeValue(option.value) === value
+          );
+          return matchingOption;
+      });
+  
+      // In single mode, take only the first available value
+      this.selectedValues = this.mode === 'single' ? availableValues.slice(0, 1) : availableValues;
+  
+      // Get labels and images for selected values
+      const selectedOptions = this.options
+          .filter(option => {
+              const normalizedOptionValue = this.normalizeValue(option.value);
+              return this.selectedValues.includes(normalizedOptionValue);
+          });
+  
+      // Clear previous image if exists
+      const existingImage = this.input.previousElementSibling;
+      if (existingImage && existingImage.tagName === 'IMG') {
+          this.input.parentNode.removeChild(existingImage);
+      }
+  
+      // Update input display
+      const labels = selectedOptions.map(option => option.label);
+      this.input.value = labels.join(', ');
+  
+      // Add image if exists in single mode
+      if (this.mode === 'single' && selectedOptions[0] && (selectedOptions[0].image || selectedOptions[0].path)) {
+          const img = document.createElement('img');
+          img.src = selectedOptions[0].image || selectedOptions[0].path;
+          img.style.cssText = `
+              position: absolute;
+              left: 70%; 
+              top: 50%;
+              transform: translateY(-50%);
+              width: 2rem;
+              height: 2rem;
+              object-fit: cover;
+              border-radius: 0.25rem;
+          `;
+          this.input.parentNode.insertBefore(img, this.input);
+      }
+  
+      // Update hidden input using the separator method
+      if (this._hiddenInput) {
+          this._hiddenInput.value = this.selectedValues.join(this.separator);
+      }
+  
+      // Dispatch events
+      this.dispatchEvent(new CustomEvent('change', {
+          detail: {
+              values: this.selectedValues,
+              mode: this.mode
+          },
+          bubbles: true
+      }));
+      this.dispatchEvent(new Event('input', { bubbles: true }));
+  }
     setupEventListeners() {
         const openSelector = () => {
             this.showSelectorModal();
@@ -528,6 +552,7 @@ class FlexibleModalSelector extends HTMLElement {
             max-height: 70vh;
             display: flex;
             flex-direction: column;
+            
             color: ${currentColors.text};
            z-index: 1002;
         `;
@@ -571,31 +596,45 @@ class FlexibleModalSelector extends HTMLElement {
 
         // Crear opciones
         options.forEach(option => {
-            const optionElement = document.createElement('div');
-            optionElement.style.cssText = `
-                display: flex;
-                align-items: center;
-                padding: 0.5rem;
-                border: 1px solid ${currentColors.border};
-                border-radius: 0.25rem;
-                cursor: pointer;
-                background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
-                color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
-            `;
+          const optionElement = document.createElement('div');
+          optionElement.style.cssText = `
+              display: flex;
+              align-items: center;
+              padding: 0.5rem;
+              border: 1px solid ${currentColors.border};
+              border-radius: 0.25rem;
+              cursor: pointer;
+              background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
+              color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
+          `;
 
-            // Checkbox para modo multi
-            if (mode === 'multi') {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = currentlySelectedValues.has(option.value);
-                checkbox.style.marginRight = '0.5rem';
-                checkbox.style.accentColor = currentColors.selectedBackground;
-                optionElement.appendChild(checkbox);
-            }
+          // Checkbox para modo multi
+          if (mode === 'multi') {
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.checked = currentlySelectedValues.has(option.value);
+              checkbox.style.marginRight = '0.5rem';
+              checkbox.style.accentColor = currentColors.selectedBackground;
+              optionElement.appendChild(checkbox);
+          }
 
-            const label = document.createElement('span');
-            label.textContent = option.label;
-            optionElement.appendChild(label);
+          // Add image support
+          if (option.image || option.path) {
+              const img = document.createElement('img');
+              img.src = option.image || option.path;
+              img.style.cssText = `
+                  width: 30px;
+                  height: 30px;
+                  object-fit: cover;
+                  margin-right: 0.5rem;
+                  border-radius: 0.25rem;
+              `;
+              optionElement.appendChild(img);
+          }
+
+          const label = document.createElement('span');
+          label.textContent = option.label;
+          optionElement.appendChild(label);
 
             // Lógica de selección
             optionElement.addEventListener('click', () => {
@@ -1130,8 +1169,6 @@ class DynamicForm extends HTMLElement {
                   
                   if (field.value === option.value) {
                       radioInput.checked = true;
-                      console.log("radioInput",radioInput)
-
                   }
                   
                   if (field.required) {
@@ -1141,7 +1178,6 @@ class DynamicForm extends HTMLElement {
                   // Agregar evento change para campos condicionales
                   radioInput.addEventListener('change', () => this.handleFieldChange(field.name, option.value));
                   
-                  console.log("asdqwdqwdqwd",radioInput)
                   const radioLabel = document.createElement('label');
                   radioLabel.setAttribute('for', `${field.name}_${option.value}`);
                   radioLabel.textContent = option.label;

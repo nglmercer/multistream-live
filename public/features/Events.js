@@ -45,7 +45,7 @@ const eventform = document.createElement('dynamic-form');
                     { value: 'follow', label: 'follow' },
                     { value: 'subscribe', label: 'subscribe' },
                 ],
-                value: 'chat',
+                value: 'gift',
             })
             .addField({
                 type: 'textarea',
@@ -61,7 +61,7 @@ const eventform = document.createElement('dynamic-form');
                 type: 'flexible-modal-selector',
                 name: 'gift',
                 label: 'gift',
-                value: '5565',
+                value: 5655,
                 options: mapselectgift,
                 showWhen: {
                     field: 'eventType',
@@ -76,26 +76,6 @@ const eventform = document.createElement('dynamic-form');
                 showWhen: {
                     field: 'eventType',
                     value: 'bits'
-                }
-            })
-            .addField({
-                type: 'text',
-                name: 'follow',
-                label: 'follow',
-                value: 'follow',
-                showWhen: {
-                    field: 'eventType',
-                    value: 'follow'
-                }
-            })
-            .addField({
-                type: 'text',
-                name: 'subscribe',
-                label: 'subscribe',
-                value: 'subscribe',
-                showWhen: {
-                    field: 'eventType',
-                    value: 'subscribe'
                 }
             })
             .addField({
