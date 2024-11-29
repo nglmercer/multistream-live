@@ -71,12 +71,12 @@ const actionsconfig = {
     type: 'text',
     returnType: 'string',
   },
-  color: {
+/*   color: {
     class: 'input-default',
     label: 'color',
     type: 'color',
     returnType: 'string',
-  },
+  }, */
   minecraft:{
     type: 'object',
     label: 'Minecraft Comands',
@@ -148,7 +148,7 @@ const actionsconfig = {
   save: {
     class: 'default-button',
     type: 'button',
-    label: getTranslation('savechanges'),
+    label: getTranslation('edit'),
     callback: async (data,modifiedData,value) => {
       console.log("data",data,modifiedData,value)
       const alldata = await ActionsManager.getAllData()
@@ -251,6 +251,16 @@ const newactionform = document.createElement('dynamic-form');
                   field: 'overlay_check',
                   value: true
                 }
+            })
+            .addField({
+              type: 'number',
+              name: 'overlay_duration',
+              label: 'duration',
+              value: 60,
+              showWhen: {
+                field: 'overlay_check',
+                value: true
+              }
             })
             .render()
             .toggleDarkMode(true);
@@ -466,7 +476,7 @@ const tablereplacements = [
   },
   {
     path: 'save.label',
-    value: getTranslation('savechanges')
+    value: getTranslation('edit')
   },
   {
     path: 'close.label',

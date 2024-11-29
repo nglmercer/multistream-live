@@ -767,37 +767,27 @@ function createMultiSelectField(field, onChangeCallback, initialValue) {
   }
 
   // Create the custom multi-select element
-  const multiSelect = document.createElement('custom-multi-select');
+  const multiSelect = document.createElement('flexible-modal-selector');
   
-  // Set the options
-  const formattedOptions = field.options.map(option => ({
-      value: typeof option.value === 'object' ? option.value.index : option.value,
-      label: option.label,
-      id: option.id,
-      image: option.image // If your options include images
-  }));
-  
-  multiSelect.setOptions(formattedOptions);
-  
-  // Set initial value if provided
-  if (Array.isArray(initialValue)) {
-      multiSelect.value = initialValue;
-  }
-  logger.log("renderhtml","createMultiSelectElement", field);
-  // Set custom label if needed
-  if (field.label) {
-      multiSelect.setlabel(field.label || "Select");
-  } else {
-    multiSelect.setlabel(field.name || "Select");
-  }
-
-  // Add change event listener
-  multiSelect.addEventListener('change', (event) => {
-      const selectedValues = event.detail.values;
-      if (typeof onChangeCallback === 'function') {
-          onChangeCallback(selectedValues);
-      }
+  multiSelect.id = field.name;
+  multiSelect.setAttribute('name', field.name);
+  multiSelect.setAttribute('mode', field.mode || 'single');
+  console.log(field.theme);
+  multiSelect.setAttribute('theme', field.theme || 'light');
+  multiSelect.toggleDarkMode();
+  // Configurar el evento change del modal-selector
+  multiSelect.addEventListener('change', (e) => {
+      // Si hay campos condicionales que dependen de este
+          onChangeCallback(e.detail.values);
+      
   });
+  
+  if (field.options) multiSelect.setOptions(field.options);
+  // Si hay un valor inicial, establecerlo
+  console.log("renderhtml","createMultiSelectElement", field,initialValue);
+  if (field.value || initialValue) {
+      multiSelect.setValues(initialValue || field.value);
+  }
 
   container.appendChild(multiSelect);
   return container;

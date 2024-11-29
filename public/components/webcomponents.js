@@ -509,218 +509,241 @@ class FlexibleModalSelector extends HTMLElement {
     /**
      * Method to create selector modal dynamically based on mode
      */
-     async createSelectorModal({ selectedValues, options, mode, theme = 'light' }) {
-    return new Promise((resolve, reject) => {
-        // Color schemes
-        const colors = {
-            light: {
-                background: 'white',
-                border: '#e2e8f0',
-                text: 'black',
-                selectedBackground: '#3b82f6',
-                selectedText: 'white',
-                searchBg: 'white',
-                cancelBg: '#f3f4f6'
-            },
-            dark: {
-                background: '#1e293b', // slate-800
-                border: '#334155', // slate-700
-                text: 'white',
-                selectedBackground: '#2563eb', // blue-600
-                selectedText: 'white',
-                searchBg: '#334155', // slate-700
-                cancelBg: '#334155' // slate-700
-            }
-        };
-
-        const currentColors = colors[theme];
-
-        // Crear modal
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: ${currentColors.background};
-            border: 1px solid ${currentColors.border};
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 1rem;
-            max-width: 400px;
-            width: 90%;
-            max-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            
-            color: ${currentColors.text};
-           z-index: 1002;
-        `;
-
-        // Buscador
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = 'Buscar...';
-        searchInput.style.cssText = `
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid ${currentColors.border};
-            border-radius: 0.25rem;
-            background-color: ${currentColors.searchBg};
-            color: ${currentColors.text};
-        `;
-
-        // Contenedor de opciones
-        const optionList = document.createElement('div');
-        optionList.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-height: 300px;
-            overflow-y: auto;
-        `;
-
-        // Lógica de búsqueda en tiempo real
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            optionElements.forEach(optionElement => {
-                const label = optionElement.querySelector('span').textContent.toLowerCase();
-                optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
-            });
-        });
-
-        // Track selected values
-        const currentlySelectedValues = new Set(selectedValues);
-        const optionElements = [];
-
-        // Crear opciones
-        options.forEach(option => {
-          const optionElement = document.createElement('div');
-          optionElement.style.cssText = `
+    async createSelectorModal({ selectedValues, options, mode, theme = 'light' }) {
+      return new Promise((resolve, reject) => {
+          // Color schemes
+          const colors = {
+              light: {
+                  background: 'white',
+                  border: '#e2e8f0',
+                  text: 'black',
+                  selectedBackground: '#3b82f6',
+                  selectedText: 'white',
+                  searchBg: 'white',
+                  cancelBg: '#f3f4f6'
+              },
+              dark: {
+                  background: '#1e293b', // slate-800
+                  border: '#334155', // slate-700
+                  text: 'white',
+                  selectedBackground: '#2563eb', // blue-600
+                  selectedText: 'white',
+                  searchBg: '#334155', // slate-700
+                  cancelBg: '#334155' // slate-700
+              }
+          };
+  
+          const currentColors = colors[theme];
+  
+          // Crear modal
+          const modal = document.createElement('div');
+          modal.style.cssText = `
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: rgba(0,0,0,0.5);
               display: flex;
+              justify-content: center;
               align-items: center;
+              z-index: 1001;
+          `;
+  
+          // Contenedor del contenido
+          const modalContent = document.createElement('div');
+          modalContent.style.cssText = `
+              background: ${currentColors.background};
+              border: 1px solid ${currentColors.border};
+              border-radius: 0.5rem;
+              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+              padding: 1rem;
+              max-width: 400px;
+              width: 90%;
+              max-height: 70vh;
+              display: flex;
+              flex-direction: column;
+              color: ${currentColors.text};
+          `;
+  
+          // Buscador
+          const searchInput = document.createElement('input');
+          searchInput.type = 'text';
+          searchInput.placeholder = 'Buscar...';
+          searchInput.style.cssText = `
+              width: 100%;
               padding: 0.5rem;
+              margin-bottom: 1rem;
               border: 1px solid ${currentColors.border};
               border-radius: 0.25rem;
-              cursor: pointer;
-              background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
-              color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
+              background-color: ${currentColors.searchBg};
+              color: ${currentColors.text};
           `;
-
-          // Checkbox para modo multi
-          if (mode === 'multi') {
-              const checkbox = document.createElement('input');
-              checkbox.type = 'checkbox';
-              checkbox.checked = currentlySelectedValues.has(option.value);
-              checkbox.style.marginRight = '0.5rem';
-              checkbox.style.accentColor = currentColors.selectedBackground;
-              optionElement.appendChild(checkbox);
-          }
-
-          // Add image support
-          if (option.image || option.path) {
-              const img = document.createElement('img');
-              //(selectedOptions[0].image || selectedOptions[0].path).startsWith('http') ? (selectedOptions[0].image || selectedOptions[0].path) : `/media/${(selectedOptions[0].image || selectedOptions[0].path)}`
-              img.src = (option.image || option.path).startsWith('http') ? option.image || option.path : `/media/${option.image || option.path}`;
-              img.style.cssText = `
-                  width: 30px;
-                  height: 30px;
-                  object-fit: cover;
-                  margin-right: 0.5rem;
-                  border-radius: 0.25rem;
-              `;
-              optionElement.appendChild(img);
-          }
-
-          const label = document.createElement('span');
-          label.textContent = option.label;
-          optionElement.appendChild(label);
-
-            // Lógica de selección
-            optionElement.addEventListener('click', () => {
-                if (mode === 'single') {
-                    // Modo single: selección inmediata
-                    document.body.removeChild(modal);
-                    resolve({ values: [option.value] });
-                } else {
-                    // Modo multi: toggle selección
-                    const checkbox = optionElement.querySelector('input[type="checkbox"]');
-                    checkbox.checked = !checkbox.checked;
-                    if (checkbox.checked) {
-                        currentlySelectedValues.add(option.value);
-                        optionElement.style.backgroundColor = currentColors.selectedBackground;
-                        optionElement.style.color = currentColors.selectedText;
-                    } else {
-                        currentlySelectedValues.delete(option.value);
-                        optionElement.style.backgroundColor = currentColors.background;
-                        optionElement.style.color = currentColors.text;
-                    }
-                }
-            });
-
-            optionElements.push(optionElement);
-            optionList.appendChild(optionElement);
-        });
-
-        // Botones para modo multi
-        if (mode === 'multi') {
-            const confirmButton = document.createElement('button');
-            confirmButton.textContent = 'Confirmar Selección';
-            confirmButton.style.cssText = `
-                margin-top: 1rem;
-                padding: 0.5rem 1rem;
-                background-color: ${currentColors.selectedBackground};
-                color: ${currentColors.selectedText};
-                border: none;
-                border-radius: 0.25rem;
-                cursor: pointer;
-            `;
-
-            confirmButton.addEventListener('click', () => {
-                document.body.removeChild(modal);
-                resolve({
-                    values: Array.from(currentlySelectedValues)
-                });
-            });
-
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = 'Cancelar';
-            cancelButton.style.cssText = `
-                margin-top: 1rem;
-                margin-left: 0.5rem;
-                padding: 0.5rem 1rem;
-                background-color: ${currentColors.cancelBg};
-                color: ${currentColors.text};
+  
+          // Contenedor de opciones
+          const optionList = document.createElement('div');
+          optionList.style.cssText = `
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              max-height: 300px;
+              overflow-y: auto;
+          `;
+  
+          // Lógica de búsqueda en tiempo real
+          searchInput.addEventListener('input', (e) => {
+              const searchTerm = e.target.value.toLowerCase().trim();
+              optionElements.forEach(optionElement => {
+                  const label = optionElement.querySelector('span').textContent.toLowerCase();
+                  optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
+              });
+          });
+  
+          // Track selected values
+          const currentlySelectedValues = new Set(selectedValues);
+          const optionElements = [];
+  
+          // Crear opciones
+          options.forEach(option => {
+            const optionElement = document.createElement('div');
+            optionElement.style.cssText = `
+                display: flex;
+                align-items: center;
+                padding: 0.5rem;
                 border: 1px solid ${currentColors.border};
                 border-radius: 0.25rem;
                 cursor: pointer;
+                background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
+                color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
             `;
-
-            cancelButton.addEventListener('click', () => {
-                document.body.removeChild(modal);
-                reject();
-            });
-
-            // Agregar buscador, lista de opciones y botones
-            modal.appendChild(searchInput);
-            modal.appendChild(optionList);
-            modal.appendChild(confirmButton);
-            modal.appendChild(cancelButton);
-        } else {
-            // Modo single: buscador y opciones
-            modal.appendChild(searchInput);
-            modal.appendChild(optionList);
-        }
-
-        // Agregar al documento
-        document.body.appendChild(modal);
-
-        // Enfocar buscador al abrir
-        searchInput.focus();
-    });
-}
-
+  
+            // Checkbox para modo multi
+            if (mode === 'multi') {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = currentlySelectedValues.has(option.value);
+                checkbox.style.marginRight = '0.5rem';
+                checkbox.style.accentColor = currentColors.selectedBackground;
+                optionElement.appendChild(checkbox);
+            }
+  
+            // Add image support
+            if (option.image || option.path) {
+                const img = document.createElement('img');
+                img.src = (option.image || option.path).startsWith('http') ? option.image || option.path : `/media/${option.image || option.path}`;
+                img.style.cssText = `
+                    width: 30px;
+                    height: 30px;
+                    object-fit: cover;
+                    margin-right: 0.5rem;
+                    border-radius: 0.25rem;
+                `;
+                optionElement.appendChild(img);
+            }
+  
+            const label = document.createElement('span');
+            label.textContent = option.label;
+            optionElement.appendChild(label);
+  
+              // Lógica de selección
+              optionElement.addEventListener('click', () => {
+                  if (mode === 'single') {
+                      // Modo single: selección inmediata
+                      document.body.removeChild(modal);
+                      resolve({ values: [option.value] });
+                  } else {
+                      // Modo multi: toggle selección
+                      const checkbox = optionElement.querySelector('input[type="checkbox"]');
+                      checkbox.checked = !checkbox.checked;
+                      if (checkbox.checked) {
+                          currentlySelectedValues.add(option.value);
+                          optionElement.style.backgroundColor = currentColors.selectedBackground;
+                          optionElement.style.color = currentColors.selectedText;
+                      } else {
+                          currentlySelectedValues.delete(option.value);
+                          optionElement.style.backgroundColor = currentColors.background;
+                          optionElement.style.color = currentColors.text;
+                      }
+                  }
+              });
+  
+              optionElements.push(optionElement);
+              optionList.appendChild(optionElement);
+          });
+  
+          // Botones para modo multi
+          if (mode === 'multi') {
+              const confirmButton = document.createElement('button');
+              confirmButton.textContent = 'Confirmar Selección';
+              confirmButton.style.cssText = `
+                  margin-top: 1rem;
+                  padding: 0.5rem 1rem;
+                  background-color: ${currentColors.selectedBackground};
+                  color: ${currentColors.selectedText};
+                  border: none;
+                  border-radius: 0.25rem;
+                  cursor: pointer;
+              `;
+  
+              confirmButton.addEventListener('click', () => {
+                  document.body.removeChild(modal);
+                  resolve({
+                      values: Array.from(currentlySelectedValues)
+                  });
+              });
+  
+              const cancelButton = document.createElement('button');
+              cancelButton.textContent = 'Cancelar';
+              cancelButton.style.cssText = `
+                  margin-top: 1rem;
+                  margin-left: 0.5rem;
+                  padding: 0.5rem 1rem;
+                  background-color: ${currentColors.cancelBg};
+                  color: ${currentColors.text};
+                  border: 1px solid ${currentColors.border};
+                  border-radius: 0.25rem;
+                  cursor: pointer;
+              `;
+  
+              cancelButton.addEventListener('click', () => {
+                  document.body.removeChild(modal);
+                  reject();
+              });
+  
+              // Agregar buscador, lista de opciones y botones
+              modalContent.appendChild(searchInput);
+              modalContent.appendChild(optionList);
+              modalContent.appendChild(confirmButton);
+              modalContent.appendChild(cancelButton);
+          } else {
+              // Modo single: buscador y opciones
+              modalContent.appendChild(searchInput);
+              modalContent.appendChild(optionList);
+          }
+  
+          // Agregar contenido al modal
+          modal.appendChild(modalContent);
+  
+          // Evento para cerrar al hacer clic fuera
+          modal.addEventListener('click', (event) => {
+              if (event.target === modal) {
+                  document.body.removeChild(modal);
+                  reject();
+              }
+          });
+  
+          // Prevenir que los clics dentro del contenido se propaguen y cierren el modal
+          modalContent.addEventListener('click', (event) => {
+              event.stopPropagation();
+          });
+  
+          // Agregar al documento
+          document.body.appendChild(modal);
+  
+          // Enfocar buscador al abrir
+          searchInput.focus();
+      });
+  }
     /**
      * Method to set external options
      * @param {Array} options - List of options with `value`, `label`, and optional `description`

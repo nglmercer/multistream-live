@@ -98,7 +98,7 @@ const eventform = document.createElement('dynamic-form');
             .addField({
                 type: 'flexible-modal-selector',
                 name: 'Actions',
-                label: 'Selecciona un valor',
+                label: 'selecciona la accion',
                 mode: 'multi',
                 options: await EventsManagermap(),
                 value: [],
@@ -183,7 +183,7 @@ const configtable = {
     buttonsave: {
       class: 'default-button',
       type: 'button',
-      label: getTranslation('savechanges'),
+      label: getTranslation('edit'),
       callback: callbacktable,
     },
     buttondelete: {
