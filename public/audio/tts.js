@@ -161,45 +161,151 @@ async function handleleermensaje(text) {
 
     return true;
 }
-const myForm = document.createElement('dynamic-form');
-myForm.initialize()
-    .addField({
+// Utility function to merge saved settings with default settings
+function mergeSettings(defaultFields, savedSettings) {
+    return defaultFields.map(fieldConfig => {
+        // Create a copy of the field to avoid modifying the original
+        const field = { ...fieldConfig.field };
+        
+        // If saved settings exist and have a value for this field
+        if (savedSettings && savedSettings.hasOwnProperty(field.name)) {
+            // Handle different field types
+            switch (field.type) {
+                case 'checkbox':
+                    // Ensure it's a boolean
+                    field.checked = !!savedSettings[field.name];
+                    break;
+                
+                case 'radio':
+                    // Check if saved value exists in options
+                    if (field.options && field.options.some(opt => opt.value === savedSettings[field.name])) {
+                        field.value = savedSettings[field.name];
+                    }
+                    break;
+                
+                case 'number':
+                    // Validate number is within min/max
+                    const savedValue = Number(savedSettings[field.name]);
+                    if (!isNaN(savedValue)) {
+                        if (field.min !== undefined && savedValue < field.min) {
+                            field.value = field.min;
+                        } else if (field.max !== undefined && savedValue > field.max) {
+                            field.value = field.max;
+                        } else {
+                            field.value = savedValue;
+                        }
+                    }
+                    break;
+                
+                default:
+                    // For text and other types, directly assign the saved value
+                    field.value = savedSettings[field.name];
+            }
+        }
+        
+        return { 
+            field, 
+            options: fieldConfig.options || undefined 
+        };
+    });
+}
+
+// Function to retrieve saved settings from localStorage
+function getSavedSettings(name) {
+    try {
+        const savedSettings = localStorage.getItem(name);
+        return savedSettings ? JSON.parse(savedSettings) : null;
+    } catch (error) {
+        console.error('Error retrieving settings from localStorage:', error);
+        return null;
+    }
+}
+
+// Modify form creation to use saved settings
+function createFormWithFields(fields, name) {
+    // Retrieve saved settings
+    const savedSettings = getSavedSettings(name);
+    // Merge saved settings with default fields
+    const mergedFields = mergeSettings(fields, savedSettings);
+    
+    const myForm = document.createElement('dynamic-form');
+    
+    myForm.initialize();
+    
+    console.log("mergedFields",mergedFields)
+    // Add fields dynamically using merged configuration
+    mergedFields.forEach(fieldConfig => {
+        const { field, options } = fieldConfig;
+        myForm.addField(field, options);
+    });
+    
+    return myForm;
+}
+
+// Updated setupForm function
+function setupForm(form, name) {
+    form.render()
+        .setSubmitButton({
+            label: 'Send',
+            disabled: undefined,
+            className: 'hidden'
+        })
+        .toggleDarkMode(true);
+    
+    // Add event listeners
+    form.addEventListener('form-submit', (e) => {
+        console.log('Datos modificados:', e.detail);
+        console.log('¿Hay cambios?', form.hasChanges());
+        localStorage.setItem(name, JSON.stringify(e.detail));
+    });
+    
+    form.addEventListener('form-change', (e) => {
+        console.log('Form values changed:', e.detail);
+        localStorage.setItem(name, JSON.stringify(e.detail));
+    });
+    
+    return form;
+}
+
+// Configuration for the first form (User Settings)
+const userSettingsFields = [
+    { field: {
         type: 'checkbox',
         name: 'AllUsers',
         label: 'All Users',
-        checked: true,
-    })
-    .addField({
+        checked: true
+    }},
+    { field: {
         type: 'checkbox',
         name: 'followRole',
         label: 'Followers',
-        checked: true,
-    })
-    .addField({
+        checked: true
+    }},
+    { field: {
         type: 'checkbox',
         name: 'isSubscriber',
         label: 'isSubscriber',
-        checked: true,
-    })
-    .addField({
+        checked: true
+    }},
+    { field: {
         type: 'checkbox',
         name: 'isModerator',
         label: 'isModerator',
-        checked: true,
-    })
-    .addField({
+        checked: true
+    }},
+    { field: {
         type: 'checkbox',
         name: 'isNewGifter',
         label: 'isNewGifter',
-        checked: true,
-    })
-    .addField({
+        checked: true
+    }},
+    { field: {
         type: 'checkbox',
         name: 'teamMemberLevel',
         label: 'Team Members',
-        checked: true,
-    }, { rowGroup: 'teamMember' })
-    .addField({
+        checked: true
+    }, options: { rowGroup: 'teamMember' }},
+    { field: {
         type: 'number',
         name: 'teamMemberLevel_value',
         placeholder: 'Min. lvl',
@@ -210,14 +316,14 @@ myForm.initialize()
             field: 'teamMemberLevel',
             value: true
         }
-    }, { rowGroup: 'teamMember' })
-    .addField({
+    }, options: { rowGroup: 'teamMember' }},
+    { field: {
         type: 'checkbox',
         name: 'topGifterRank',
         label: 'Top Gifters',
-        checked: true,
-    }, { rowGroup: 'topGifter' })
-    .addField({
+        checked: true
+    }, options: { rowGroup: 'topGifter' }},
+    { field: {
         type: 'number',
         name: 'topGifterRank_value',
         placeholder: 'Top',
@@ -228,75 +334,43 @@ myForm.initialize()
             field: 'topGifterRank',
             value: true
         }
-    }, { rowGroup: 'topGifter' })
-myForm.render()
-    .setSubmitButton({ 
-        label: 'Send', 
-        disabled: undefined,
-        className: 'hidden'
-    });
-/* myForm.setInitialState({
-    AllUsers: true,
-    followRole: true,
-    isSubscriber: true,
-    isModerator: true,
-    isNewGifter: true,
-    teamMemberLevel: true,
-    teamMemberLevel_value: 1,
-    topGifterRank: true,
-    topGifterRank_value: 3,
-}); */
+    }, options: { rowGroup: 'topGifter' }}
+];
 
-const myForm2 = document.createElement('dynamic-form');
-
-myForm2.initialize()
-    .addField({
+// Configuration for the second form (Comments Settings)
+const commentsSettingsFields = [
+    { field: {
         type: 'radio',
         name: 'type_comments',
         label: 'prefix',
         options: [
-            { value: 'any comment', label: 'any comment' },
+            { value: 'any_comment', label: 'any comment' },
             { value: 'dot_comment', label: 'comments starting with (.)' },
             { value: 'interrogation_comment', label: 'comments starting with (?)' },
             { value: 'slash_comment', label: 'comments starting with (/)' },
-            { value: 'command_comment', label: 'commands starting with :' },
+            { value: 'command_comment', label: 'commands starting with :' }
         ],
-        value: 'any comment',
-    })
-    .addField({
+        value: 'any_comment'
+    }},
+    { field: {
         type: 'text',
         name: 'command',
         label: 'command',
-        value: '!speak',
-    })
-    .render()
-    .setSubmitButton({ 
-        label: 'Send', 
-        disabled: undefined,
-        className: 'hidden'
-    });
-myForm.addEventListener('form-submit', (e) => {
-    console.log('Datos modificados:', e.detail);
-    console.log('¿Hay cambios?', myForm.hasChanges());
-});
-myForm2.addEventListener('form-submit', (e) => {
-    console.log('Datos modificados:', e.detail);
-    console.log('¿Hay cambios?', myForm2.hasChanges());
-});
-myForm2.addEventListener('form-change', (e) => {
-    console.log('Form values changed:', e.detail);
-});
-myForm.addEventListener('allchanges', (e) => {
-    console.log('Datos modificados:', e.detail);
-    console.log('¿Hay cambios?', myForm.hasChanges());
-});
-myForm.addEventListener('form-change', (e) => {
-    console.log('Form values changed:', e.detail);
-});
-myForm2.toggleDarkMode(true);
-myForm.toggleDarkMode(true);
-document.getElementById('ttssettings').appendChild(myForm);
-document.getElementById('ttssettings1').appendChild(myForm2);
+        value: '!speak'
+    }}
+];
+
+// Create forms with saved settings
+const myForm = createFormWithFields(userSettingsFields, 'userSettings');
+const myForm2 = createFormWithFields(commentsSettingsFields, 'commentsSettings');
+
+// Setup both forms
+const configuredForm1 = setupForm(myForm, 'userSettings');
+const configuredForm2 = setupForm(myForm2, 'commentsSettings');
+
+// Append forms to DOM
+document.getElementById('ttssettings').appendChild(configuredForm1);
+document.getElementById('ttssettings1').appendChild(configuredForm2);
 /* document.body.appendChild(myForm)
 document.body.appendChild(myForm2) */
 

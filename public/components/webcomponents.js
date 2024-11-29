@@ -1128,6 +1128,8 @@ class DynamicForm extends HTMLElement {
                   
                   if (field.value === option.value) {
                       radioInput.checked = true;
+                      console.log("radioInput",radioInput)
+
                   }
                   
                   if (field.required) {
@@ -7048,3 +7050,175 @@ class DonationAlert extends HTMLElement {
 }
 
 customElements.define('donation-alert', DonationAlert);
+class WindowManager extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.windows = new Map();
+  }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = /*html */`
+      <style>
+        :host {
+          display: block;
+          font-family: Arial, sans-serif;
+        }
+        .window-list {
+          display: grid;
+          gap: 1rem;
+        }
+        .window-card {
+          background-color: #2d3748;
+          border-radius: 0.5rem;
+          padding: 1rem;
+          color: white;
+        }
+        .window-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+        .window-header h3 {
+          font-size: 1.125rem;
+          font-weight: 600;
+        }
+        .close-btn {
+          color: #ef4444;
+          cursor: pointer;
+        }
+        .close-btn:hover {
+          color: #dc2626;
+        }
+        .option-label {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+        .option-label input {
+          margin-right: 0.5rem;
+        }
+      </style>
+      <div class="window-list" id="windowsList"></div>
+    `;
+  }
+
+  addWindow(id, config) {
+    // Validate config
+    const defaultConfig = {
+      url: 'New Window',
+      alwaysOnTop: false,
+      transparent: false,
+      ignoreMouseEvents: false
+    };
+    const mergedConfig = { ...defaultConfig, ...config };
+
+    // Create window card
+    const card = document.createElement('div');
+    card.className = 'window-card';
+    card.innerHTML = `
+      <div class="window-header">
+        <h3>${mergedConfig.url}</h3>
+        <button class="close-btn" data-id="${id}">Cerrar</button>
+      </div>
+      <div class="window-options">
+        <label class="option-label">
+          <input type="checkbox" 
+            ${mergedConfig.alwaysOnTop ? 'checked' : ''} 
+            data-property="alwaysOnTop" 
+            data-id="${id}">
+          Siempre Visible
+        </label>
+        <label class="option-label">
+          <input type="checkbox" 
+            ${mergedConfig.transparent ? 'checked' : ''} 
+            data-property="transparent" 
+            data-id="${id}">
+          Transparente
+        </label>
+        <label class="option-label">
+          <input type="checkbox" 
+            ${mergedConfig.ignoreMouseEvents ? 'checked' : ''} 
+            data-property="ignoreMouseEvents" 
+            data-id="${id}">
+          Ignorar Mouse
+        </label>
+      </div>
+    `;
+
+    // Add event listeners
+    card.querySelector('.close-btn').addEventListener('click', this.closeWindow.bind(this));
+    card.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', this.updateWindow.bind(this));
+    });
+
+    // Store window config and append card
+    this.windows.set(id, mergedConfig);
+    this.shadowRoot.getElementById('windowsList').appendChild(card);
+  }
+
+  updateWindow(event) {
+    const checkbox = event.target;
+    const id = checkbox.dataset.id;
+    const property = checkbox.dataset.property;
+    
+    // Get current config and update
+    const currentConfig = this.windows.get(id) || {};
+    const newConfig = { 
+      ...currentConfig, 
+      [property]: checkbox.checked 
+    };
+
+    // Update local map
+    this.windows.set(id, newConfig);
+
+    // Dispatch custom event for external handling
+    this.dispatchEvent(new CustomEvent('window-update', {
+      detail: { id, config: newConfig }
+    }));
+  }
+
+  closeWindow(event) {
+    const id = event.target.dataset.id;
+    
+    // Remove from map
+    this.windows.delete(id);
+
+    // Remove from DOM
+    event.target.closest('.window-card').remove();
+
+    // Dispatch custom event for external handling
+    this.dispatchEvent(new CustomEvent('window-close', {
+      detail: { id }
+    }));
+  }
+  deleteWindow(id) {
+    // Remove from windows map
+    this.windows.delete(id);
+  
+    // Find and remove the corresponding HTML element
+    const windowsList = this.shadowRoot.getElementById('windowsList');
+    const windowCard = windowsList.querySelector(`.window-card [data-id="${id}"]`)?.closest('.window-card');
+    
+    if (windowCard) {
+      windowCard.remove();
+  
+      // Dispatch a custom event to notify external listeners
+      this.dispatchEvent(new CustomEvent('window-close', {
+        detail: { id }
+      }));
+    }
+  }
+  // Method to get all current windows
+  getWindows() {
+    return Array.from(this.windows.entries());
+  }
+}
+
+// Define the custom element
+customElements.define('window-manager', WindowManager);

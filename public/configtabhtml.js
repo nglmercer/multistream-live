@@ -141,6 +141,8 @@ modalwindow.initialize()
         value: false,
     })
     .render();
+const windowManager = document.getElementById('myWindowManager');
+
 const windowModalcontainer = document.getElementById('windowModal');
 modalwindow.toggleDarkMode();
 modalwindow.addEventListener('form-submit', (e) => {
@@ -167,27 +169,29 @@ socketManager.on('window-list', (windowList) => {
       console.log("window-list",id, config);
       windows.set(id, config);
       const card = createWindowCard(id, config);
-      card.setAttribute('data-window-id', id);
-      windowsList.appendChild(card);
+/*       card.setAttribute('data-window-id', id);
+      windowsList.appendChild(card); */
     });
   });
 socketManager.on('window-created', ({ id, config }) => {
     windows.set(id, config);
     const card = createWindowCard(id, config);
-    card.setAttribute('data-window-id', id);
-    windowsList.appendChild(card);
+/*     card.setAttribute('data-window-id', id);
+    windowsList.appendChild(card); */
   });
 socketManager.on('window-closed', (id) => {
-    windows.delete(id);
+  windowManager.deleteWindow(id);
+/*     windows.delete(id);
     const card = document.querySelector(`[data-window-id="${id}"]`);
     if (card) {
       card.remove();
-    }
+    } */
   });
 socketManager.on('window-updated', (data) => {
   console.log('window-updated', data);
 });
 function createWindowCard(id, config) {
+  return windowManager.addWindow(id, config);  
     const card = document.createElement('div');
     card.className = 'bg-gray-800 p-4 rounded-lg';
     card.innerHTML = `
@@ -220,7 +224,21 @@ function createWindowCard(id, config) {
     `;
     return card;
   }
-  window.updateWindow = (id, property, value) => {
+  windowManager.addEventListener('window-update', (event) => {
+    const { id, config } = event.detail;
+    console.log('Window updated:', id, config);
+    // You can add your socketManager.emitMessage() here
+    socketManager.emitMessage('update-window', { id, config: config });
+  });
+
+  // Listen for window close events
+  windowManager.addEventListener('window-close', (event) => {
+    const { id } = event.detail;
+    console.log('Window closed:', id);
+    socketManager.emitMessage('close-window', id);
+    // You can add your socketManager.emitMessage() here
+  });
+/*   window.updateWindow = (id, property, value) => {
     const currentConfig = windows.get(id) || {};
     const newConfig = { ...currentConfig };
     newConfig[property] = value;
@@ -233,5 +251,5 @@ function createWindowCard(id, config) {
   };
   window.closeWindow = (id) => {
     socketManager.emitMessage('close-window', id);
-  };
+  }; */
 windowModalcontainer.appendChild(modalwindow);
