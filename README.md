@@ -53,3 +53,26 @@ este es un ejemplo de alerta que recibe para poder crear los elementos
     "src": [{"example": "el contenido sera ignorado"}]
 }
 ```
+
+// ejemplo de transformar un objeto y que sea reversible
+```json5
+"data":{
+  "nombre": "nombre de la accion",
+  "minecraft": {
+    "check": false,
+    "command": "minecraft",
+  },
+  "tts": {
+    "check": false,
+    "text": "textoread",
+  },
+
+  }
+rawdata = {
+"minecraft_check": true,
+"minecraft_command": "123123",
+"nombre": "nombre de la accion",
+"tts_check": true,
+"tts_text": "123"
+}
+```

@@ -1,7 +1,7 @@
 import { Giftsparsed, mapselectgift } from '../assets/gifts.js';
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { databases, IndexedDBManager, DBObserver } from '../database/indexdb.js'
-import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects } from '../utils/utils.js'
+import { Counter, flattenObject, TypeofData,ComboTracker, replaceVariables, compareObjects, unflattenObject } from '../utils/utils.js'
 import showAlert from '../components/alerts.js';
 import { GiftElementsManager } from '../components/renderhtml.js'
 import { ActionsManager } from './Actions.js'
@@ -25,6 +25,30 @@ async function EventsManagermap(data) {
     value: data.id,
     label: data.nombre,
   }))
+}
+const newmodalevent = document.getElementById('eventformModal')
+
+const testdata2 ={
+  Actions: 
+ ['option2', 'option3'],
+bits
+: 
+null,
+chat
+: 
+"123123123123",
+eventType
+: 
+"chat",
+gift
+: 
+10405,
+id
+: 
+null,
+nombre
+: 
+"123123123"
 }
 const eventform = document.createElement('dynamic-form');
         eventform.initialize()
@@ -98,26 +122,17 @@ const eventform = document.createElement('dynamic-form');
             })
             .render()
             .toggleDarkMode(true);
-eventform.addEventListener('form-submit', (e) => {
+eventform.addEventListener('form-submit', async (e) => {
   console.log('Datos modificados:', e.detail);
-});
-eventform.addEventListener('form-change', (e) => {
-  console.log('Form values changed:', e.detail);
-});
-const newmodalevent = document.getElementById('eventformModal')
-newmodalevent.appendChild(eventform);
-newmodalevent.open();
-
-
-const editcallback = async (data,modifiedData) => {
-  console.log("editcallback", data,modifiedData);
+  const modifiedData = unflattenObject(e.detail);
+  console.log("modifiedData",modifiedData, flattenObject(modifiedData))
   const alldata = await EventsManager.getAllData()
   console.log("alldata",alldata)
   
   const keysToCheck = [
     { key: 'eventType', compare: 'isEqual' },
 /*       { key: 'gift', compare: 'isEqual' },
-*/      { key: modifiedData.eventType, compare: 'isEqual' }
+*/  { key: modifiedData.eventType, compare: 'isEqual' }
   ];    
   const callbackFunction = (matchingObject, index, results) => {
     console.log(`Objeto coincidente encontrado en el índice ${index}:`, matchingObject, results);
@@ -126,17 +141,30 @@ const editcallback = async (data,modifiedData) => {
   const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
   console.log("results",results)
   if (!results.validResults.length >= 1 && !modifiedData.id) {
-    EventsModal.close();
+    newmodalevent.close();
     EventsManager.saveData(modifiedData)
     showAlert('success','Se ha guardado el evento')
   } else if (modifiedData.id && results.validResults.length <= 1) {
-    EventsModal.close();
+    newmodalevent.close();
     EventsManager.updateData(modifiedData)
     showAlert('success','Se ha guardado el evento')
   } else {
     console.log(modifiedData.id,"id de la base de datos")
     showAlert('error','ya existe un elemento en la base de datos igual')
   }
+});
+eventform.addEventListener('form-change', (e) => {
+  console.log('Form values changed:', e.detail);
+});
+setTimeout(() => {
+  eventform.reRender(testdata2);
+}, 1000);
+newmodalevent.appendChild(eventform);
+newmodalevent.open();
+
+
+const editcallback = async (data,modifiedData) => {
+
 }
 const deletecallback = async (data,modifiedData) => {
   EventsModal.close();

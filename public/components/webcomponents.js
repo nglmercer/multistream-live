@@ -451,7 +451,7 @@ class FlexibleModalSelector extends HTMLElement {
       // Add image if exists in single mode
       if (this.mode === 'single' && selectedOptions[0] && (selectedOptions[0].image || selectedOptions[0].path)) {
           const img = document.createElement('img');
-          img.src = selectedOptions[0].image || selectedOptions[0].path;
+          img.src = (selectedOptions[0].image || selectedOptions[0].path).startsWith('http') ? (selectedOptions[0].image || selectedOptions[0].path) : `/media/${(selectedOptions[0].image || selectedOptions[0].path)}`;
           img.style.cssText = `
               position: absolute;
               left: 70%; 
@@ -621,7 +621,8 @@ class FlexibleModalSelector extends HTMLElement {
           // Add image support
           if (option.image || option.path) {
               const img = document.createElement('img');
-              img.src = option.image || option.path;
+              //(selectedOptions[0].image || selectedOptions[0].path).startsWith('http') ? (selectedOptions[0].image || selectedOptions[0].path) : `/media/${(selectedOptions[0].image || selectedOptions[0].path)}`
+              img.src = (option.image || option.path).startsWith('http') ? option.image || option.path : `/media/${option.image || option.path}`;
               img.style.cssText = `
                   width: 30px;
                   height: 30px;
@@ -978,10 +979,29 @@ class DynamicForm extends HTMLElement {
       this.formConfig.darkMode = false;
       //this.emitchanges();
   }
+  reRender(initialData = null) {
+    // If initial data is provided, update the initial state
+    if (initialData) {
+        this.initialState = this._deepClone(initialData);
+        
+        // Update field values based on the new initial data
+        this.fields.forEach(field => {
+            if (this.initialState[field.name] !== undefined) {
+                field.value = this.initialState[field.name];
+            }
+        });
+    }
 
-  _deepClone(obj) {
-      return JSON.parse(JSON.stringify(obj));
-  }
+    // Clear existing form and re-render
+    this.render();
+
+    return this;
+}
+
+// Helper method for deep cloning (if not already implemented)
+_deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
   addBeforeForm(elementConfig) {
       const defaultConfig = {
           type: 'div', // Tipo de elemento por defecto
@@ -1528,31 +1548,6 @@ class DynamicForm extends HTMLElement {
       }));
   }
 
-  restoreInitialState() {
-      if (this.initialState) {
-          this.fields = this.fields.map(field => ({
-              ...field,
-              value: this.initialState[field.name] || '',
-              errorMessage: ''
-          }));
-          this.render();
-      }
-      return this;
-  }
-
-  setInitialState(data) {
-      this.initialState = this._deepClone(data);
-      return this.restoreInitialState();
-  }
-
-  hasChanges() {
-      if (!this.initialState) return true;
-      
-      const currentValues = this.getValues();
-      return Object.keys(this.initialState).some(key => 
-          this.initialState[key] !== currentValues[key]
-      );
-  }
 }
 
 customElements.define('dynamic-form', DynamicForm);
@@ -1965,8 +1960,8 @@ class CustomSelect extends HTMLElement {
                 const optionElement = document.createElement('div');
                 optionElement.classList.add('option');
                 
-                // Verificar si `option.image` es un SVG en texto
-                let imgSrc = option.image;
+                // Verificar si `option.image` es un SVG en texto (option.image || option.path).startsWith('http') ? (option.image || option.path) : `/media/${(option.image || option.path)}`
+                let imgSrc = option.image && option.image.startsWith('http') ? option.image : `/media/${option.image}`;
                 if (option.image && option.image.length > 50 && option.image.trim().startsWith('<svg')) {
                     // Crear un Blob para el SVG y generar una URL compatible
                     const svgBlob = new Blob([option.image], { type: 'image/svg+xml' });
@@ -3545,7 +3540,7 @@ class ResponsiveNavSidebar extends HTMLElement {
         
         // Create base modal structure
         const template = document.createElement('template');
-        template.innerHTML = `
+        template.innerHTML = /*html*/`
             <style>
                 :host {
                     display: none;

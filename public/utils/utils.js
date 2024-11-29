@@ -118,7 +118,62 @@ class TypeofData {
       return 'unknown';
     }
 }
-  
+function flattenObject(obj, separator = '_') {
+  const result = {};
+
+  function recurse(current, path = '') {
+      // Maneja valores primitivos y null
+      if (Object(current) !== current) {
+          result[path.slice(0, -1)] = current;
+          return;
+      }
+
+      // Maneja arrays
+      if (Array.isArray(current)) {
+          result[path.slice(0, -1)] = current; // Guarda el array como tal
+          return;
+      }
+
+      // Maneja objetos
+      for (const key in current) {
+          const newPath = path + key + separator;
+          recurse(current[key], newPath);
+      }
+  }
+
+  recurse(obj);
+  return result;
+}
+
+// Función para reconstituir un objeto plano a su forma original
+function unflattenObject(obj, separator = '_') {
+  const result = {};
+
+  for (const key in obj) {
+      const parts = key.split(separator);
+      let current = result;
+
+      for (let i = 0; i < parts.length - 1; i++) {
+          const part = parts[i];
+          if (!(part in current)) {
+              current[part] = {};
+          }
+          current = current[part];
+      }
+
+      const lastPart = parts[parts.length - 1];
+
+      // Detecta arrays al deshacer el aplanado
+      if (Array.isArray(obj[key])) {
+          current[lastPart] = obj[key];
+      } else {
+          current[lastPart] = obj[key];
+      }
+  }
+
+  return result;
+}
+
 // Ejemplo de usoquerySnapshot.forEach
 // console.log(TypeofData.isString("hello")); // true
 // console.log(TypeofData.isNumber(123)); // true
@@ -867,5 +922,5 @@ class ArrayManagerUI {
   }
 }
 
-export { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI };
+export {unflattenObject, flattenObject, Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI };
   

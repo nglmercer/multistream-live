@@ -94,7 +94,10 @@
             
             <div slot="tab-content" data-tab-content="tab2">
               <section class="section" id="settings">
-                <div id="container" class="container"></div>
+                <div id="container" class="container">
+                  <button class="open-modal-btn" onclick="document.getElementById('eventformModal').open()">open eventformModal</button>
+                  <button class="open-modal-btn" onclick="document.getElementById('actionformModal').open()">open actionformModal</button>
+                </div>
 
                 <h2><translate-text key="configuration"></translate-text></h2>
                   <div class="containerbox relative">

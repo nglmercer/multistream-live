@@ -1,6 +1,6 @@
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { databases, IndexedDBManager, DBObserver } from '../database/indexdb.js'
-import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects,UserInteractionTracker } from '../utils/utils.js'
+import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects,UserInteractionTracker, unflattenObject, flattenObject } from '../utils/utils.js'
 import showAlert from '../components/alerts.js';
 import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
 import { getTranslation, translations } from '../translations.js';
@@ -187,8 +187,109 @@ const actionsconfig = {
     hidden: true,
   }
 }
+const newmodalaction = document.getElementById('actionformModal')
 
-
+const newactionform = document.createElement('dynamic-form');
+        newactionform.initialize()
+            .addField({
+                type: 'text',
+                name: 'nombre',
+                label: 'nombre de la accion',
+                value: 'nombre de la accion',
+            })
+            .addField({
+                type: 'checkbox',
+                name: 'minecraft_check',
+                label: 'minecraft',
+                checked: false,
+            })
+            .addField({
+              type: 'textarea',
+              name: 'minecraft_command',
+              label: 'command',
+              value: 'command',
+              showWhen: {
+                field: 'minecraft_check',
+                value: true
+              }
+            })
+            .addField({
+                type: 'checkbox',
+                name: 'tts_check',
+                label: 'tts',
+                checked: false,
+            })
+            .addField({
+                type: 'textarea',
+                name: 'tts_text',
+                label: 'texto a leer',
+                value: 'texto a leer',
+                showWhen: {
+                  field: 'tts_check',
+                  value: true
+                }
+            })
+            .addField({
+                type: 'number',
+                name: 'id',
+                label: '',
+                hidden: true,
+            })
+            .addField({
+                type: 'checkbox',
+                name: 'overlay_check',
+                label: 'overlay',
+                checked: false,
+            })
+            .addField({
+                type: 'flexible-modal-selector',
+                name: 'overlay_src',
+                label: 'overlay',
+                value: 5655,
+                options: getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))),
+                showWhen: {
+                  field: 'overlay_check',
+                  value: true
+                }
+            })
+            .render()
+            .toggleDarkMode(true);
+/* setTimeout(() => {
+  newactionform.reRender(testdata2);
+}, 1000); */
+newactionform.addEventListener('form-submit', async (e) => {
+  console.log('Datos modificados:', e.detail);
+/*   newmodalaction.close();
+ */ 
+    console.log("data",e.detail)
+    const modifiedData = unflattenObject(e.detail);
+    console.log("modifiedData",modifiedData, flattenObject(modifiedData))
+    const alldata = await ActionsManager.getAllData()
+    const keysToCheck = [
+      { key: 'nombre', compare: 'isEqual' },
+    ];
+    const callbackFunction = (matchingObject, index, results) => {
+      console.log(`Objeto coincidente encontrado en el índice ${index}:`, matchingObject, results);
+    };
+    const primerValor = objeto => Object.values(objeto)[0];
+    const primeraKey = objeto => Object.keys(objeto)[0];
+  
+    const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
+    console.log("results",results)
+    if (results.validResults.length >= 1) {
+      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`)
+    } else {
+      newmodalaction.close();
+      ActionsManager.saveData(modifiedData)
+      showAlert('success','Se ha guardado el evento')
+    }
+  
+});
+newactionform.addEventListener('form-change', (e) => {
+  console.log('Form values changed:', e.detail);
+});
+newmodalaction.appendChild(newactionform);
+newmodalaction.open();
 //console.log(mapgetAllscenesScenenameSceneindex(getlastdatafromstorage("getScenesList",[])?.scenes),"mapgetAllscenesScenenameSceneindex");
 function getlastdatafromstorage(key,type=[]) {
     console.log("getlastdatafromstorage",JSON.parse(localStorage.getItem(key)),key);
