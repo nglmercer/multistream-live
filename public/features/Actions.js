@@ -305,7 +305,7 @@ function updatemodaldata(data = testdata) {
 const tableconfigcallback = {
   callback: async (data,modifiedData) => {
     console.log("callbacktable",data,modifiedData);
-    Aformelement.ReturnHtml(actionsconfig,modifiedData);
+    Aformelement.ReturnHtml(actionsconfig);
     Aformelement.updateData(modifiedData)
     ActionModal.open();
   },

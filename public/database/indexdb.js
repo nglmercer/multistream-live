@@ -3,15 +3,15 @@ const databases = {
     ActionsDB: { name: 'Actions', version: 1, store: 'actions' },
   };
 
-class IndexedDBManager {
-constructor(dbConfig, idbObserver) {
-    this.dbConfig = dbConfig;
-    this.debouncedSaveData = debounce(this.saveData.bind(this), 300); // 300 ms debounce
-    this.debouncedDeleteData = debounce(this.deleteData.bind(this), 300); // 300 ms debounce
-    this.debouncedUpdateData = debounce(this.updateData.bind(this), 300); // 300 ms debounce
-    this.idbObserver = idbObserver;
-    this.newusers = new Set();
-}
+  class IndexedDBManager {
+    constructor(dbConfig, idbObserver) {
+        this.dbConfig = dbConfig;
+        this.debouncedSaveData = debounce(this.saveData.bind(this), 300);
+        this.debouncedDeleteData = debounce(this.deleteData.bind(this), 300);
+        this.debouncedUpdateData = debounce(this.updateData.bind(this), 300);
+        this.idbObserver = idbObserver;
+        this.newusers = new Set();
+    }
 
 async openDatabase() {
     return new Promise((resolve, reject) => {
@@ -37,20 +37,32 @@ async performTransaction(mode, callback) {
     });
 }
 
-async saveData(data) {
+async saveData(data, additionalData = {}) {
     return this.performTransaction('readwrite', (objectStore, resolve, reject) => {
-    if (typeof data.id !== 'number' || data.id <= 0) {
-        delete data.id;  // Asegura que no se intente guardar un id inválido
-    }
-    const request = objectStore.add(data);
-    request.onsuccess = (event) => {
-        data.id = event.target.result;
-        this.idbobserver('save', data);
-        resolve(data);
-    };
-    request.onerror = (event) => reject(event.target.error);
+        // If an id is provided but invalid, remove it
+        if (typeof data.id !== 'number' || data.id <= 0) {
+            delete data.id;
+        }
+
+        // Merge additional data if it exists
+        if (additionalData && Object.keys(additionalData).length > 0) {
+            // Create a new additionalData field or extend existing one
+            data.additionalData = {
+                ...(data.additionalData || {}),
+                ...additionalData
+            };
+        }
+
+        const request = objectStore.add(data);
+        request.onsuccess = (event) => {
+            data.id = event.target.result;
+            this.idbObserver('save', data);
+            resolve(data);
+        };
+        request.onerror = (event) => reject(event.target.error);
     });
 }
+
 async deleteData(id) {
     return this.performTransaction('readwrite', (objectStore, resolve, reject) => {
     const request = objectStore.delete(Number(id));
@@ -62,14 +74,23 @@ async deleteData(id) {
     });
 }
 
-async updateData(data) {
+async updateData(data, additionalData = {}) {
     return this.performTransaction('readwrite', (objectStore, resolve, reject) => {
-    const request = objectStore.put(data);
-    request.onsuccess = () => {
-        this.idbobserver('update', data);
-        resolve(data);
-    };
-    request.onerror = (event) => reject(event.target.error);
+        // Merge additional data if it exists
+        if (additionalData && Object.keys(additionalData).length > 0) {
+            // Create a new additionalData field or extend existing one
+            data.additionalData = {
+                ...(data.additionalData || {}),
+                ...additionalData
+            };
+        }
+
+        const request = objectStore.put(data);
+        request.onsuccess = () => {
+            this.idbObserver('update', data);
+            resolve(data);
+        };
+        request.onerror = (event) => reject(event.target.error);
     });
 }
 
@@ -82,22 +103,40 @@ async getDataByName(name) {
     });
 }
 
-async saveOrUpdateDataByName(data) {
+async saveOrUpdateDataByName(data, additionalData = {}) {
     try {
-    const existingData = await this.getDataByName(data.name);
-    if (existingData) {
-        // Si existe un registro con el mismo nombre, actualiza el id y actualiza el registro
-        data.id = existingData.id;
-        console.log("Actualizando data existente", data);
-        return this.updateData(data);
-    } else {
-        // Si no existe, guarda un nuevo registro
-        console.log("Guardando nueva data", data);
-        return this.saveData(data);
-    }
+        const existingData = await this.getDataByName(data.name);
+        if (existingData) {
+            // If exists, update the id and merge additional data
+            data.id = existingData.id;
+            console.log("Updating existing data", data);
+            return this.updateData(data, additionalData);
+        } else {
+            // If not exists, save new record with additional data
+            console.log("Saving new data", data);
+            return this.saveData(data, additionalData);
+        }
     } catch (error) {
-    console.error("Error al guardar o actualizar data", error);
-    return this.saveData(data); // Intenta guardar si algo falla
+        console.error("Error saving or updating data", error);
+        return this.saveData(data, additionalData); // Try to save if something fails
+    }
+}
+async updateAdditionalData(id, additionalData) {
+    try {
+        const existingData = await this.getDataById(id);
+        if (existingData) {
+            // Merge new additional data with existing
+            existingData.additionalData = {
+                ...(existingData.additionalData || {}),
+                ...additionalData
+            };
+            return this.updateData(existingData);
+        } else {
+            throw new Error(`No record found with ID ${id}`);
+        }
+    } catch (error) {
+        console.error("Error updating additional data:", error);
+        throw error;
     }
 }
 
@@ -216,5 +255,5 @@ export { databases, IndexedDBManager, DBObserver }
   
   // Usage example
   // IndexedDBManager.updateData({ name: 'User 1', points: 100 }, 'name');
-  // IndexedDBManager.saveData({ name: 'User 1', points: 100 }, 'name');
+  // IndexedDBManager.saveData({ na,additionalDatame: 'User 1', points: 100 }, 'name');
   
