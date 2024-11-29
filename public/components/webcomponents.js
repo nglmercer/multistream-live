@@ -983,11 +983,28 @@ class DynamicForm extends HTMLElement {
     // If initial data is provided, update the initial state
     if (initialData) {
         this.initialState = this._deepClone(initialData);
+        console.log("initialState", this.initialState, initialData, this._deepClone(initialData));
         
-        // Update field values based on the new initial data
+        // Update field values based on the new initial data  
         this.fields.forEach(field => {
+            // Check if the field exists in the initial data
             if (this.initialState[field.name] !== undefined) {
-                field.value = this.initialState[field.name];
+                // Handle different field types
+                switch (field.type) {
+                    case 'checkbox':
+                        // Explicitly set checked state for checkboxes
+                        field.checked = !!this.initialState[field.name];
+                        break;
+                    case 'radio':
+                        // For radio buttons, set the value
+                        field.value = this.initialState[field.name];
+                        break;
+                    default:
+                        // For other field types, set the value
+                        field.value = this.initialState[field.name];
+                }
+                
+                console.log("restoreInitialState", field.name, this.initialState[field.name]);
             }
         });
     }
@@ -1378,7 +1395,7 @@ _deepClone(obj) {
   render() {
       this.form.removeEventListener('submit', this.boundHandleSubmit);
       this.form.innerHTML = '';
-
+      
       // Group fields by row
       const rowGroups = new Map();
       this.fields.forEach(field => {

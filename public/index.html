@@ -95,21 +95,21 @@
             <div slot="tab-content" data-tab-content="tab2">
               <section class="section" id="settings">
                 <div id="container" class="container">
-                  <button class="open-modal-btn" onclick="document.getElementById('eventformModal').open()">open eventformModal</button>
-                  <button class="open-modal-btn" onclick="document.getElementById('actionformModal').open()">open actionformModal</button>
                 </div>
 
                 <h2><translate-text key="configuration"></translate-text></h2>
                   <div class="containerbox relative">
                       <h3><translate-text key="eventtable"></translate-text>
-                          <button id="EventsModalButton"><translate-text key="addevent"></translate-text></button>
+                          <button class="open-modal-btn" onclick="document.getElementById('eventformModal').open()"><translate-text key="addevent"></translate-text></button>
+
                       </h3>
                       <custom-modal modal-type="form" id="EventsModal">
                         <div id="EventsModalContainer"></div>
                       </custom-modal>
                       <div id="table-containerEvent" class="dynamic-table1"></div>
                     <h3><translate-text key="actiontable"></translate-text>
-                        <button id="ActionModalButton"><translate-text key="addaction"></translate-text></button>
+                        <button class="open-modal-btn" onclick="document.getElementById('actionformModal').open()"><translate-text key="addaction"></translate-text></button>
+
                     </h3>
                     <custom-modal modal-type="form" id="ActionModal">
                       <div id="ActionModalContainer"></div>

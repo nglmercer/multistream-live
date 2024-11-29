@@ -731,8 +731,9 @@ async function Actionsprocessmanager(id,userdata) {
   if (action) {
     Object.keys(processActioncallbacks).forEach(key => {
       if (action[key]) {
-        processActioncallbacks[key](action[key],userdata)
-      }
+          console.log("accionesprocessmanager",action[key])
+/*         processActioncallbacks[key](action[key],userdata)
+ */      }
     });
   }
 }
@@ -756,7 +757,7 @@ function handletts(data,userdata) {
     console.log("tts no check",data)
   }
 }
-
-// setTimeout(() => {
-//   HandleAccionEvent('chat',{nombre: "coloca tu nombre",eventType: "chat",chat: "default text",like: 10,gift: 5655,Actions: [],id: undefined})
-// }, 1000);
+// processActioncallbacks
+/* setTimeout(() => {
+  HandleAccionEvent('chat',{nombre: "coloca tu nombre",eventType: "chat",chat: "default text",like: 10,gift: 5655,Actions: [],id: undefined})
+}, 1000); */

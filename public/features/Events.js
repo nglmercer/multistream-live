@@ -27,29 +27,16 @@ async function EventsManagermap(data) {
   }))
 }
 const newmodalevent = document.getElementById('eventformModal')
-
-const testdata2 ={
-  Actions: 
- ['option2', 'option3'],
-bits
-: 
-null,
-chat
-: 
-"123123123123",
-eventType
-: 
-"chat",
-gift
-: 
-10405,
-id
-: 
-null,
-nombre
-: 
-"123123123"
+const testdata = {
+  nombre: getTranslation('nombre_del_evento'),
+  eventType: "chat",
+  chat: "default text",
+  like: 10,
+  gift: 5655,
+  Actions: [],
+  id: undefined,
 }
+
 const eventform = document.createElement('dynamic-form');
         eventform.initialize()
             .addField({
@@ -113,12 +100,8 @@ const eventform = document.createElement('dynamic-form');
                 name: 'Actions',
                 label: 'Selecciona un valor',
                 mode: 'multi',
-                options: [
-                    { value: 'option1', label: 'Opción 1' },
-                    { value: 'option2', label: 'Opción 2' },
-                    { value: 'option3', label: 'Opción 3' },
-                ],
-                value: ['option1', 'option2'],
+                options: await EventsManagermap(),
+                value: [],
             })
             .render()
             .toggleDarkMode(true);
@@ -156,118 +139,26 @@ eventform.addEventListener('form-submit', async (e) => {
 eventform.addEventListener('form-change', (e) => {
   console.log('Form values changed:', e.detail);
 });
-setTimeout(() => {
-  eventform.reRender(testdata2);
-}, 1000);
 newmodalevent.appendChild(eventform);
-newmodalevent.open();
+/* setTimeout(() => {
+  eventform.reRender(testdata);
+}, 1000);
+newmodalevent.open(); */
 
 
-const editcallback = async (data,modifiedData) => {
+/* const EventsModal = document.getElementById('EventsModal');
+ */
 
-}
-const deletecallback = async (data,modifiedData) => {
-  EventsModal.close();
-  console.log("deletecallback", data,modifiedData);
-}
+/* const Formelement = new EditModal(await getEventconfig(), testdata);
+const Eventsformelement = Formelement.ReturnHtml(testdata);  */
 
-async function getEventconfig() {
-  const eventsconfig = {
-    nombre: {
-      class: 'input-default',
-      type: 'textarea',
-      returnType: 'string',
-    },
-    chat: {
-      label: '',
-      class: 'input-default h-4rem float-right w-1/2',
-      type: 'textarea',
-      returnType: 'string',
-      dataAssociated: 'chat',
-    },
-    gift: {
-      class: 'input-default h-4rem float-right w-1/2',
-      label: '',
-      type: 'select2',
-      returnType: 'number',
-      options: mapselectgift,
-      dataAssociated: 'gift',
-    },
-    like: {
-      label: '',
-      class: 'input-default h-4rem float-right w-1/2',
-      type: 'number',
-      returnType: 'number',
-      dataAssociated: 'like',
-    },
-    eventType: {
-      class: 'radio-default maxw-1/2',
-      type: 'radio',
-      toggleoptions: true,
-      returnType: 'string',
-      options: [{ value: 'chat', label: 'Chat' }, { value: 'like', label: 'like'}, { value: 'gift', label: 'Gift' },
-      {value: 'share', label: 'compartir'},{ value: 'follow', label: 'Seguimiento' }, { value: 'subscribe', label: 'suscripcion' }],
-    },
-    Actions: {
-      class: 'input-default',
-      label: 'select Actions',
-      type: 'multiSelect',
-      returnType: 'array',
-      options: await EventsManagermap(),
-    },
-    buttonsave: {
-      class: 'default-button',
-      type: 'button',
-      label: getTranslation('savechanges'),
-      callback: editcallback,
-    },
-    buttondelete: {
-      class: 'default-button deletebutton',
-      type: 'button',
-      label: getTranslation('delete'),
-      callback: deletecallback,
-    },
-    id: {
-      type: 'number',
-      returnType: 'number',
-      hidden: true,
-    }
-  };
-  return eventsconfig
-}
 
-const EventsModal = document.getElementById('EventsModal');
-const Buttonform  = document.getElementById('EventsModalButton');
-
-const testdata = {
-  nombre: getTranslation('nombre_del_evento'),
-  eventType: "chat",
-  chat: "default text",
-  like: 10,
-  gift: 5655,
-  Actions: [],
-  id: undefined,
-}
-const Formelement = new EditModal(await getEventconfig(), testdata);
-const Eventsformelement = Formelement.ReturnHtml(testdata); 
-updateEventsModalContainer(Eventsformelement);
-function updateEventsModalContainer(html) {
-  document.getElementById('EventsModalContainer').replaceChildren(html);
-}
-Buttonform.className = 'open-modal-btn';
-Buttonform.onclick = async () => {
-  Formelement.updateconfig(await getEventconfig())
-  Formelement.render(testdata);
-  Formelement.updateData(testdata) 
-  setTimeout(() => {EventsModal.open()}, 200);
-};
 /*tabla de Eventos para modificar y renderizar todos los datos*/
 const callbacktable = async (data,modifiedData) => {
-  console.log("callbacktable",data,modifiedData);
-  Formelement.updateconfig(await getEventconfig())
-  updateEventsModalContainer(Formelement.ReturnHtml(modifiedData));
-  Formelement.updateData(modifiedData) 
-  setTimeout(() => {EventsModal.open()}, 200);
+/*   const datamodal = unflattenObject(modifiedData);
+  console.log("callbacktable",data,datamodal); */
+  eventform.reRender(modifiedData);
+  newmodalevent.open();
 }
 const callbacktabledelete = async (data,modifiedData) => {
   console.log("callbacktabledelete",data,modifiedData);
@@ -278,7 +169,7 @@ const callbacktabledelete = async (data,modifiedData) => {
 const configtable = {
     nombre: {
       class: 'input-default',
-      type: 'textarea',
+      type: 'text',
       returnType: 'string',
     },     
     eventType: {
@@ -337,13 +228,11 @@ ObserverEvents.subscribe(async (action, data) => {
 
 const giftlistmanager = new GiftElementsManager(mapselectgift);
 
-// Callback de ejemplo
 const handleProductClick = (product) => {
     console.log('Producto seleccionado:', product);
 };
 
-// Renderizar los productos
 giftlistmanager.renderToElement('giftmap', handleProductClick);
 
 
-export { getEventconfig, EventsManager }
+export { EventsManager }

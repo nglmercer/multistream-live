@@ -255,7 +255,7 @@ const newactionform = document.createElement('dynamic-form');
             .render()
             .toggleDarkMode(true);
 /* setTimeout(() => {
-  newactionform.reRender(testdata2);
+  newactionform.reRender(testdata);
 }, 1000); */
 newactionform.addEventListener('form-submit', async (e) => {
   console.log('Datos modificados:', e.detail);
@@ -276,12 +276,16 @@ newactionform.addEventListener('form-submit', async (e) => {
   
     const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
     console.log("results",results)
-    if (results.validResults.length >= 1) {
-      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`)
-    } else {
+    if (!results.validResults.length >= 1 && !modifiedData.id)  {
       newmodalaction.close();
       ActionsManager.saveData(modifiedData)
       showAlert('success','Se ha guardado el evento')
+    } else if (modifiedData.id && results.validResults.length <= 1){
+      newmodalaction.close();
+      ActionsManager.updateData(modifiedData)
+      showAlert('success','Se ha guardado el evento')
+    } else {
+      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`)
     }
   
 });
@@ -289,7 +293,6 @@ newactionform.addEventListener('form-change', (e) => {
   console.log('Form values changed:', e.detail);
 });
 newmodalaction.appendChild(newactionform);
-newmodalaction.open();
 //console.log(mapgetAllscenesScenenameSceneindex(getlastdatafromstorage("getScenesList",[])?.scenes),"mapgetAllscenesScenenameSceneindex");
 function getlastdatafromstorage(key,type=[]) {
     console.log("getlastdatafromstorage",JSON.parse(localStorage.getItem(key)),key);
@@ -366,7 +369,6 @@ async function returnlistofinputs(arrayinputs) {
 }
 
 const ActionModal = document.getElementById('ActionModal');
-const Buttonform  = document.getElementById('ActionModalButton');
 const testdata = {
   nombre: getTranslation('nombre de la accion'),
   color: "#000000",
@@ -391,26 +393,19 @@ const testdata = {
   },
   id: undefined,
 }
-const Aformelement = new EditModal(actionsconfig,testdata);
+/* const Aformelement = new EditModal(actionsconfig,testdata);
 const HtmlAformelement = Aformelement.ReturnHtml(testdata);
-document.querySelector('#ActionModalContainer').appendChild(HtmlAformelement);
-Buttonform.className = 'open-modal-btn';
-Buttonform.onclick = () => {
-  updatemodaldata(testdata)
-  ActionModal.open();
-};
-function updatemodaldata(data = testdata) {
-  Aformelement.updateData(data)
-}
+document.querySelector('#ActionModalContainer').appendChild(HtmlAformelement); */
+
 
 /*tabla de Actions para modificar y renderizar todos los datos*/
 
 const tableconfigcallback = {
   callback: async (data,modifiedData) => {
-    console.log("callbacktable",data,modifiedData);
-    Aformelement.ReturnHtml(actionsconfig);
-    Aformelement.updateData(modifiedData)
-    ActionModal.open();
+    const rawdata = flattenObject(modifiedData);
+    console.log("callbacktable",rawdata);
+    newactionform.reRender(rawdata);
+    newmodalaction.open();  
   },
   deletecallback:  async (data,modifiedData) => {
     const index = await table.getRowIndex(data);
