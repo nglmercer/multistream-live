@@ -3536,78 +3536,114 @@ class ResponsiveNavSidebar extends HTMLElement {
     constructor() {
         super();
         this.isOpen = false;
+        this.currentMode = 'dark'; // Default to dark mode
         this.onOpenCallback = null;
         this.onCloseCallback = null;
         
-        // Crear un shadow DOM para evitar conflictos de estilos
+        // Create shadow DOM
         this.attachShadow({ mode: 'open' });
         
-        // Crear estructura base del modal
+        // Create base modal structure
         const template = document.createElement('template');
         template.innerHTML = `
             <style>
-       :host {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            /* Agregamos la transición base */
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        /* Cuando está visible */
-        :host([visible]) {
-            opacity: 1;
-        }
-        .modal-content {
-            background: #1c1c1c;
-            padding: 0.5rem;
-            border-radius: 5px;
-            position: relative;
-            min-width: 300px;
-            max-height: 95dvh;
-            
-            opacity: 0;
-        }
-        :host([visible]) .modal-content {
-            transform: scale(1);
-            opacity: 1;
-        }
+                :host {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: opacity 0.5s ease;
+                }
+                :host([visible]) {
+                    opacity: 1;
+                }
+                .modal-content {
+                    padding: 1rem;
+                    border-radius: 8px;
+                    position: relative;
+                    min-width: 300px;
+                    max-height: 95dvh;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                    transform: scale(0.9);
+                }
+                :host([visible]) .modal-content {
+                    transform: scale(1);
+                    opacity: 1;
+                }
                 .modal-overlay {
                     position: fixed;
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: rgba(0, 0, 0, 0.5);
                     display: flex;
                     justify-content: center;
                     align-items: center;
+                    transition: background-color 0.3s ease;
                 }
+                
+                /* Dark Mode Styles */
+                :host(.dark-mode) .modal-overlay {
+                    background: rgba(0, 0, 0, 0.5);
+                }
+                :host(.dark-mode) .modal-content {
+                    background: #1c1c1c;
+                    color: #f4f4f4;
+                }
+                
+                /* Light Mode Styles */
+                :host(.light-mode) .modal-overlay {
+                    background: rgba(0, 0, 0, 0.3);
+                }
+                :host(.light-mode) .modal-content {
+                    background: #ffffff;
+                    color: #333;
+                    border: 1px solid #e0e0e0;
+                }
+                
                 .close-button {
                     position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background-color: #dc3545;
+                    top: 1px;
+                    right: 1px;
+                    border: none;
+                    cursor: pointer;
                     width: 36px;
                     height: 36px;
+                    border-radius: 10%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 14px;
-                    padding: 0;
-                    border-radius: 25%;
+                    transition: all 0.3s ease;
                 }
-                .close-button:hover {
+                
+                /* Dark Mode Button */
+                :host(.dark-mode) .close-button {
+                    background-color: #dc3545;
+                    color: white;
+                }
+                :host(.dark-mode) .close-button:hover {
                     background-color: #c82333;
                 }
+                
+                /* Light Mode Button */
+                :host(.light-mode) .close-button {
+                    background-color: #f0f0f0;
+                    color: #333;
+                }
+                :host(.light-mode) .close-button:hover {
+                    background-color: #e0e0e0;
+                }
+                
                 .modal-body {
                     margin-top: 20px;
                 }
-                /* Slot styling */
+                
                 ::slotted(*) {
                     max-width: 100%;
                 }
@@ -3622,19 +3658,22 @@ class ResponsiveNavSidebar extends HTMLElement {
             </div>
         `;
 
-        // Agregar la estructura del modal al shadow DOM
+        // Add modal structure to shadow DOM
         this.shadowRoot.appendChild(template.content.cloneNode(true));
         
-        // Obtener referencias dentro del shadow DOM
+        // Get references within shadow DOM
         this.overlay = this.shadowRoot.querySelector('.modal-overlay');
         this.closeButton = this.shadowRoot.querySelector('.close-button');
         this.modalBody = this.shadowRoot.querySelector('.modal-body');
         
         this.setupEventListeners();
+        
+        // Set default to dark mode
+        this.setMode('dark');
     }
 
     connectedCallback() {
-        // No necesitamos hacer nada aquí ya que la estructura se crea en el constructor
+        // No additional setup needed in connectedCallback
     }
 
     setupEventListeners() {
@@ -3646,10 +3685,32 @@ class ResponsiveNavSidebar extends HTMLElement {
         });
     }
 
+    // New method to set mode
+    setMode(mode = 'dark') {
+        // Validate mode
+        if (!['dark', 'light'].includes(mode)) {
+            console.warn('Invalid mode. Using default dark mode.');
+            mode = 'dark';
+        }
+
+        // Remove existing mode classes
+        this.classList.remove('dark-mode', 'light-mode');
+        
+        // Add new mode class
+        this.classList.add(`${mode}-mode`);
+        this.currentMode = mode;
+    }
+
+    // Toggle between dark and light modes
+    toggleMode() {
+        const newMode = this.currentMode === 'dark' ? 'light' : 'dark';
+        this.setMode(newMode);
+    }
+
     open(onOpenCallback = null) {
         this.onOpenCallback = onOpenCallback;
         this.style.display = 'block';
-        // Forzamos un reflow
+        // Force reflow
         this.offsetHeight;
         this.setAttribute('visible', '');
         this.isOpen = true;
@@ -3661,33 +3722,31 @@ class ResponsiveNavSidebar extends HTMLElement {
 
     close(onCloseCallback = null) {
         this.onCloseCallback = onCloseCallback;
-        this.style.display = 'none';
-        this.isOpen = false;
         this.removeAttribute('visible');
-        // Esperamos a que termine la animación
+        this.isOpen = false;
+        
+        // Wait for transition to complete
         setTimeout(() => {
             this.style.display = 'none';
             this.isOpen = false;
             if (this.onCloseCallback) {
                 this.onCloseCallback();
             }
-        }, 300); // Mismo tiempo que la transición
+        }, 300); // Same as transition time
     }
 
-    // Método mejorado para agregar contenido
     appendChild(element) {
-        // Asegurarse de que el elemento se agregue al light DOM
+        // Ensure element is added to light DOM
         super.appendChild(element);
     }
 
-    // Método para limpiar y establecer nuevo contenido
     setContent(content) {
-        // Limpiar el contenido actual
+        // Clear current content
         while (this.firstChild) {
             this.removeChild(this.firstChild);
         }
 
-        // Agregar el nuevo contenido
+        // Add new content
         if (typeof content === 'string') {
             const div = document.createElement('div');
             div.innerHTML = content;
@@ -3702,7 +3761,6 @@ class ResponsiveNavSidebar extends HTMLElement {
     }
 }
 
-// Registrar el componente
 customElements.define('custom-modal', CustomModal);
 
 class CustomButton extends HTMLElement {
