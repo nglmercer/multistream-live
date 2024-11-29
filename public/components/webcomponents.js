@@ -172,457 +172,552 @@ class ModalSelector extends HTMLElement {
 }
 
 customElements.define('modal-selector', ModalSelector);
+const colorStyles = `
+  /* Text Colors */
+  .text-black { color: #000; }
+  .text-white { color: #fff; }
+  .text-gray-900 { color: #1a202c; }
+  .text-gray-800 { color: #2d3748; }
+  .text-gray-700 { color: #4a5568; }
+  .text-gray-600 { color: #718096; }
+  .text-gray-500 { color: #a0aec0; }
+  .text-gray-400 { color: #e2e8f0; }
+  .text-gray-300 { color: #edf2f7; }
+  .text-gray-200 { color: #f7fafc; }
+  .text-gray-100 { color: #f8fafc; }
+  
+  /* Background Colors */
+  .bg-black { background-color: #000; }
+  .bg-white { background-color: #fff; }
+  .bg-gray-900 { background-color: #1a202c; }
+  .bg-gray-800 { background-color: #2d3748; }
+  .bg-gray-700 { background-color: #4a5568; }
+  .bg-gray-600 { background-color: #718096; }
+  .bg-gray-500 { background-color: #a0aec0; }
+  .bg-gray-400 { background-color: #e2e8f0; }
+  .bg-gray-300 { background-color: #edf2f7; }
+  .bg-gray-200 { background-color: #f7fafc; }
+  .bg-gray-100 { background-color: #f8fafc; }
+
+  /* Border Colors */
+  .border-black { border-color: #000; }
+  .border-white { border-color: #fff; }
+  .border-gray-900 { border-color: #1a202c; }
+  .border-gray-800 { border-color: #2d3748; }
+  .border-gray-700 { border-color: #4a5568; }
+  .border-gray-600 { border-color: #718096; }
+  .border-gray-500 { border-color: #a0aec0; }
+  .border-gray-400 { border-color: #e2e8f0; }
+  .border-gray-300 { border-color: #edf2f7; }
+  .border-gray-200 { border-color: #f7fafc; }
+  .border-gray-100 { border-color: #f8fafc; }
+
+  /* Primary Colors */
+  .text-blue-500 { color: #3b82f6; }
+  .text-blue-600 { color: #2563eb; }
+  .text-blue-700 { color: #1d4ed8; }
+  .text-blue-800 { color: #1e40af; }
+  .text-blue-900 { color: #1e3a8a; }
+  .text-red-500 { color: #ef4444; }
+  .text-red-600 { color: #dc2626; }
+  .text-red-700 { color: #b91c1c; }
+  .text-yellow-500 { color: #f59e0b; }
+  .text-yellow-600 { color: #d97706; }
+  .text-green-500 { color: #10b981; }
+  .text-green-600 { color: #059669; }
+
+  /* Hover Colors */
+  .hover\:bg-blue-500:hover { background-color: #3b82f6; }
+  .hover\:bg-blue-600:hover { background-color: #2563eb; }
+  .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
+  .hover\:bg-blue-800:hover { background-color: #1e40af; }
+  .hover\:bg-blue-900:hover { background-color: #1e3a8a; }
+  .hover\:bg-red-500:hover { background-color: #ef4444; }
+  .hover\:bg-red-600:hover { background-color: #dc2626; }
+  .hover\:bg-red-700:hover { background-color: #b91c1c; }
+  .hover\:bg-yellow-500:hover { background-color: #f59e0b; }
+  .hover\:bg-yellow-600:hover { background-color: #d97706; }
+  .hover\:bg-green-500:hover { background-color: #10b981; }
+  .hover\:bg-green-600:hover { background-color: #059669; }
+
+  .hover\:text-blue-500:hover { color: #3b82f6; }
+  .hover\:text-blue-600:hover { color: #2563eb; }
+  .hover\:text-blue-700:hover { color: #1d4ed8; }
+  .hover\:text-blue-800:hover { color: #1e40af; }
+  .hover\:text-blue-900:hover { color: #1e3a8a; }
+  .hover\:text-red-500:hover { color: #ef4444; }
+  .hover\:text-red-600:hover { color: #dc2626; }
+  .hover\:text-red-700:hover { color: #b91c1c; }
+  .hover\:text-yellow-500:hover { color: #f59e0b; }
+  .hover\:text-yellow-600:hover { color: #d97706; }
+  .hover\:text-green-500:hover { color: #10b981; }
+  .hover\:text-green-600:hover { color: #059669; }
+
+  .hover\:border-blue-500:hover { border-color: #3b82f6; }
+  .hover\:border-blue-600:hover { border-color: #2563eb; }
+  .hover\:border-blue-700:hover { border-color: #1d4ed8; }
+  .hover\:border-blue-800:hover { border-color: #1e40af; }
+  .hover\:border-blue-900:hover { border-color: #1e3a8a; }
+  .hover\:border-red-500:hover { border-color: #ef4444; }
+  .hover\:border-red-600:hover { border-color: #dc2626; }
+  .hover\:border-red-700:hover { border-color: #b91c1c; }
+  .hover\:border-yellow-500:hover { border-color: #f59e0b; }
+  .hover\:border-yellow-600:hover { border-color: #d97706; }
+  .hover\:border-green-500:hover { border-color: #10b981; }
+  .hover\:border-green-600:hover { border-color: #059669; }
+`;
+
 class FlexibleModalSelector extends HTMLElement {
-  constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-      this.selectedValues = [];
-      this._hiddenInput = null;
-      this.options = [];
-      this.mode = 'single';
-      this.theme = 'dark'
-      this.isDarkMode = false;
-      this.separator = '||'; // Unique separator to handle values with commas
-      const template = document.createElement('template');
-      template.innerHTML =/*html*/ `
-          <style>
-              :host {
-                  --bg-primary: white;
-                  --bg-secondary: #f8f9fa;
-                  --text-primary: black;
-                  --text-secondary: #6b7280;
-                  --border-color: #e2e8f0;
-                  --accent-color: #3b82f6;
-                  --accent-light: rgba(59, 130, 246, 0.1);
-              }
-              :host(.dark) {
-                  --bg-primary: #1a202c;
-                  --bg-secondary: #2d3748;
-                  --text-primary: white;
-                  --text-secondary: #cbd5e0;
-                  --border-color: #4a5568;
-                  --accent-color: #4299e1;
-                  --accent-light: rgba(66, 153, 225, 0.1);
-              }
-              .input-wrapper {
-                  position: relative;
-                  width: 100%;
-              }
-              input {
-                  box-sizing: content-box;
-                  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
-                  border: 1px solid var(--border-color);
-                  border-radius: 0.375rem;
-                  outline: none;
-                  background: var(--bg-primary);
-                  color: var(--text-primary);
-                  cursor: pointer;
-              }
-              input:focus {
-                  border-color: var(--accent-color);
-                  box-shadow: 0 0 0 3px var(--accent-light);
-              }
-              .toggle-btn {
-                  position: absolute;
-                  right: 0.5rem;
-                  top: 50%;
-                  transform: translateY(-50%);
-                  padding: 0.25rem;
-                  background: none;
-                  border: none;
-                  cursor: pointer;
-                  color: var(--text-secondary);
-              }
-              ::slotted(input[type="hidden"]) {
-                  display: none;
-              }
-          </style>
-          <div class="input-wrapper">
-              <slot></slot>
-              <input type="text" readonly placeholder="Seleccione un valor">
-              <button class="toggle-btn">▼</button>
-          </div>
-      `;
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.selectedValues = [];
+        this._hiddenInput = null;
+        this.options = [];
+        this.mode = 'single';
+        this.theme = 'dark'
+        this.isDarkMode = false;
+        this.separator = '||'; // Unique separator to handle values with commas
+        const template = document.createElement('template');
+        template.innerHTML =/*html*/ `
+            <style>
+                :host {
+                    --bg-primary: white;
+                    --bg-secondary: #f8f9fa;
+                    --text-primary: black;
+                    --text-secondary: #6b7280;
+                    --border-color: #e2e8f0;
+                    --accent-color: #3b82f6;
+                    --accent-light: rgba(59, 130, 246, 0.1);
+                }
+                :host(.dark) {
+                    --bg-primary: #1a202c;
+                    --bg-secondary: #2d3748;
+                    --text-primary: white;
+                    --text-secondary: #cbd5e0;
+                    --border-color: #4a5568;
+                    --accent-color: #4299e1;
+                    --accent-light: rgba(66, 153, 225, 0.1);
+                }
+                .input-wrapper {
+                    position: relative;
+                    width: 100%;
+                }
+                input {
+                    box-sizing: content-box;
+                    padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: 0.375rem;
+                    outline: none;
+                    background: var(--bg-primary);
+                    color: var(--text-primary);
+                    cursor: pointer;
+                }
+                input:focus {
+                    border-color: var(--accent-color);
+                    box-shadow: 0 0 0 3px var(--accent-light);
+                }
+                .toggle-btn {
+                    position: absolute;
+                    right: 0.5rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    padding: 0.25rem;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--text-secondary);
+                }
+                ::slotted(input[type="hidden"]) {
+                    display: none;
+                }
+            </style>
+            <div class="input-wrapper">
+                <slot></slot>
+                <input type="text" readonly placeholder="Seleccione un valor">
+                <button class="toggle-btn">▼</button>
+            </div>
+        `;
 
-      this.shadowRoot.appendChild(template.content.cloneNode(true));
-      this.input = this.shadowRoot.querySelector('input[type="text"]');
-      this.toggleBtn = this.shadowRoot.querySelector('.toggle-btn');
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+        this.input = this.shadowRoot.querySelector('input[type="text"]');
+        this.toggleBtn = this.shadowRoot.querySelector('.toggle-btn');
 
-      this.setupEventListeners();
-  }
+        this.setupEventListeners();
+    }
 
 
-  connectedCallback() {
-      // Set mode from attribute
-      this.mode = this.getAttribute('mode') || 'single';
-      if (!this._hiddenInput) {
-          this._hiddenInput = document.createElement('input');
-          this._hiddenInput.type = 'hidden';
-          this._hiddenInput.name = this.getAttribute('name') || '';
-          this.appendChild(this._hiddenInput);
-      }
-      // Support initial values
-      const initialValue = this.getAttribute('value');
-      if (initialValue) {
-          // Use new parsing method
-          const values = this.parseValue(initialValue);
-          this.setValues(values);
-      }
-  }
+    connectedCallback() {
+        // Set mode from attribute
+        this.mode = this.getAttribute('mode') || 'single';
+        if (!this._hiddenInput) {
+            this._hiddenInput = document.createElement('input');
+            this._hiddenInput.type = 'hidden';
+            this._hiddenInput.name = this.getAttribute('name') || '';
+            this.appendChild(this._hiddenInput);
+        }
+        // Support initial values
+        const initialValue = this.getAttribute('value');
+        if (initialValue) {
+            // Use new parsing method
+            const values = this.parseValue(initialValue);
+            this.setValues(values);
+        }
+    }
 
-  static get observedAttributes() {
-      return ['name', 'value', 'mode', 'theme'];
-  }
+    static get observedAttributes() {
+        return ['name', 'value', 'mode', 'theme'];
+    }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-      if (name === 'name' && this._hiddenInput) {
-          this._hiddenInput.name = newValue;
-      }
-      
-      if (name === 'mode') {
-          this.mode = newValue || 'single';
-          // Reset selection if mode changes
-          this.selectedValues = [];
-          this.input.value = '';
-          if (this._hiddenInput) this._hiddenInput.value = '';
-      }
-     
-      if (name === 'value' && newValue !== oldValue) {
-          // Use new parsing method
-          const values = this.parseValue(newValue);
-          this.setValues(values);
-      }
-  }
-  parseValue(value) {
-      if (!value) return [];
+    attributeChangedCallback(name, oldValue, newValue) {
+        if (name === 'name' && this._hiddenInput) {
+            this._hiddenInput.name = newValue;
+        }
+        
+        if (name === 'mode') {
+            this.mode = newValue || 'single';
+            // Reset selection if mode changes
+            this.selectedValues = [];
+            this.input.value = '';
+            if (this._hiddenInput) this._hiddenInput.value = '';
+        }
+       
+        if (name === 'value' && newValue !== oldValue) {
+            // Use new parsing method
+            const values = this.parseValue(newValue);
+            this.setValues(values);
+        }
+    }
+    parseValue(value) {
+        if (!value) return [];
 
-      // If the value contains our separator, split by it
-      if (value.includes(this.separator)) {
-          return value.split(this.separator).map(v => v.trim());
-      }
+        // If the value contains our separator, split by it
+        if (value.includes(this.separator)) {
+            return value.split(this.separator).map(v => v.trim());
+        }
 
-      // Fallback to comma splitting, but only if the comma is not inside quotes or special values
-      return this.splitValueSafely(value);
-  }
-  splitValueSafely(value) {
-      // If no commas, return as single value
-      if (!value.includes(',')) return [value.trim()];
+        // Fallback to comma splitting, but only if the comma is not inside quotes or special values
+        return this.splitValueSafely(value);
+    }
+    splitValueSafely(value) {
+        // If no commas, return as single value
+        if (!value.includes(',')) return [value.trim()];
 
-      // Use a regex to split while respecting quotes and special characters
-      const values = value.match(/(?:[^\s,"]|"(?:\\"|[^"])*")+/g);
-      
-      return values ? values.map(v => {
-          // Remove surrounding quotes if present
-          return v.trim().replace(/^["']|["']$/g, '');
-      }) : [value.trim()];
-  }
-  setValues(values) {
-  // Ensure values is always an array
-  const valuesArray = Array.isArray(values) ? values : [values];
-  
-  // Normalize values for consistent handling
-  const normalizedValues = valuesArray.map(this.normalizeValue);
-  
-  // Filter out values that are not in the available options
-  const availableValues = normalizedValues.filter(value => {
-      const matchingOption = this.options.some(option => 
-          this.normalizeValue(option.value) === value
-      );
-      return matchingOption;
-  });
-  
-  // In single mode, take only the first available value
-  this.selectedValues = this.mode === 'single' ? availableValues.slice(0, 1) : availableValues;
-  
-  // Get labels for selected values
-  const labels = this.options
-      .filter(option => {
-          const normalizedOptionValue = this.normalizeValue(option.value);
-          return this.selectedValues.includes(normalizedOptionValue);
-      })
-      .map(option => option.label);
-  
-  // Update input display
-  this.input.value = labels.join(', ');
+        // Use a regex to split while respecting quotes and special characters
+        const values = value.match(/(?:[^\s,"]|"(?:\\"|[^"])*")+/g);
+        
+        return values ? values.map(v => {
+            // Remove surrounding quotes if present
+            return v.trim().replace(/^["']|["']$/g, '');
+        }) : [value.trim()];
+    }
+    setValues(values) {
+    // Ensure values is always an array
+    const valuesArray = Array.isArray(values) ? values : [values];
+    
+    // Normalize values for consistent handling
+    const normalizedValues = valuesArray.map(this.normalizeValue);
+    
+    // Filter out values that are not in the available options
+    const availableValues = normalizedValues.filter(value => {
+        const matchingOption = this.options.some(option => 
+            this.normalizeValue(option.value) === value
+        );
+        return matchingOption;
+    });
+    
+    // In single mode, take only the first available value
+    this.selectedValues = this.mode === 'single' ? availableValues.slice(0, 1) : availableValues;
+    
+    // Get labels for selected values
+    const labels = this.options
+        .filter(option => {
+            const normalizedOptionValue = this.normalizeValue(option.value);
+            return this.selectedValues.includes(normalizedOptionValue);
+        })
+        .map(option => option.label);
+    
+    // Update input display
+    this.input.value = labels.join(', ');
 
-  // Update hidden input using the separator method
-  if (this._hiddenInput) {
-      this._hiddenInput.value = this.selectedValues.join(this.separator);
-  }
-  
-  // Dispatch events
-  this.dispatchEvent(new CustomEvent('change', {
-      detail: {
-          values: this.selectedValues,
-          mode: this.mode
-      },
-      bubbles: true
-  }));
-  this.dispatchEvent(new Event('input', { bubbles: true }));
+    // Update hidden input using the separator method
+    if (this._hiddenInput) {
+        this._hiddenInput.value = this.selectedValues.join(this.separator);
+    }
+    
+    // Dispatch events
+    this.dispatchEvent(new CustomEvent('change', {
+        detail: {
+            values: this.selectedValues,
+            mode: this.mode
+        },
+        bubbles: true
+    }));
+    this.dispatchEvent(new Event('input', { bubbles: true }));
 }
-  setupEventListeners() {
-      const openSelector = () => {
-          this.showSelectorModal();
-      };
+    setupEventListeners() {
+        const openSelector = () => {
+            this.showSelectorModal();
+        };
 
-      this.input.addEventListener('click', openSelector);
-      this.toggleBtn.addEventListener('click', openSelector);
-  }
+        this.input.addEventListener('click', openSelector);
+        this.toggleBtn.addEventListener('click', openSelector);
+    }
 
-  async showSelectorModal() {
-      try {
-          const result = await this.createSelectorModal({
-          selectedValues: this.selectedValues,
-          options: this.options,
-          mode: this.mode,
-          theme: this.isDarkMode ? 'dark' : 'light' // Use isDarkMode to determine theme
-      });
-          
-          if (result && result.values) {
-              this.setValues(result.values);
-          }
-      } catch (error) {
-          console.log('Selector modal cancelled');
-      }
-  }
+    async showSelectorModal() {
+        try {
+            const result = await this.createSelectorModal({
+            selectedValues: this.selectedValues,
+            options: this.options,
+            mode: this.mode,
+            theme: this.isDarkMode ? 'dark' : 'light' // Use isDarkMode to determine theme
+        });
+            
+            if (result && result.values) {
+                this.setValues(result.values);
+            }
+        } catch (error) {
+            console.log('Selector modal cancelled');
+        }
+    }
 
-  /**
-   * Method to create selector modal dynamically based on mode
-   */
-   async createSelectorModal({ selectedValues, options, mode, theme = 'light' }) {
-  return new Promise((resolve, reject) => {
-      // Color schemes
-      const colors = {
-          light: {
-              background: 'white',
-              border: '#e2e8f0',
-              text: 'black',
-              selectedBackground: '#3b82f6',
-              selectedText: 'white',
-              searchBg: 'white',
-              cancelBg: '#f3f4f6'
-          },
-          dark: {
-              background: '#1e293b', // slate-800
-              border: '#334155', // slate-700
-              text: 'white',
-              selectedBackground: '#2563eb', // blue-600
-              selectedText: 'white',
-              searchBg: '#334155', // slate-700
-              cancelBg: '#334155' // slate-700
-          }
-      };
+    /**
+     * Method to create selector modal dynamically based on mode
+     */
+     async createSelectorModal({ selectedValues, options, mode, theme = 'light' }) {
+    return new Promise((resolve, reject) => {
+        // Color schemes
+        const colors = {
+            light: {
+                background: 'white',
+                border: '#e2e8f0',
+                text: 'black',
+                selectedBackground: '#3b82f6',
+                selectedText: 'white',
+                searchBg: 'white',
+                cancelBg: '#f3f4f6'
+            },
+            dark: {
+                background: '#1e293b', // slate-800
+                border: '#334155', // slate-700
+                text: 'white',
+                selectedBackground: '#2563eb', // blue-600
+                selectedText: 'white',
+                searchBg: '#334155', // slate-700
+                cancelBg: '#334155' // slate-700
+            }
+        };
 
-      const currentColors = colors[theme];
+        const currentColors = colors[theme];
 
-      // Crear modal
-      const modal = document.createElement('div');
-      modal.style.cssText = `
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: ${currentColors.background};
-          border: 1px solid ${currentColors.border};
-          border-radius: 0.5rem;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          padding: 1rem;
-          max-width: 400px;
-          width: 90%;
-          max-height: 70vh;
-          display: flex;
-          flex-direction: column;
-          color: ${currentColors.text};
-      `;
+        // Crear modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: ${currentColors.background};
+            border: 1px solid ${currentColors.border};
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 1rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            color: ${currentColors.text};
+        `;
 
-      // Buscador
-      const searchInput = document.createElement('input');
-      searchInput.type = 'text';
-      searchInput.placeholder = 'Buscar...';
-      searchInput.style.cssText = `
-          width: 100%;
-          padding: 0.5rem;
-          margin-bottom: 1rem;
-          border: 1px solid ${currentColors.border};
-          border-radius: 0.25rem;
-          background-color: ${currentColors.searchBg};
-          color: ${currentColors.text};
-      `;
+        // Buscador
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = 'Buscar...';
+        searchInput.style.cssText = `
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid ${currentColors.border};
+            border-radius: 0.25rem;
+            background-color: ${currentColors.searchBg};
+            color: ${currentColors.text};
+        `;
 
-      // Contenedor de opciones
-      const optionList = document.createElement('div');
-      optionList.style.cssText = `
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          max-height: 300px;
-          overflow-y: auto;
-      `;
+        // Contenedor de opciones
+        const optionList = document.createElement('div');
+        optionList.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        `;
 
-      // Lógica de búsqueda en tiempo real
-      searchInput.addEventListener('input', (e) => {
-          const searchTerm = e.target.value.toLowerCase().trim();
-          optionElements.forEach(optionElement => {
-              const label = optionElement.querySelector('span').textContent.toLowerCase();
-              optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
-          });
-      });
+        // Lógica de búsqueda en tiempo real
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            optionElements.forEach(optionElement => {
+                const label = optionElement.querySelector('span').textContent.toLowerCase();
+                optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
+            });
+        });
 
-      // Track selected values
-      const currentlySelectedValues = new Set(selectedValues);
-      const optionElements = [];
+        // Track selected values
+        const currentlySelectedValues = new Set(selectedValues);
+        const optionElements = [];
 
-      // Crear opciones
-      options.forEach(option => {
-          const optionElement = document.createElement('div');
-          optionElement.style.cssText = `
-              display: flex;
-              align-items: center;
-              padding: 0.5rem;
-              border: 1px solid ${currentColors.border};
-              border-radius: 0.25rem;
-              cursor: pointer;
-              background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
-              color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
-          `;
+        // Crear opciones
+        options.forEach(option => {
+            const optionElement = document.createElement('div');
+            optionElement.style.cssText = `
+                display: flex;
+                align-items: center;
+                padding: 0.5rem;
+                border: 1px solid ${currentColors.border};
+                border-radius: 0.25rem;
+                cursor: pointer;
+                background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
+                color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
+            `;
 
-          // Checkbox para modo multi
-          if (mode === 'multi') {
-              const checkbox = document.createElement('input');
-              checkbox.type = 'checkbox';
-              checkbox.checked = currentlySelectedValues.has(option.value);
-              checkbox.style.marginRight = '0.5rem';
-              checkbox.style.accentColor = currentColors.selectedBackground;
-              optionElement.appendChild(checkbox);
-          }
+            // Checkbox para modo multi
+            if (mode === 'multi') {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = currentlySelectedValues.has(option.value);
+                checkbox.style.marginRight = '0.5rem';
+                checkbox.style.accentColor = currentColors.selectedBackground;
+                optionElement.appendChild(checkbox);
+            }
 
-          const label = document.createElement('span');
-          label.textContent = option.label;
-          optionElement.appendChild(label);
+            const label = document.createElement('span');
+            label.textContent = option.label;
+            optionElement.appendChild(label);
 
-          // Lógica de selección
-          optionElement.addEventListener('click', () => {
-              if (mode === 'single') {
-                  // Modo single: selección inmediata
-                  document.body.removeChild(modal);
-                  resolve({ values: [option.value] });
-              } else {
-                  // Modo multi: toggle selección
-                  const checkbox = optionElement.querySelector('input[type="checkbox"]');
-                  checkbox.checked = !checkbox.checked;
-                  if (checkbox.checked) {
-                      currentlySelectedValues.add(option.value);
-                      optionElement.style.backgroundColor = currentColors.selectedBackground;
-                      optionElement.style.color = currentColors.selectedText;
-                  } else {
-                      currentlySelectedValues.delete(option.value);
-                      optionElement.style.backgroundColor = currentColors.background;
-                      optionElement.style.color = currentColors.text;
-                  }
-              }
-          });
+            // Lógica de selección
+            optionElement.addEventListener('click', () => {
+                if (mode === 'single') {
+                    // Modo single: selección inmediata
+                    document.body.removeChild(modal);
+                    resolve({ values: [option.value] });
+                } else {
+                    // Modo multi: toggle selección
+                    const checkbox = optionElement.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                    if (checkbox.checked) {
+                        currentlySelectedValues.add(option.value);
+                        optionElement.style.backgroundColor = currentColors.selectedBackground;
+                        optionElement.style.color = currentColors.selectedText;
+                    } else {
+                        currentlySelectedValues.delete(option.value);
+                        optionElement.style.backgroundColor = currentColors.background;
+                        optionElement.style.color = currentColors.text;
+                    }
+                }
+            });
 
-          optionElements.push(optionElement);
-          optionList.appendChild(optionElement);
-      });
+            optionElements.push(optionElement);
+            optionList.appendChild(optionElement);
+        });
 
-      // Botones para modo multi
-      if (mode === 'multi') {
-          const confirmButton = document.createElement('button');
-          confirmButton.textContent = 'Confirmar Selección';
-          confirmButton.style.cssText = `
-              margin-top: 1rem;
-              padding: 0.5rem 1rem;
-              background-color: ${currentColors.selectedBackground};
-              color: ${currentColors.selectedText};
-              border: none;
-              border-radius: 0.25rem;
-              cursor: pointer;
-          `;
+        // Botones para modo multi
+        if (mode === 'multi') {
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = 'Confirmar Selección';
+            confirmButton.style.cssText = `
+                margin-top: 1rem;
+                padding: 0.5rem 1rem;
+                background-color: ${currentColors.selectedBackground};
+                color: ${currentColors.selectedText};
+                border: none;
+                border-radius: 0.25rem;
+                cursor: pointer;
+            `;
 
-          confirmButton.addEventListener('click', () => {
-              document.body.removeChild(modal);
-              resolve({
-                  values: Array.from(currentlySelectedValues)
-              });
-          });
+            confirmButton.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                resolve({
+                    values: Array.from(currentlySelectedValues)
+                });
+            });
 
-          const cancelButton = document.createElement('button');
-          cancelButton.textContent = 'Cancelar';
-          cancelButton.style.cssText = `
-              margin-top: 1rem;
-              margin-left: 0.5rem;
-              padding: 0.5rem 1rem;
-              background-color: ${currentColors.cancelBg};
-              color: ${currentColors.text};
-              border: 1px solid ${currentColors.border};
-              border-radius: 0.25rem;
-              cursor: pointer;
-          `;
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancelar';
+            cancelButton.style.cssText = `
+                margin-top: 1rem;
+                margin-left: 0.5rem;
+                padding: 0.5rem 1rem;
+                background-color: ${currentColors.cancelBg};
+                color: ${currentColors.text};
+                border: 1px solid ${currentColors.border};
+                border-radius: 0.25rem;
+                cursor: pointer;
+            `;
 
-          cancelButton.addEventListener('click', () => {
-              document.body.removeChild(modal);
-              reject();
-          });
+            cancelButton.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                reject();
+            });
 
-          // Agregar buscador, lista de opciones y botones
-          modal.appendChild(searchInput);
-          modal.appendChild(optionList);
-          modal.appendChild(confirmButton);
-          modal.appendChild(cancelButton);
-      } else {
-          // Modo single: buscador y opciones
-          modal.appendChild(searchInput);
-          modal.appendChild(optionList);
-      }
+            // Agregar buscador, lista de opciones y botones
+            modal.appendChild(searchInput);
+            modal.appendChild(optionList);
+            modal.appendChild(confirmButton);
+            modal.appendChild(cancelButton);
+        } else {
+            // Modo single: buscador y opciones
+            modal.appendChild(searchInput);
+            modal.appendChild(optionList);
+        }
 
-      // Agregar al documento
-      document.body.appendChild(modal);
+        // Agregar al documento
+        document.body.appendChild(modal);
 
-      // Enfocar buscador al abrir
-      searchInput.focus();
-  });
+        // Enfocar buscador al abrir
+        searchInput.focus();
+    });
 }
 
-  /**
-   * Method to set external options
-   * @param {Array} options - List of options with `value`, `label`, and optional `description`
-   */
-  setOptions(options) {
-      this.options = options;
-  }
-  normalizeValue(value) {
-      // For primitive types (number, string, boolean), return as-is
-      if (['number', 'string', 'boolean'].includes(typeof value)) {
-          return value;
-      }
-      
-      // For objects and arrays, use JSON stringify
-      return JSON.stringify(value);
-  }
+    /**
+     * Method to set external options
+     * @param {Array} options - List of options with `value`, `label`, and optional `description`
+     */
+    setOptions(options) {
+        this.options = options;
+    }
+    normalizeValue(value) {
+        // For primitive types (number, string, boolean), return as-is
+        if (['number', 'string', 'boolean'].includes(typeof value)) {
+            return value;
+        }
+        
+        // For objects and arrays, use JSON stringify
+        return JSON.stringify(value);
+    }
 
-  get value() {
-      return this.mode === 'single' ? this.selectedValues[0] : this.selectedValues;
-  }
+    get value() {
+        return this.mode === 'single' ? this.selectedValues[0] : this.selectedValues;
+    }
 
-  toggleDarkMode() {
-      this.isDarkMode = !this.isDarkMode;
-      if (this.isDarkMode) {
-          this.classList.add('dark');
-      } else {
-          this.classList.remove('dark');
-      }
-      
-      // Dispatch dark mode change event
-      this.dispatchEvent(new CustomEvent('darkModeChange', {
-          detail: { isDarkMode: this.isDarkMode },
-          bubbles: true
-      }));
-  }
-      set value(newValues) {
-      const valuesArray = Array.isArray(newValues) ? newValues : [newValues];
-      this.setValues(valuesArray);
-  }
+    toggleDarkMode() {
+        this.isDarkMode = !this.isDarkMode;
+        if (this.isDarkMode) {
+            this.classList.add('dark');
+        } else {
+            this.classList.remove('dark');
+        }
+        
+        // Dispatch dark mode change event
+        this.dispatchEvent(new CustomEvent('darkModeChange', {
+            detail: { isDarkMode: this.isDarkMode },
+            bubbles: true
+        }));
+    }
+        set value(newValues) {
+        const valuesArray = Array.isArray(newValues) ? newValues : [newValues];
+        this.setValues(valuesArray);
+    }
 
 }
 
@@ -635,6 +730,7 @@ class DynamicForm extends HTMLElement {
       this.fields = [];
       this.initialState = null;
       this.conditionalFields = new Map(); // Mapa para almacenar las relaciones condicionales
+      this.beforeFormElements = []; // Nueva propiedad para almacenar elementos antes del formulario
       this.formConfig = {
           submitLabel: 'Submit',
           class: 'form-default',
@@ -644,15 +740,39 @@ class DynamicForm extends HTMLElement {
       const template = document.createElement('template');
       template.innerHTML = /*html*/ `
           <style>
+          ${colorStyles}
               :host {
                   display: block;
                   font-family: system-ui, -apple-system, sans-serif;
+                  width: 100%;
               }
               .form-default {
                   padding: 1rem;
                   border-radius: 0.5rem;
                   background: white;
                   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+                  display: grid
+              }
+              .hidden {
+                  display: none;
+              }
+              .w-full {
+                  width: 100%;
+              }
+              .flex {
+                  display: flex;
+              }
+              .justify-center {
+                  justify-content: center;
+              }
+              .items-center {
+                  align-items: center;
+              }
+              .justify-between {
+                  justify-content: space-between;
+              }
+              .text-justify {
+                  text-align: justify;
               }
               .form-group {
                   display: flex;
@@ -660,6 +780,7 @@ class DynamicForm extends HTMLElement {
                   align-items: center;
                   justify-content: space-between;
                   margin-bottom: 0.5rem;
+                  transition: all 0.5s ease;
                   gap: 0.5rem;
                   label {
                       margin-left: 10px;
@@ -736,9 +857,29 @@ class DynamicForm extends HTMLElement {
                   content: " *";
                   color: #dc2626;
               }
-              .hidden,.hidden-field {
-                  display: none;
-              }
+              .hidden-field {
+                    max-height: 0;
+                    opacity: 0;
+                    overflow: hidden;
+                    margin: 0;
+                    padding: 0;
+                    transition: 
+                        max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        margin 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    pointer-events: none;
+                    visibility: hidden;
+                }
+
+            .show {
+                width: auto;
+                opacity: 1;
+                transform: scale(1);
+                overflow: visible;
+            }
+
               .disabled {
                   pointer-events: none;
                   opacity: 0.5;
@@ -797,10 +938,57 @@ class DynamicForm extends HTMLElement {
       //this.emitchanges();
   }
 
+  /*     emitchanges(){
+      setInterval(() => {
+          this.dispatchEvent(new CustomEvent('allchanges', {
+          detail: this.getValues(),
+          bubbles: true,
+          composed: true
+      }));
+      }, 10000);
+  } */
   _deepClone(obj) {
       return JSON.parse(JSON.stringify(obj));
   }
+  addBeforeForm(elementConfig) {
+      const defaultConfig = {
+          type: 'div', // Tipo de elemento por defecto
+          content: '', // Contenido del elemento
+          className: '', // Clases CSS opcionales
+          attributes: {}, // Atributos adicionales
+          eventListeners: [] // Listeners de eventos opcionales
+      };
 
+      const config = { ...defaultConfig, ...elementConfig };
+      
+      // Crear el elemento
+      const element = document.createElement(config.type);
+      
+      // Añadir contenido
+      if (config.content) {
+          element.innerHTML = config.content;
+      }
+      
+      // Añadir clases
+      if (config.className) {
+          element.className = config.className;
+      }
+      
+      // Añadir atributos
+      Object.entries(config.attributes).forEach(([key, value]) => {
+          element.setAttribute(key, value);
+      });
+      
+      // Añadir event listeners
+      config.eventListeners.forEach(({ event, handler }) => {
+          element.addEventListener(event, handler);
+      });
+      
+      // Almacenar el elemento para renderizarlo después
+      this.beforeFormElements.push(element);
+      
+      return this;
+  }
   initialize(config = {}, initialData = null) {
       // Limpiar estado previo
       this.fields = [];
@@ -891,8 +1079,30 @@ class DynamicForm extends HTMLElement {
 
       let input;
 
-  
+      //addField config
       switch (field.type) {
+          case 'flexible-modal-selector':
+              input = document.createElement('flexible-modal-selector');
+              input.id = field.name;
+              input.setAttribute('name', field.name);
+              input.setAttribute('mode', field.mode || 'single');
+              console.log(field.theme);
+              input.setAttribute('theme', field.theme || 'light');
+              input.toggleDarkMode();
+              // Configurar el evento change del modal-selector
+              input.addEventListener('change', (e) => {
+                  // Si hay campos condicionales que dependen de este
+                  if (this.conditionalFields.has(field.name)) {
+                      this.handleFieldChange(field.name, e.detail.values);
+                  }
+              });
+              
+              if (field.options) input.setOptions(field.options);
+              // Si hay un valor inicial, establecerlo
+              if (field.value) {
+                  input.setValues(field.value);
+              }
+              break;
           case 'modal-selector': // Nuevo tipo para el selector modal
               input = document.createElement('modal-selector');
               input.id = field.name;
@@ -973,7 +1183,26 @@ class DynamicForm extends HTMLElement {
               input.rows = field.rows || 3;
               input.value = field.value;
               break;
-              
+          case 'links':
+            // creamos elementos de url solamente de referencia no es un input
+              input = document.createElement('div');
+              input.className = 'input-default';
+              input.innerHTML = `
+                <div class="flex flex-row gap-2">
+                    <a href="${field.value[0]}" target="_blank" class="text-blue-500 hover:text-blue-600">${field.value[0]}</a>
+                    <a href="${field.value[1]}" target="_blank" class="text-blue-500 hover:text-blue-600">${field.value[1]}</a>
+                </div>
+              `;
+              break;
+            case 'content':
+                input = document.createElement('div');
+                if (field.className) input.className = field.className;
+                input.innerHTML = `
+                  <div class="input-default">
+                    ${field.label || field.value}
+                  </div>
+                `;
+                break;
           default:
               //console.log("field",field)
               input = document.createElement('input');
@@ -985,6 +1214,13 @@ class DynamicForm extends HTMLElement {
               if(field.placeholder) input.placeholder = field.placeholder;
               if(field.required) input.required = true;
               if(field.value) input.value = field.value;
+              if(field.hidden) input.classList.add('hidden');
+              if(field.readonly) input.readOnly = true;
+              if(field.disabled) input.disabled = true;
+              if(field.className) input.className = field.className;
+              input.addEventListener('change', (e) => {
+                  this.handleFieldChange(field.name, e.target.checked || e.target.value);
+              });
       }
       
       if (field.type !== 'radio') {
@@ -1016,6 +1252,15 @@ class DynamicForm extends HTMLElement {
           if (!element) return;
 
           switch (field.type) {
+            case 'flexible-modal-selector':
+                // For flexible-modal-selector, parse the value
+                const rawValue = element.value;
+                if (rawValue) {
+                    values[field.name] = rawValue.includes(',') 
+                        ? rawValue.split(',').map(v => v.trim())  // Multiple values
+                        : rawValue;  // Single value
+                }
+                break;
               case 'checkbox':
                   // Para checkboxes, usamos la propiedad checked
                   values[field.name] = element.checked;
@@ -1072,6 +1317,7 @@ class DynamicForm extends HTMLElement {
 
       return '';
   }
+
 
   render() {
       this.form.removeEventListener('submit', this.boundHandleSubmit);
@@ -1141,6 +1387,13 @@ class DynamicForm extends HTMLElement {
            });
         })
       });
+      this.beforeFormElements.forEach(element => {
+          this.form.appendChild(element);
+      });
+      return this;
+  }
+  clearBeforeFormElements() {
+      this.beforeFormElements = [];
       return this;
   }
   toggleDarkMode(enabled = !this.formConfig.darkMode) {
@@ -1173,31 +1426,38 @@ class DynamicForm extends HTMLElement {
       }
   }
   handleFieldChange(fieldName, value) {
-      const dependentFields = this.conditionalFields.get(fieldName) || [];
-      this.emitchanges()
-      dependentFields.forEach(({ fieldName: dependentFieldName, triggerValue }) => {
-          const fieldElement = this.form.querySelector(`[data-field="${dependentFieldName}"]`);
-          if (!fieldElement) return;
-
+    const dependentFields = this.conditionalFields.get(fieldName) || [];
+    this.emitchanges()
+    dependentFields.forEach(({ fieldName: dependentFieldName, triggerValue }) => {
+        const fieldElement = this.form.querySelector(`[data-field="${dependentFieldName}"]`);
+        if (!fieldElement) return;
           // Si triggerValue es un array, verificamos si el valor está incluido
           const shouldShow = Array.isArray(triggerValue) 
-              ? triggerValue.includes(value)
-              : triggerValue === value;
+            ? triggerValue.includes(value)
+            : triggerValue === value;
+        
+            fieldElement.classList.toggle('hidden-field', !shouldShow);
+            
+            // Instantly add/remove 'show' class
+            if (shouldShow) {
+                fieldElement.classList.add('show');
+            } else {
+                fieldElement.classList.remove('show');
+            }
 
-          fieldElement.classList.toggle('hidden-field', !shouldShow);
 
           // Si el campo está oculto, limpiamos su valor
           if (!shouldShow) {
-              const input = fieldElement.querySelector('input, select, textarea');
-              if (input) {
-                  if (input.type === 'radio') {
-                      const radios = fieldElement.querySelectorAll('input[type="radio"]');
-                      radios.forEach(radio => radio.checked = false);
-                  } else {
-                      input.value = '';
-                  }
-              }
-          }
+            const input = fieldElement.querySelector('input, select, textarea');
+            if (input) {
+                if (input.type === 'radio') {
+                    const radios = fieldElement.querySelectorAll('input[type="radio"]');
+                    radios.forEach(radio => radio.checked = false);
+                } else {
+                    input.value = '';
+                }
+            }
+        }
       });
   }
   handleSubmit(e) {
