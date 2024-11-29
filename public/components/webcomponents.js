@@ -938,15 +938,6 @@ class DynamicForm extends HTMLElement {
       //this.emitchanges();
   }
 
-  /*     emitchanges(){
-      setInterval(() => {
-          this.dispatchEvent(new CustomEvent('allchanges', {
-          detail: this.getValues(),
-          bubbles: true,
-          composed: true
-      }));
-      }, 10000);
-  } */
   _deepClone(obj) {
       return JSON.parse(JSON.stringify(obj));
   }
@@ -1144,10 +1135,9 @@ class DynamicForm extends HTMLElement {
                   }
                   
                   // Agregar evento change para campos condicionales
-                  if (this.conditionalFields.has(field.name)) {
-                      radioInput.addEventListener('change', () => this.handleFieldChange(field.name, option.value));
-                  }
+                  radioInput.addEventListener('change', () => this.handleFieldChange(field.name, option.value));
                   
+                  console.log("asdqwdqwdqwd",radioInput)
                   const radioLabel = document.createElement('label');
                   radioLabel.setAttribute('for', `${field.name}_${option.value}`);
                   radioLabel.textContent = option.label;
@@ -1214,10 +1204,14 @@ class DynamicForm extends HTMLElement {
               if(field.placeholder) input.placeholder = field.placeholder;
               if(field.required) input.required = true;
               if(field.value) input.value = field.value;
+              if(field.checked) input.checked = field.checked;
               if(field.hidden) input.classList.add('hidden');
               if(field.readonly) input.readOnly = true;
               if(field.disabled) input.disabled = true;
               if(field.className) input.className = field.className;
+              setTimeout(() => {
+                if (input)this.handleFieldChange(field.name, field.checked || field.value);
+              }, 100);
               input.addEventListener('change', (e) => {
                   this.handleFieldChange(field.name, e.target.checked || e.target.value);
               });
@@ -1376,7 +1370,7 @@ class DynamicForm extends HTMLElement {
       this.form.appendChild(submitButton);
 
       this.form.addEventListener('submit', this.boundHandleSubmit);
-      this.fields.forEach(field => {
+/*       this.fields.forEach(field => {
         const inputs = this.form.querySelectorAll(`[name="${field.name}"]`);
         //console.log("input",input)
         inputs.forEach(input => {
@@ -1386,7 +1380,7 @@ class DynamicForm extends HTMLElement {
                });
            });
         })
-      });
+      }); */
       this.beforeFormElements.forEach(element => {
           this.form.appendChild(element);
       });

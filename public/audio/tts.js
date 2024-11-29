@@ -161,6 +161,143 @@ async function handleleermensaje(text) {
 
     return true;
 }
+const myForm = document.createElement('dynamic-form');
+myForm.initialize()
+    .addField({
+        type: 'checkbox',
+        name: 'AllUsers',
+        label: 'All Users',
+        checked: true,
+    })
+    .addField({
+        type: 'checkbox',
+        name: 'followRole',
+        label: 'Followers',
+        checked: true,
+    })
+    .addField({
+        type: 'checkbox',
+        name: 'isSubscriber',
+        label: 'isSubscriber',
+        checked: true,
+    })
+    .addField({
+        type: 'checkbox',
+        name: 'isModerator',
+        label: 'isModerator',
+        checked: true,
+    })
+    .addField({
+        type: 'checkbox',
+        name: 'isNewGifter',
+        label: 'isNewGifter',
+        checked: true,
+    })
+    .addField({
+        type: 'checkbox',
+        name: 'teamMemberLevel',
+        label: 'Team Members',
+        checked: true,
+    }, { rowGroup: 'teamMember' })
+    .addField({
+        type: 'number',
+        name: 'teamMemberLevel_value',
+        placeholder: 'Min. lvl',
+        min: 0,
+        max: 3,
+        value: 1,
+        showWhen: {
+            field: 'teamMemberLevel',
+            value: true
+        }
+    }, { rowGroup: 'teamMember' })
+    .addField({
+        type: 'checkbox',
+        name: 'topGifterRank',
+        label: 'Top Gifters',
+        checked: true,
+    }, { rowGroup: 'topGifter' })
+    .addField({
+        type: 'number',
+        name: 'topGifterRank_value',
+        placeholder: 'Top',
+        min: 0,
+        max: 3,
+        value: 3,
+        showWhen: {
+            field: 'topGifterRank',
+            value: true
+        }
+    }, { rowGroup: 'topGifter' })
+myForm.render()
+    .setSubmitButton({ 
+        label: 'Send', 
+        disabled: undefined,
+        className: 'hidden'
+    });
+/* myForm.setInitialState({
+    AllUsers: true,
+    followRole: true,
+    isSubscriber: true,
+    isModerator: true,
+    isNewGifter: true,
+    teamMemberLevel: true,
+    teamMemberLevel_value: 1,
+    topGifterRank: true,
+    topGifterRank_value: 3,
+}); */
 
+const myForm2 = document.createElement('dynamic-form');
+
+myForm2.initialize()
+    .addField({
+        type: 'radio',
+        name: 'type_comments',
+        label: 'prefix',
+        options: [
+            { value: 'any comment', label: 'any comment' },
+            { value: 'dot_comment', label: 'comments starting with (.)' },
+            { value: 'interrogation_comment', label: 'comments starting with (?)' },
+            { value: 'slash_comment', label: 'comments starting with (/)' },
+            { value: 'command_comment', label: 'commands starting with :' },
+        ],
+        value: 'any comment',
+    })
+    .addField({
+        type: 'text',
+        name: 'command',
+        label: 'command',
+        value: '!speak',
+    })
+    .render()
+    .setSubmitButton({ 
+        label: 'Send', 
+        disabled: undefined,
+        className: 'hidden'
+    });
+myForm.addEventListener('form-submit', (e) => {
+    console.log('Datos modificados:', e.detail);
+    console.log('¿Hay cambios?', myForm.hasChanges());
+});
+myForm2.addEventListener('form-submit', (e) => {
+    console.log('Datos modificados:', e.detail);
+    console.log('¿Hay cambios?', myForm2.hasChanges());
+});
+myForm2.addEventListener('form-change', (e) => {
+    console.log('Form values changed:', e.detail);
+});
+myForm.addEventListener('allchanges', (e) => {
+    console.log('Datos modificados:', e.detail);
+    console.log('¿Hay cambios?', myForm.hasChanges());
+});
+myForm.addEventListener('form-change', (e) => {
+    console.log('Form values changed:', e.detail);
+});
+myForm2.toggleDarkMode(true);
+myForm.toggleDarkMode(true);
+document.getElementById('ttssettings').appendChild(myForm);
+document.getElementById('ttssettings1').appendChild(myForm2);
+/* document.body.appendChild(myForm)
+document.body.appendChild(myForm2) */
 
 export { leerMensajes, handleleermensaje };
