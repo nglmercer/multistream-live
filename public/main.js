@@ -759,23 +759,66 @@ function handletts(data,userdata) {
     console.log("tts no check",data)
   }
 }
-function handleOverlay(data,userdata) {
-  console.log("overlay",data,userdata)
+async function handleOverlay(data, userdata) {
+  console.log("overlay", data, userdata);
+
   if (data?.check) {
+    const content = userdata.comment || userdata.giftName;
+
     if (data.src && data.src.length > 0) {
+      let srcArray = [];
+
       if (Array.isArray(data.src)) {
-        data.src.forEach(async (src) => {
-          const filedata = await overlayfilesmanager.get(src);
-          console.log("overlay check",data,filedata)
-        });
+        // Procesar todos los src en paralelo y agrupar en un array
+        srcArray = await Promise.all(
+          data.src.map(async (src) => {
+            const filedata = await overlayfilesmanager.get(src);
+            return {
+              nombre: filedata.nombre,
+              path: filedata.path,
+              mediaType: filedata.mediaType || filedata.type,
+            };
+          })
+        );
       } else {
-        const filedata = overlayfilesmanager.get(data.src);
-        console.log("overlay check",data,filedata)
+        // Procesar un único src
+        const filedata = await overlayfilesmanager.get(data.src);
+        srcArray.push({
+          nombre: filedata.nombre,
+          path: filedata.path,
+          mediaType: filedata.mediaType || filedata.type,
+        });
       }
+
+      // Crear el mapconfig con todos los elementos en src
+      const mapconfig = {
+        template: 'multi-grid',
+        content: content || srcArray[0]?.nombre || srcArray[0]?.path,
+        duration: data.duration * 1000,
+        src: srcArray,
+      };
+
+      // Emitir el overlay con todos los elementos agrupados
+      socketManager.emitMessage('create-overlay', { mapconfig, roomId: 'sala1' });
+      console.log("overlay check", data, mapconfig);
     }
-/*     const mapconfig = data;
-    socketManager.emitMessage('create-overlay', {mapconfig,roomId:'sala1'}); */
   }
+}
+
+function mapdatatooverlay(data,duration,content) {
+  const config = {
+    template: 'multi-grid',
+    content: content || data.nombre || data.path,
+    duration: duration * 1000,
+    src: [
+      {
+        nombre: data.nombre,
+        path: data.path,
+        mediaType: data.mediaType || data.type,
+      },
+    ],
+  };
+  return config;
 }
 // processActioncallbacks
 setTimeout(() => {
