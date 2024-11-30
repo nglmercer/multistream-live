@@ -172,6 +172,209 @@ class ModalSelector extends HTMLElement {
 }
 
 customElements.define('modal-selector', ModalSelector);
+class PreviewWebComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.iframe = null;
+    this.linkInput = null;
+  }
+
+  static get observedAttributes() {
+    return ['link', 'showpreview', 'mute'];
+  }
+
+  connectedCallback() {
+    this.render();
+    this.linkInput = this.shadowRoot.querySelector('#linkInput');
+    this.copyButton = this.shadowRoot.querySelector('#copyButton');
+    this.togglePreviewButton = this.shadowRoot.querySelector('#togglePreviewButton');
+
+    this.copyButton.addEventListener('click', this.copyLink.bind(this));
+    this.togglePreviewButton.addEventListener('click', this.togglePreview.bind(this));
+
+    this.showpreview = this.hasAttribute('showpreview') ? this.getAttribute('showpreview') === 'true' : false;
+    this.link = this.getAttribute('link') || '';
+    this.mute = this.hasAttribute('mute') ? this.getAttribute('mute') === 'true' : false;
+
+    if (this.showpreview) {
+      this.createIframe();
+    }
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'showpreview' && newValue !== oldValue) {
+      if (newValue === 'true') {
+        this.createIframe();
+      } else {
+        this.removeIframe();
+      }
+    }
+
+    if (name === 'link' && newValue !== oldValue) {
+      this.setLink(newValue);
+    }
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          font-family: Arial, sans-serif;
+          background-color: #fff;
+          color: black;
+        }
+        iframe {
+          width: 100%;
+          height: 400px;
+          border-radius: 8px;
+        }
+        #linkInput {
+          width: auto;
+          margin-bottom: 10px;
+          padding: 10px;
+          background: #f9f9f9;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 16px;
+        }
+        button {
+          margin-top: 10px;
+          padding: 8px 16px;
+          border: 1px solid #007BFF;
+          background-color: #007BFF;
+          color: white;
+          font-size: 14px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        button:hover {
+          background-color: #0056b3;
+          border-color: #0056b3;
+        }
+        button:focus {
+          outline: none;
+          box-shadow: 0 0 3px 3px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Dark Mode Styles */
+        :host([theme="dark"]) {
+          background-color: #333;
+          color: white;
+        }
+
+        :host([theme="dark"]) button {
+          background-color: #444;
+          border-color: #666;
+        }
+
+        :host([theme="dark"]) button:hover {
+          background-color: #222;
+          border-color: #444;
+        }
+
+        :host([theme="dark"]) #linkInput {
+          background: #555;
+          color: white;
+          border-color: #777;
+        }
+
+        :host([theme="dark"]) iframe {
+          border: none;
+        }
+      </style>
+      <input id="linkInput" type="text" value="${this.link}" disabled>
+      <button id="copyButton">Copy Link</button>
+      <button id="togglePreviewButton">Toggle Preview</button>
+    `;
+  }
+
+  createIframe() {
+    if (!this.iframe) {
+      this.iframe = document.createElement('iframe');
+      this.iframe.src = this.link;
+      this.iframe.muted = this.mute;
+      this.shadowRoot.appendChild(this.iframe);
+      this.dispatchEvent(new CustomEvent('linkchanged', {
+        detail: { link: this.link }
+      }));
+    }
+  }
+
+  removeIframe() {
+    if (this.iframe) {
+      this.iframe.remove();
+      this.iframe = null;
+    }
+  }
+
+  setLink(link) {
+    this.link = link;
+    if (this.linkInput) {
+      this.linkInput.value = this.link;
+    }
+    if (this.iframe) {
+      this.iframe.src = this.link;
+    }
+  }
+
+  showpreview(show) {
+    this.showpreview = show;
+    this.setAttribute('showpreview', show ? 'true' : 'false');
+  }
+
+  changeLink(newLink) {
+    this.setLink(newLink);
+    this.dispatchEvent(new CustomEvent('linkchanged', {
+      detail: { link: newLink }
+    }));
+  }
+
+  copyLink() {
+    navigator.clipboard.writeText(this.link)
+      .then(() => {
+        console.log('Link copied to clipboard');
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+  }
+
+  toggletheme(theme) {
+    if (theme === 'dark') {
+      this.setAttribute('theme', 'dark');
+    } else {
+      this.removeAttribute('theme');
+    }
+  }
+
+  togglePreview() {
+    this.showpreview = !this.showpreview;
+    this.setAttribute('showpreview', this.showpreview ? 'true' : 'false');
+    if (this.showpreview) {
+      this.createIframe();
+    } else {
+      this.removeIframe();
+    }
+  }
+
+  updateButtonText(copyText, toggleText) {
+    if (this.copyButton) {
+      this.copyButton.textContent = copyText;
+    }
+    if (this.togglePreviewButton) {
+      this.togglePreviewButton.textContent = toggleText;
+    }
+  }
+}
+
+customElements.define('preview-webcomponent', PreviewWebComponent);
 const colorStyles = `
   /* Text Colors */
   .text-black { color: #000; }
@@ -7368,206 +7571,3 @@ class WindowManager extends HTMLElement {
 
 // Define the custom element
 customElements.define('window-manager', WindowManager);
-class PreviewWebComponent extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.iframe = null;
-    this.linkInput = null;
-  }
-
-  static get observedAttributes() {
-    return ['link', 'showpreview', 'mute'];
-  }
-
-  connectedCallback() {
-    this.render();
-    this.linkInput = this.shadowRoot.querySelector('#linkInput');
-    this.copyButton = this.shadowRoot.querySelector('#copyButton');
-    this.togglePreviewButton = this.shadowRoot.querySelector('#togglePreviewButton');
-
-    this.copyButton.addEventListener('click', this.copyLink.bind(this));
-    this.togglePreviewButton.addEventListener('click', this.togglePreview.bind(this));
-
-    this.showpreview = this.hasAttribute('showpreview') ? this.getAttribute('showpreview') === 'true' : false;
-    this.link = this.getAttribute('link') || '';
-    this.mute = this.hasAttribute('mute') ? this.getAttribute('mute') === 'true' : false;
-
-    if (this.showpreview) {
-      this.createIframe();
-    }
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'showpreview' && newValue !== oldValue) {
-      if (newValue === 'true') {
-        this.createIframe();
-      } else {
-        this.removeIframe();
-      }
-    }
-
-    if (name === 'link' && newValue !== oldValue) {
-      this.setLink(newValue);
-    }
-  }
-
-  render() {
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: block;
-          margin: 10px;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          font-family: Arial, sans-serif;
-          background-color: #fff;
-          color: black;
-        }
-        iframe {
-          width: 100%;
-          height: 400px;
-          border-radius: 8px;
-        }
-        #linkInput {
-          width: auto;
-          margin-bottom: 10px;
-          padding: 10px;
-          background: #f9f9f9;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          font-size: 16px;
-        }
-        button {
-          margin-top: 10px;
-          padding: 8px 16px;
-          border: 1px solid #007BFF;
-          background-color: #007BFF;
-          color: white;
-          font-size: 14px;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        button:hover {
-          background-color: #0056b3;
-          border-color: #0056b3;
-        }
-        button:focus {
-          outline: none;
-          box-shadow: 0 0 3px 3px rgba(0, 123, 255, 0.5);
-        }
-
-        /* Dark Mode Styles */
-        :host([theme="dark"]) {
-          background-color: #333;
-          color: white;
-        }
-
-        :host([theme="dark"]) button {
-          background-color: #444;
-          border-color: #666;
-        }
-
-        :host([theme="dark"]) button:hover {
-          background-color: #222;
-          border-color: #444;
-        }
-
-        :host([theme="dark"]) #linkInput {
-          background: #555;
-          color: white;
-          border-color: #777;
-        }
-
-        :host([theme="dark"]) iframe {
-          border: none;
-        }
-      </style>
-      <input id="linkInput" type="text" value="${this.link}" disabled>
-      <button id="copyButton">Copy Link</button>
-      <button id="togglePreviewButton">Toggle Preview</button>
-    `;
-  }
-
-  createIframe() {
-    if (!this.iframe) {
-      this.iframe = document.createElement('iframe');
-      this.iframe.src = this.link;
-      this.iframe.muted = this.mute;
-      this.shadowRoot.appendChild(this.iframe);
-      this.dispatchEvent(new CustomEvent('linkchanged', {
-        detail: { link: this.link }
-      }));
-    }
-  }
-
-  removeIframe() {
-    if (this.iframe) {
-      this.iframe.remove();
-      this.iframe = null;
-    }
-  }
-
-  setLink(link) {
-    this.link = link;
-    if (this.linkInput) {
-      this.linkInput.value = this.link;
-    }
-    if (this.iframe) {
-      this.iframe.src = this.link;
-    }
-  }
-
-  showpreview(show) {
-    this.showpreview = show;
-    this.setAttribute('showpreview', show ? 'true' : 'false');
-  }
-
-  changeLink(newLink) {
-    this.setLink(newLink);
-    this.dispatchEvent(new CustomEvent('linkchanged', {
-      detail: { link: newLink }
-    }));
-  }
-
-  copyLink() {
-    navigator.clipboard.writeText(this.link)
-      .then(() => {
-        console.log('Link copied to clipboard');
-      })
-      .catch(err => {
-        console.error('Failed to copy: ', err);
-      });
-  }
-
-  toggletheme(theme) {
-    if (theme === 'dark') {
-      this.setAttribute('theme', 'dark');
-    } else {
-      this.removeAttribute('theme');
-    }
-  }
-
-  togglePreview() {
-    this.showpreview = !this.showpreview;
-    this.setAttribute('showpreview', this.showpreview ? 'true' : 'false');
-    if (this.showpreview) {
-      this.createIframe();
-    } else {
-      this.removeIframe();
-    }
-  }
-
-  updateButtonText(copyText, toggleText) {
-    if (this.copyButton) {
-      this.copyButton.textContent = copyText;
-    }
-    if (this.togglePreviewButton) {
-      this.togglePreviewButton.textContent = toggleText;
-    }
-  }
-}
-
-customElements.define('preview-webcomponent', PreviewWebComponent);

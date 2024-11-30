@@ -145,18 +145,6 @@
                 <div id="windowsList" class="mt-6 space-y-4"></div>
                 <window-manager id="myWindowManager"></window-manager>
                 <preview-webcomponent id="iframeweb" link="http://localhost:9000/overlaya.html" showpreview="false" theme="dark"></preview-webcomponent>
-
-
-                
-              
-              <script>
-                  const preview = document.getElementById('iframeweb');
-                  preview.togglePreview(false);
-                  preview.setlink('http://localhost:9000/overlaya.html');
-                  preview.addEventListener('linkchanged', (e) => {
-                      console.log('linkchanged', e);
-                  });
-              </script>
               
               </section>
             </div>
