@@ -543,34 +543,49 @@ class ObjectComparator {
     this.mainObject = mainObject;
   }
 
-  // Ahora devuelve todos los tipos de comparación para cada clave
-  compareKeys(objectsToCompare, keysToCheck) {
+  compareKeys(objectsToCompare, keysToCheck, includeTrueValues = false) {
     if (Array.isArray(objectsToCompare)) {
-      // Si es un array, procesamos todos los objetos
       return objectsToCompare.map(obj => {
-        return this.compareSingleObject(obj, keysToCheck);
+        return this.compareSingleObject(obj, keysToCheck, includeTrueValues);
       });
     } else {
-      // Si es un solo objeto, simplemente lo procesamos
-      return this.compareSingleObject(objectsToCompare, keysToCheck);
+      return this.compareSingleObject(objectsToCompare, keysToCheck, includeTrueValues);
     }
   }
 
-  compareSingleObject(obj, keysToCheck) {
+  compareSingleObject(obj, keysToCheck, includeTrueValues = false) {
     const result = {};
     keysToCheck.forEach(key => {
       const keyName = typeof key === 'object' ? key.key : key;
       const compareType =
         typeof key === 'object' && key.compare ? key.compare : 'isEqual';
+      
       result[keyName] = this.compareValues(
         this.mainObject[keyName],
-        obj[keyName]
+        obj[keyName],
+        compareType,
+        includeTrueValues
       );
     });
     return result;
   }
 
-  compareValues(value1, value2) {
+  compareValues(value1, value2, compareType = 'isEqual', includeTrueValues = false) {
+    // If includeTrueValues is true, allow special 'true' value matching
+    if (includeTrueValues && (value2 === 'true' || value1 === 'true')) {
+      return { 
+        isEqual: true, 
+        contains: true,
+        startsWith: true,
+        endsWith: true,
+        isInRange: true,
+        isLess: true,
+        isGreater: true,
+        isLessOrEqual: true,
+        isGreaterOrEqual: true
+      };
+    }
+
     if (typeof value1 === 'string' && typeof value2 === 'string') {
       return this.compareStrings(value1, value2);
     } else if (typeof value1 === 'number' && typeof value2 === 'number') {
@@ -580,6 +595,7 @@ class ObjectComparator {
     }
   }
 
+  // Rest of the methods remain the same as in the original code
   compareStrings(str1, str2) {
     return {
       isEqual: str1 === str2,
@@ -590,8 +606,8 @@ class ObjectComparator {
   }
 
   compareNumbers(num1, num2) {
-    const maxRange2 = num2 * 1.1; // 110% del valor de num2
-    const minRange2 = num2 * 0.9; // 90% del valor de num2
+    const maxRange2 = num2 * 1.1; // 110% of num2 value
+    const minRange2 = num2 * 0.9; // 90% of num2 value
     return {
       isEqual: num1 === num2,
       isLess: num1 < num2,
@@ -603,49 +619,46 @@ class ObjectComparator {
   }
 }
 
-function compareObjects(mainObject, objectsToCompare, keysToCheck, callback) {
+function compareObjects(mainObject, objectsToCompare, keysToCheck, callback, includeTrueValues = false) {
   const comparator = new ObjectComparator(mainObject);
   const comparisonResults = comparator.compareKeys(
     objectsToCompare,
-    keysToCheck
+    keysToCheck,
+    includeTrueValues
   );
   const validResults = [];
   let coincidentobjects = {};
-  // Ejecutar el callback si se proporciona
+
   if (callback && typeof callback === 'function') {
     comparisonResults.forEach((comparisonResult, index) => {
       const allComparisonsTrue = getComparisonValues(
         comparisonResult,
         keysToCheck
       );
-      
+     
       if (allComparisonsTrue.allTrue) {
-        callback(objectsToCompare[index], index,allComparisonsTrue);
+        callback(objectsToCompare[index], index, allComparisonsTrue);
         validResults.push(objectsToCompare[index]);
         coincidentobjects = allComparisonsTrue;
       }
     });
   }
 
-  return { comparisonResults, validResults, coincidentobjects }; // Retornar solo los objetos válidos
+  return { comparisonResults, validResults, coincidentobjects };
 }
+
 function getComparisonValues(obj, keysToCheck) {
   const result = {};
-  let allTrue = true; // Variable para rastrear si todos son true
-
+  let allTrue = true;
   keysToCheck.forEach(({ key, compare }) => {
     if (obj[key] && obj[key][compare] !== undefined) {
       result[key] = obj[key][compare];
-      // Si alguno de los valores no es true, establecer allTrue en false
       if (!obj[key][compare]) {
         allTrue = false;
       }
     }
   });
-
-  // Añadir el resultado de la verificación allTrue
   result.allTrue = allTrue;
-
   return result;
 }
 class Logger {

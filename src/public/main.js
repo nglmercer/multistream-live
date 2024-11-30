@@ -696,16 +696,23 @@ function Readtext(eventType = 'chat',data) {
 }
 //Readtext('chat',{uniqueId:"nightbot",comment:"hola  https://www.google.com mira esto"});
 const generateobject = (eventType,comparison ) => {
-  return arrayevents.includes(eventType) 
-    ? [{ key: eventType, compare: comparison },{ key: 'eventType', compare: 'isEqual' }] 
-    : [{ key: 'eventType', compare: 'isEqual' }]
+  const comparisonstring = comparison === true ? "isEqual" : comparison
+  const keysToCheck = arrayevents.includes(eventType)  ? [{ key: eventType, compare: comparisonstring },{ key: 'eventType', compare: 'isEqual' }] : [{ key: 'eventType', compare: 'isEqual' }]
+  console.log("generateobject",eventType,comparisonstring,keysToCheck)
+  return keysToCheck
 };
-async function HandleAccionEvent(eventType,data,comparison = 'isEqual') {
+async function HandleAccionEvent(eventType,data,comparison = 'isEqual',includetrue = false) {
   const keysToCheck = generateobject(eventType,comparison)
   const callbackFunction = (matchingObject, index, results) => {
     console.log(`Objeto coincidente encontrado en el índice ${index}:`, matchingObject, results);
   };
-  const results = compareObjects(data, await EventsManager.getAllData(), keysToCheck, callbackFunction);
+  const eventslist = {
+    chat: data.comment,
+    gift: data.giftId,
+    like: data.likeCount,
+    eventType: eventType,
+  }
+  const results = compareObjects(eventslist, await EventsManager.getAllData(), keysToCheck, callbackFunction,includetrue);
   console.log('debug',"results HandleAccionEvent",results)
   if (results.validResults.length >= 1 ) {
     results.validResults.forEach(result => {
@@ -833,9 +840,9 @@ function mapdatatooverlay(data,duration,content) {
   return config;
 }
 // processActioncallbacks
-/* setTimeout(() => {
-  HandleAccionEvent('gift',{eventType: "gift",chat: "default text",like: 10,gift: 5655,uniqueId: "123123",profilePictureUrl: "https://picsum.photos/200/200",Actions: [],id: undefined})
-}, 1000); */
+setTimeout(() => {
+  HandleAccionEvent('chat',{giftId:5655, comment:"qweqweqwe",likeCount: 10,uniqueId: "123123",profilePictureUrl: "https://picsum.photos/200/200",Actions: [],id: undefined},"isEqual",true)
+}, 1000);
 const preview = document.getElementById('iframeweb');
 preview.togglePreview(false);
 preview.setLink('http://localhost:9000/overlaya.html');
