@@ -602,6 +602,7 @@ class ObjectComparator {
       contains: str1.includes(str2),
       startsWith: str1.startsWith(str2),
       endsWith: str1.endsWith(str2),
+      exists: str1 !== undefined && str2 !== undefined,
     };
   }
 
@@ -615,6 +616,7 @@ class ObjectComparator {
       isLessOrEqual: num1 <= num2,
       isGreaterOrEqual: num1 >= num2,
       isInRange: num1 >= minRange2 && num1 <= maxRange2,
+      exists: num1 !== undefined && num2 !== undefined,
     };
   }
 }
