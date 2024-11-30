@@ -1,5 +1,5 @@
-appId: com.example.myapp
-productName: MyApp
+appId: com.melser.multiztream
+productName: multiztream
 directories:
   output: build
   app: src

@@ -833,9 +833,9 @@ function mapdatatooverlay(data,duration,content) {
   return config;
 }
 // processActioncallbacks
-setTimeout(() => {
+/* setTimeout(() => {
   HandleAccionEvent('gift',{eventType: "gift",chat: "default text",like: 10,gift: 5655,uniqueId: "123123",profilePictureUrl: "https://picsum.photos/200/200",Actions: [],id: undefined})
-}, 1000);
+}, 1000); */
 const preview = document.getElementById('iframeweb');
 preview.togglePreview(false);
 preview.setLink('http://localhost:9000/overlaya.html');

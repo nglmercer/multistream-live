@@ -228,7 +228,7 @@ window.addEventListener('blur', () => {
                 return `<img src="${sanitizedSrc}" alt="${item.nombre}" class="media-item" />`;
               case 'video':
                 return `
-                  <video autoplay loop muted class="media-item">
+                  <video autoplay loop class="media-item">
                     <source src="${sanitizedSrc}" type="${item.mediaType}">
                   </video>
                 `;
@@ -465,7 +465,7 @@ window.addEventListener('blur', () => {
   const alertobj = {
     template: 'multi-grid',
     content: 'John Doe donated $50! Thank you!',
-    duration: 50001,
+    duration: 5000,
     src: [
         {
             nombre: 'imagen1.png',
@@ -477,11 +477,11 @@ window.addEventListener('blur', () => {
             path: 'https://picsum.photos/200/201',
             mediaType: 'image/png'
         },
-        {
+/*         {
             nombre: 'video.mp4',
             path: 'https://www.w3schools.com/html/mov_bbb.mp4',
             mediaType: 'video/mp4'
-        },
+        }, */
         
     ]
 };
