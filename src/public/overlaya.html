@@ -234,7 +234,7 @@ window.addEventListener('blur', () => {
                 `;
               case 'audio':
                 return `
-                  <audio controls class="media-item">
+                  <audio controls class="media-item" autoplay>
                     <source src="${sanitizedSrc}" type="${item.mediaType}">
                   </audio>
                 `;

@@ -1,7 +1,7 @@
 import { Giftsparsed, mapselectgift } from '../assets/gifts.js';
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { databases, IndexedDBManager, DBObserver } from '../database/indexdb.js'
-import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects } from '../utils/utils.js'
+import { Counter, flattenObject, TypeofData,ComboTracker, replaceVariables, compareObjects, unflattenObject } from '../utils/utils.js'
 import showAlert from '../components/alerts.js';
 import { GiftElementsManager } from '../components/renderhtml.js'
 import { ActionsManager } from './Actions.js'
@@ -26,111 +26,7 @@ async function EventsManagermap(data) {
     label: data.nombre,
   }))
 }
-
-
-
-const editcallback = async (data,modifiedData) => {
-  console.log("editcallback", data,modifiedData);
-  const alldata = await EventsManager.getAllData()
-  console.log("alldata",alldata)
-  
-  const keysToCheck = [
-    { key: 'eventType', compare: 'isEqual' },
-/*       { key: 'gift', compare: 'isEqual' },
-*/      { key: modifiedData.eventType, compare: 'isEqual' }
-  ];    
-  const callbackFunction = (matchingObject, index, results) => {
-    console.log(`Objeto coincidente encontrado en el índice ${index}:`, matchingObject, results);
-  };
-  
-  const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
-  console.log("results",results)
-  if (!results.validResults.length >= 1 && !modifiedData.id) {
-    EventsModal.close();
-    EventsManager.saveData(modifiedData)
-    showAlert('success','Se ha guardado el evento')
-  } else if (modifiedData.id && results.validResults.length <= 1) {
-    EventsModal.close();
-    EventsManager.updateData(modifiedData)
-    showAlert('success','Se ha guardado el evento')
-  } else {
-    console.log(modifiedData.id,"id de la base de datos")
-    showAlert('error','ya existe un elemento en la base de datos igual')
-  }
-}
-const deletecallback = async (data,modifiedData) => {
-  EventsModal.close();
-  console.log("deletecallback", data,modifiedData);
-}
-
-async function getEventconfig() {
-  const eventsconfig = {
-    nombre: {
-      class: 'input-default',
-      type: 'textarea',
-      returnType: 'string',
-    },
-    chat: {
-      label: '',
-      class: 'input-default h-4rem float-right w-1/2',
-      type: 'textarea',
-      returnType: 'string',
-      dataAssociated: 'chat',
-    },
-    gift: {
-      class: 'input-default h-4rem float-right w-1/2',
-      label: '',
-      type: 'select2',
-      returnType: 'number',
-      options: mapselectgift,
-      dataAssociated: 'gift',
-    },
-    like: {
-      label: '',
-      class: 'input-default h-4rem float-right w-1/2',
-      type: 'number',
-      returnType: 'number',
-      dataAssociated: 'like',
-    },
-    eventType: {
-      class: 'radio-default maxw-1/2',
-      type: 'radio',
-      toggleoptions: true,
-      returnType: 'string',
-      options: [{ value: 'chat', label: 'Chat' }, { value: 'like', label: 'like'}, { value: 'gift', label: 'Gift' },
-      {value: 'share', label: 'compartir'},{ value: 'follow', label: 'Seguimiento' }, { value: 'subscribe', label: 'suscripcion' }],
-    },
-    Actions: {
-      class: 'input-default',
-      label: 'select Actions',
-      type: 'multiSelect',
-      returnType: 'array',
-      options: await EventsManagermap(),
-    },
-    buttonsave: {
-      class: 'default-button',
-      type: 'button',
-      label: getTranslation('savechanges'),
-      callback: editcallback,
-    },
-    buttondelete: {
-      class: 'default-button deletebutton',
-      type: 'button',
-      label: getTranslation('delete'),
-      callback: deletecallback,
-    },
-    id: {
-      type: 'number',
-      returnType: 'number',
-      hidden: true,
-    }
-  };
-  return eventsconfig
-}
-
-const EventsModal = document.getElementById('EventsModal');
-const Buttonform  = document.getElementById('EventsModalButton');
-
+const newmodalevent = document.getElementById('eventformModal')
 const testdata = {
   nombre: getTranslation('nombre_del_evento'),
   eventType: "chat",
@@ -140,26 +36,129 @@ const testdata = {
   Actions: [],
   id: undefined,
 }
-const Formelement = new EditModal(await getEventconfig(), testdata);
-const Eventsformelement = Formelement.ReturnHtml(testdata); 
-updateEventsModalContainer(Eventsformelement);
-function updateEventsModalContainer(html) {
-  document.getElementById('EventsModalContainer').replaceChildren(html);
-}
-Buttonform.className = 'open-modal-btn';
-Buttonform.onclick = async () => {
-  Formelement.updateconfig(await getEventconfig())
-  Formelement.render(testdata);
-  Formelement.updateData(testdata) 
-  setTimeout(() => {EventsModal.open()}, 200);
-};
+
+const eventform = document.createElement('dynamic-form');
+        eventform.initialize()
+            .addField({
+                type: 'text',
+                name: 'nombre',
+                label: 'nombre de evento',
+                value: 'nombre de evento',
+            })
+            .addField({
+                type: 'radio',
+                name: 'eventType',
+                label: 'type',
+                options: [
+                    { value: 'chat', label: 'chat' },
+                    { value: 'gift', label: 'gift' },
+                    { value: 'bits', label: 'bits' },
+                    { value: 'follow', label: 'follow' },
+                    { value: 'subscribe', label: 'subscribe' },
+                ],
+                value: 'gift',
+            })
+            .addField({
+                type: 'textarea',
+                name: 'chat',
+                label: 'chat',
+                value: 'chat',
+                showWhen: {
+                    field: 'eventType',
+                    value: 'chat'
+                }
+            })
+            .addField({
+                type: 'flexible-modal-selector',
+                name: 'gift',
+                label: 'gift',
+                value: 5655,
+                options: mapselectgift,
+                showWhen: {
+                    field: 'eventType',
+                    value: 'gift'
+                }
+            })
+            .addField({
+                type: 'number',
+                name: 'bits',
+                label: 'bits',
+                value: 'bits',
+                showWhen: {
+                    field: 'eventType',
+                    value: 'bits'
+                }
+            })
+            .addField({
+                type: 'number',
+                name: 'id',
+                label: '',
+                hidden: true,
+            })
+            .addField({
+                type: 'flexible-modal-selector',
+                name: 'Actions',
+                label: 'selecciona la accion',
+                mode: 'multi',
+                options: await EventsManagermap(),
+                value: [],
+            })
+            .render()
+            .toggleDarkMode(true);
+eventform.addEventListener('form-submit', async (e) => {
+  console.log('Datos modificados:', e.detail);
+  const modifiedData = unflattenObject(e.detail);
+  console.log("modifiedData",modifiedData, flattenObject(modifiedData))
+  const alldata = await EventsManager.getAllData()
+  console.log("alldata",alldata)
+  
+  const keysToCheck = [
+    { key: 'eventType', compare: 'isEqual' },
+/*       { key: 'gift', compare: 'isEqual' },
+*/  { key: modifiedData.eventType, compare: 'isEqual' }
+  ];    
+  const callbackFunction = (matchingObject, index, results) => {
+    console.log(`Objeto coincidente encontrado en el índice ${index}:`, matchingObject, results);
+  };
+  
+  const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
+  console.log("results",results)
+  if (!results.validResults.length >= 1 && !modifiedData.id) {
+    newmodalevent.close();
+    EventsManager.saveData(modifiedData)
+    showAlert('success','Se ha guardado el evento')
+  } else if (modifiedData.id && results.validResults.length <= 1) {
+    newmodalevent.close();
+    EventsManager.updateData(modifiedData)
+    showAlert('success','Se ha guardado el evento')
+  } else {
+    console.log(modifiedData.id,"id de la base de datos")
+    showAlert('error','ya existe un elemento en la base de datos igual')
+  }
+});
+eventform.addEventListener('form-change', (e) => {
+  console.log('Form values changed:', e.detail);
+});
+newmodalevent.appendChild(eventform);
+/* setTimeout(() => {
+  eventform.reRender(testdata);
+}, 1000);
+newmodalevent.open(); */
+
+
+/* const EventsModal = document.getElementById('EventsModal');
+ */
+
+/* const Formelement = new EditModal(await getEventconfig(), testdata);
+const Eventsformelement = Formelement.ReturnHtml(testdata);  */
+
+
 /*tabla de Eventos para modificar y renderizar todos los datos*/
 const callbacktable = async (data,modifiedData) => {
-  console.log("callbacktable",data,modifiedData);
-  Formelement.updateconfig(await getEventconfig())
-  updateEventsModalContainer(Formelement.ReturnHtml(modifiedData));
-  Formelement.updateData(modifiedData) 
-  setTimeout(() => {EventsModal.open()}, 200);
+/*   const datamodal = unflattenObject(modifiedData);
+  console.log("callbacktable",data,datamodal); */
+  eventform.reRender(modifiedData);
+  newmodalevent.open();
 }
 const callbacktabledelete = async (data,modifiedData) => {
   console.log("callbacktabledelete",data,modifiedData);
@@ -170,7 +169,7 @@ const callbacktabledelete = async (data,modifiedData) => {
 const configtable = {
     nombre: {
       class: 'input-default',
-      type: 'textarea',
+      type: 'text',
       returnType: 'string',
     },     
     eventType: {
@@ -184,7 +183,7 @@ const configtable = {
     buttonsave: {
       class: 'default-button',
       type: 'button',
-      label: getTranslation('savechanges'),
+      label: getTranslation('edit'),
       callback: callbacktable,
     },
     buttondelete: {
@@ -229,13 +228,11 @@ ObserverEvents.subscribe(async (action, data) => {
 
 const giftlistmanager = new GiftElementsManager(mapselectgift);
 
-// Callback de ejemplo
 const handleProductClick = (product) => {
     console.log('Producto seleccionado:', product);
 };
 
-// Renderizar los productos
 giftlistmanager.renderToElement('giftmap', handleProductClick);
 
 
-export { getEventconfig, EventsManager }
+export { EventsManager }

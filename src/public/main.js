@@ -1,4 +1,4 @@
-import { Counter, compareObjects, replaceVariables, logger, UserInteractionTracker, EvaluerLikes } from './utils/utils.js';
+import { Counter, compareObjects, replaceVariables, logger, UserInteractionTracker, EvaluerLikes, LocalStorageManager } from './utils/utils.js';
 import { ChatContainer, ChatMessage, showAlert } from './components/message.js';
 import { Replacetextoread, addfilterword, existuserinArray,adduserinArray } from './features/speechconfig.js';
 import { handleleermensaje } from './audio/tts.js';
@@ -6,9 +6,10 @@ import { getTranslation, translations } from './translations.js';
 import { ActionsManager } from './features/Actions.js';
 import { EventsManager } from './features/Events.js';
 import { sendcommandmc } from './features/Minecraftconfig.js';
+import  socketManager  from './server/socketManager.js';
 //import { text } from 'express';
 let client = tmi.client();
-
+const overlayfilesmanager = new LocalStorageManager('filePaths');
 const socket = io();
 const userProfile = document.querySelector('#kicklogin');
 userProfile.setConnectionStatus('offline');
@@ -723,6 +724,7 @@ function processAction(data,userdata) {
 const processActioncallbacks = {
   minecraft: (data,userdata) => handleMinecraft(data,userdata),
   tts: (data,userdata) => handletts(data,userdata),
+  overlay: (data,userdata) => handleOverlay(data,userdata),
 }
 async function Actionsprocessmanager(id,userdata) {
   console.log("accionesprocessmanager",id)
@@ -731,6 +733,7 @@ async function Actionsprocessmanager(id,userdata) {
   if (action) {
     Object.keys(processActioncallbacks).forEach(key => {
       if (action[key]) {
+          console.log("accionesprocessmanager",action[key])
         processActioncallbacks[key](action[key],userdata)
       }
     });
@@ -756,7 +759,80 @@ function handletts(data,userdata) {
     console.log("tts no check",data)
   }
 }
+async function handleOverlay(data, userdata) {
+  console.log("overlay", data, userdata);
 
-// setTimeout(() => {
-//   HandleAccionEvent('chat',{nombre: "coloca tu nombre",eventType: "chat",chat: "default text",like: 10,gift: 5655,Actions: [],id: undefined})
-// }, 1000);
+  if (data?.check) {
+    const content = replaceVariables(data.content, userdata);
+    console.log("content", content);
+
+    if (data.src && data.src.length > 0) {
+      // Crear un array inicial para los elementos que no dependen de promesas
+      let srcArray = [];
+
+      if (userdata.profilePictureUrl) {
+        srcArray.push({
+          nombre: userdata.nickname || userdata.uniqueId,
+          path: userdata.profilePictureUrl || userdata.imageUrl || "https://picsum.photos/200/200",
+          mediaType: 'image/png',
+        });
+      }
+
+      if (Array.isArray(data.src)) {
+        // Crear un array de promesas para resolver
+        const srcPromises = data.src.map(async (src) => {
+          const filedata = await overlayfilesmanager.get(src);
+          return {
+            nombre: filedata.nombre,
+            path: filedata.path,
+            mediaType: filedata.mediaType || filedata.type,
+          };
+        });
+
+        // Resolver las promesas y agregar sus resultados al array inicial
+        const resolvedSrcs = await Promise.all(srcPromises);
+        srcArray = srcArray.concat(resolvedSrcs);
+      } else {
+        // Procesar un único src
+        const filedata = await overlayfilesmanager.get(data.src);
+        srcArray.push({
+          nombre: filedata.nombre,
+          path: filedata.path,
+          mediaType: filedata.mediaType || filedata.type,
+        });
+      }
+
+      // Crear el mapconfig con todos los elementos en src
+      const mapconfig = {
+        template: 'multi-grid',
+        content: content || srcArray[0]?.nombre || srcArray[0]?.path,
+        duration: data.duration * 1000,
+        src: srcArray,
+      };
+
+      // Emitir el overlay con todos los elementos agrupados
+      socketManager.emitMessage('create-overlay', { mapconfig, roomId: 'sala1' });
+      console.log("overlay check", data, mapconfig);
+    }
+  }
+}
+
+function mapdatatooverlay(data,duration,content) {
+  const config = {
+    template: 'multi-grid',
+    content: content || data.nombre || data.path,
+    duration: duration * 1000,
+    src: [
+      {
+        nombre: data.nombre,
+        path: data.path,
+        mediaType: data.mediaType || data.type,
+      },
+    ],
+  };
+  return config;
+}
+// processActioncallbacks
+setTimeout(() => {
+  HandleAccionEvent('gift',{eventType: "gift",chat: "default text",like: 10,gift: 5655,uniqueId: "123123",profilePictureUrl: "https://picsum.photos/200/200",Actions: [],id: undefined})
+}, 1000);

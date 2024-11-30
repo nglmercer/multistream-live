@@ -1,6 +1,7 @@
-import { EventEmitter } from 'events';
-import { BrowserWindow, app, screen } from 'electron';
-
+/* import { EventEmitter } from 'events';
+import { BrowserWindow, app, screen } from 'electron'; */
+const { EventEmitter } = require('events');
+const { BrowserWindow, app, screen } = require('electron');
 class WindowManager extends EventEmitter {
   constructor() {
     super();
@@ -179,5 +180,5 @@ class WindowManager extends EventEmitter {
     return windowsData;
   }
 }
-
-export default WindowManager;
+module.exports = WindowManager;
+/* export default WindowManager; */

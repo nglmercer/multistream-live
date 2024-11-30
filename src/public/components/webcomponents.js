@@ -289,6 +289,8 @@ class FlexibleModalSelector extends HTMLElement {
                     --border-color: #e2e8f0;
                     --accent-color: #3b82f6;
                     --accent-light: rgba(59, 130, 246, 0.1);
+                    transition: all 0.5s ease-in-out;
+                    z-index: 1002;
                 }
                 :host(.dark) {
                     --bg-primary: #1a202c;
@@ -412,49 +414,72 @@ class FlexibleModalSelector extends HTMLElement {
         }) : [value.trim()];
     }
     setValues(values) {
-    // Ensure values is always an array
-    const valuesArray = Array.isArray(values) ? values : [values];
-    
-    // Normalize values for consistent handling
-    const normalizedValues = valuesArray.map(this.normalizeValue);
-    
-    // Filter out values that are not in the available options
-    const availableValues = normalizedValues.filter(value => {
-        const matchingOption = this.options.some(option => 
-            this.normalizeValue(option.value) === value
-        );
-        return matchingOption;
-    });
-    
-    // In single mode, take only the first available value
-    this.selectedValues = this.mode === 'single' ? availableValues.slice(0, 1) : availableValues;
-    
-    // Get labels for selected values
-    const labels = this.options
-        .filter(option => {
-            const normalizedOptionValue = this.normalizeValue(option.value);
-            return this.selectedValues.includes(normalizedOptionValue);
-        })
-        .map(option => option.label);
-    
-    // Update input display
-    this.input.value = labels.join(', ');
-
-    // Update hidden input using the separator method
-    if (this._hiddenInput) {
-        this._hiddenInput.value = this.selectedValues.join(this.separator);
-    }
-    
-    // Dispatch events
-    this.dispatchEvent(new CustomEvent('change', {
-        detail: {
-            values: this.selectedValues,
-            mode: this.mode
-        },
-        bubbles: true
-    }));
-    this.dispatchEvent(new Event('input', { bubbles: true }));
-}
+      // Ensure values is always an array
+      const valuesArray = Array.isArray(values) ? values : [values];
+  
+      // Normalize values for consistent handling
+      const normalizedValues = valuesArray.map(this.normalizeValue);
+  
+      // Filter out values that are not in the available options
+      const availableValues = normalizedValues.filter(value => {
+          const matchingOption = this.options.some(option => 
+              this.normalizeValue(option.value) === value
+          );
+          return matchingOption;
+      });
+  
+      // In single mode, take only the first available value
+      this.selectedValues = this.mode === 'single' ? availableValues.slice(0, 1) : availableValues;
+  
+      // Get labels and images for selected values
+      const selectedOptions = this.options
+          .filter(option => {
+              const normalizedOptionValue = this.normalizeValue(option.value);
+              return this.selectedValues.includes(normalizedOptionValue);
+          });
+  
+      // Clear previous image if exists
+      const existingImage = this.input.previousElementSibling;
+      if (existingImage && existingImage.tagName === 'IMG') {
+          this.input.parentNode.removeChild(existingImage);
+      }
+  
+      // Update input display
+      const labels = selectedOptions.map(option => option.label);
+      this.input.value = labels.join(', ');
+  
+      // Add image if exists in single mode
+      if (this.mode === 'single' && selectedOptions[0] && (selectedOptions[0].image || selectedOptions[0].path)) {
+          const img = document.createElement('img');
+          img.src = (selectedOptions[0].image || selectedOptions[0].path).startsWith('http') ? (selectedOptions[0].image || selectedOptions[0].path) : `/media/${(selectedOptions[0].image || selectedOptions[0].path)}`;
+          img.style.cssText = `
+              position: absolute;
+              left: 70%; 
+              top: 50%;
+              transform: translateY(-50%);
+              width: 2rem;
+              height: 2rem;
+              object-fit: cover;
+              border-radius: 0.25rem;
+          `;
+          this.input.parentNode.insertBefore(img, this.input);
+      }
+  
+      // Update hidden input using the separator method
+      if (this._hiddenInput) {
+          this._hiddenInput.value = this.selectedValues.join(this.separator);
+      }
+  
+      // Dispatch events
+      this.dispatchEvent(new CustomEvent('change', {
+          detail: {
+              values: this.selectedValues,
+              mode: this.mode
+          },
+          bubbles: true
+      }));
+      this.dispatchEvent(new Event('input', { bubbles: true }));
+  }
     setupEventListeners() {
         const openSelector = () => {
             this.showSelectorModal();
@@ -484,91 +509,102 @@ class FlexibleModalSelector extends HTMLElement {
     /**
      * Method to create selector modal dynamically based on mode
      */
-     async createSelectorModal({ selectedValues, options, mode, theme = 'light' }) {
-    return new Promise((resolve, reject) => {
-        // Color schemes
-        const colors = {
-            light: {
-                background: 'white',
-                border: '#e2e8f0',
-                text: 'black',
-                selectedBackground: '#3b82f6',
-                selectedText: 'white',
-                searchBg: 'white',
-                cancelBg: '#f3f4f6'
-            },
-            dark: {
-                background: '#1e293b', // slate-800
-                border: '#334155', // slate-700
-                text: 'white',
-                selectedBackground: '#2563eb', // blue-600
-                selectedText: 'white',
-                searchBg: '#334155', // slate-700
-                cancelBg: '#334155' // slate-700
-            }
-        };
-
-        const currentColors = colors[theme];
-
-        // Crear modal
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: ${currentColors.background};
-            border: 1px solid ${currentColors.border};
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 1rem;
-            max-width: 400px;
-            width: 90%;
-            max-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            color: ${currentColors.text};
-        `;
-
-        // Buscador
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = 'Buscar...';
-        searchInput.style.cssText = `
-            width: 100%;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid ${currentColors.border};
-            border-radius: 0.25rem;
-            background-color: ${currentColors.searchBg};
-            color: ${currentColors.text};
-        `;
-
-        // Contenedor de opciones
-        const optionList = document.createElement('div');
-        optionList.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-height: 300px;
-            overflow-y: auto;
-        `;
-
-        // Lógica de búsqueda en tiempo real
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase().trim();
-            optionElements.forEach(optionElement => {
-                const label = optionElement.querySelector('span').textContent.toLowerCase();
-                optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
-            });
-        });
-
-        // Track selected values
-        const currentlySelectedValues = new Set(selectedValues);
-        const optionElements = [];
-
-        // Crear opciones
-        options.forEach(option => {
+    async createSelectorModal({ selectedValues, options, mode, theme = 'light' }) {
+      return new Promise((resolve, reject) => {
+          // Color schemes
+          const colors = {
+              light: {
+                  background: 'white',
+                  border: '#e2e8f0',
+                  text: 'black',
+                  selectedBackground: '#3b82f6',
+                  selectedText: 'white',
+                  searchBg: 'white',
+                  cancelBg: '#f3f4f6'
+              },
+              dark: {
+                  background: '#1e293b', // slate-800
+                  border: '#334155', // slate-700
+                  text: 'white',
+                  selectedBackground: '#2563eb', // blue-600
+                  selectedText: 'white',
+                  searchBg: '#334155', // slate-700
+                  cancelBg: '#334155' // slate-700
+              }
+          };
+  
+          const currentColors = colors[theme];
+  
+          // Crear modal
+          const modal = document.createElement('div');
+          modal.style.cssText = `
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: rgba(0,0,0,0.5);
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              z-index: 1001;
+          `;
+  
+          // Contenedor del contenido
+          const modalContent = document.createElement('div');
+          modalContent.style.cssText = `
+              background: ${currentColors.background};
+              border: 1px solid ${currentColors.border};
+              border-radius: 0.5rem;
+              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+              padding: 1rem;
+              max-width: 400px;
+              width: 90%;
+              max-height: 70vh;
+              display: flex;
+              flex-direction: column;
+              color: ${currentColors.text};
+          `;
+  
+          // Buscador
+          const searchInput = document.createElement('input');
+          searchInput.type = 'text';
+          searchInput.placeholder = 'Buscar...';
+          searchInput.style.cssText = `
+              width: 100%;
+              padding: 0.5rem;
+              margin-bottom: 1rem;
+              border: 1px solid ${currentColors.border};
+              border-radius: 0.25rem;
+              background-color: ${currentColors.searchBg};
+              color: ${currentColors.text};
+          `;
+  
+          // Contenedor de opciones
+          const optionList = document.createElement('div');
+          optionList.style.cssText = `
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              max-height: 300px;
+              overflow-y: auto;
+          `;
+  
+          // Lógica de búsqueda en tiempo real
+          searchInput.addEventListener('input', (e) => {
+              const searchTerm = e.target.value.toLowerCase().trim();
+              optionElements.forEach(optionElement => {
+                  const label = optionElement.querySelector('span').textContent.toLowerCase();
+                  optionElement.style.display = label.includes(searchTerm) ? '' : 'none';
+              });
+          });
+  
+          // Track selected values
+          const currentlySelectedValues = new Set(selectedValues);
+          const optionElements = [];
+  
+          // Crear opciones
+          options.forEach(option => {
             const optionElement = document.createElement('div');
             optionElement.style.cssText = `
                 display: flex;
@@ -580,7 +616,7 @@ class FlexibleModalSelector extends HTMLElement {
                 background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
                 color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
             `;
-
+  
             // Checkbox para modo multi
             if (mode === 'multi') {
                 const checkbox = document.createElement('input');
@@ -590,95 +626,124 @@ class FlexibleModalSelector extends HTMLElement {
                 checkbox.style.accentColor = currentColors.selectedBackground;
                 optionElement.appendChild(checkbox);
             }
-
+  
+            // Add image support
+            if (option.image || option.path) {
+                const img = document.createElement('img');
+                img.src = (option.image || option.path).startsWith('http') ? option.image || option.path : `/media/${option.image || option.path}`;
+                img.style.cssText = `
+                    width: 30px;
+                    height: 30px;
+                    object-fit: cover;
+                    margin-right: 0.5rem;
+                    border-radius: 0.25rem;
+                `;
+                optionElement.appendChild(img);
+            }
+  
             const label = document.createElement('span');
             label.textContent = option.label;
             optionElement.appendChild(label);
-
-            // Lógica de selección
-            optionElement.addEventListener('click', () => {
-                if (mode === 'single') {
-                    // Modo single: selección inmediata
-                    document.body.removeChild(modal);
-                    resolve({ values: [option.value] });
-                } else {
-                    // Modo multi: toggle selección
-                    const checkbox = optionElement.querySelector('input[type="checkbox"]');
-                    checkbox.checked = !checkbox.checked;
-                    if (checkbox.checked) {
-                        currentlySelectedValues.add(option.value);
-                        optionElement.style.backgroundColor = currentColors.selectedBackground;
-                        optionElement.style.color = currentColors.selectedText;
-                    } else {
-                        currentlySelectedValues.delete(option.value);
-                        optionElement.style.backgroundColor = currentColors.background;
-                        optionElement.style.color = currentColors.text;
-                    }
-                }
-            });
-
-            optionElements.push(optionElement);
-            optionList.appendChild(optionElement);
-        });
-
-        // Botones para modo multi
-        if (mode === 'multi') {
-            const confirmButton = document.createElement('button');
-            confirmButton.textContent = 'Confirmar Selección';
-            confirmButton.style.cssText = `
-                margin-top: 1rem;
-                padding: 0.5rem 1rem;
-                background-color: ${currentColors.selectedBackground};
-                color: ${currentColors.selectedText};
-                border: none;
-                border-radius: 0.25rem;
-                cursor: pointer;
-            `;
-
-            confirmButton.addEventListener('click', () => {
-                document.body.removeChild(modal);
-                resolve({
-                    values: Array.from(currentlySelectedValues)
-                });
-            });
-
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = 'Cancelar';
-            cancelButton.style.cssText = `
-                margin-top: 1rem;
-                margin-left: 0.5rem;
-                padding: 0.5rem 1rem;
-                background-color: ${currentColors.cancelBg};
-                color: ${currentColors.text};
-                border: 1px solid ${currentColors.border};
-                border-radius: 0.25rem;
-                cursor: pointer;
-            `;
-
-            cancelButton.addEventListener('click', () => {
-                document.body.removeChild(modal);
-                reject();
-            });
-
-            // Agregar buscador, lista de opciones y botones
-            modal.appendChild(searchInput);
-            modal.appendChild(optionList);
-            modal.appendChild(confirmButton);
-            modal.appendChild(cancelButton);
-        } else {
-            // Modo single: buscador y opciones
-            modal.appendChild(searchInput);
-            modal.appendChild(optionList);
-        }
-
-        // Agregar al documento
-        document.body.appendChild(modal);
-
-        // Enfocar buscador al abrir
-        searchInput.focus();
-    });
-}
-
+  
+              // Lógica de selección
+              optionElement.addEventListener('click', () => {
+                  if (mode === 'single') {
+                      // Modo single: selección inmediata
+                      document.body.removeChild(modal);
+                      resolve({ values: [option.value] });
+                  } else {
+                      // Modo multi: toggle selección
+                      const checkbox = optionElement.querySelector('input[type="checkbox"]');
+                      checkbox.checked = !checkbox.checked;
+                      if (checkbox.checked) {
+                          currentlySelectedValues.add(option.value);
+                          optionElement.style.backgroundColor = currentColors.selectedBackground;
+                          optionElement.style.color = currentColors.selectedText;
+                      } else {
+                          currentlySelectedValues.delete(option.value);
+                          optionElement.style.backgroundColor = currentColors.background;
+                          optionElement.style.color = currentColors.text;
+                      }
+                  }
+              });
+  
+              optionElements.push(optionElement);
+              optionList.appendChild(optionElement);
+          });
+  
+          // Botones para modo multi
+          if (mode === 'multi') {
+              const confirmButton = document.createElement('button');
+              confirmButton.textContent = 'Confirmar Selección';
+              confirmButton.style.cssText = `
+                  margin-top: 1rem;
+                  padding: 0.5rem 1rem;
+                  background-color: ${currentColors.selectedBackground};
+                  color: ${currentColors.selectedText};
+                  border: none;
+                  border-radius: 0.25rem;
+                  cursor: pointer;
+              `;
+  
+              confirmButton.addEventListener('click', () => {
+                  document.body.removeChild(modal);
+                  resolve({
+                      values: Array.from(currentlySelectedValues)
+                  });
+              });
+  
+              const cancelButton = document.createElement('button');
+              cancelButton.textContent = 'Cancelar';
+              cancelButton.style.cssText = `
+                  margin-top: 1rem;
+                  margin-left: 0.5rem;
+                  padding: 0.5rem 1rem;
+                  background-color: ${currentColors.cancelBg};
+                  color: ${currentColors.text};
+                  border: 1px solid ${currentColors.border};
+                  border-radius: 0.25rem;
+                  cursor: pointer;
+              `;
+  
+              cancelButton.addEventListener('click', () => {
+                  document.body.removeChild(modal);
+                  reject();
+              });
+  
+              // Agregar buscador, lista de opciones y botones
+              modalContent.appendChild(searchInput);
+              modalContent.appendChild(optionList);
+              modalContent.appendChild(confirmButton);
+              modalContent.appendChild(cancelButton);
+          } else {
+              // Modo single: buscador y opciones
+              modalContent.appendChild(searchInput);
+              modalContent.appendChild(optionList);
+          }
+  
+          // Agregar contenido al modal
+          modal.appendChild(modalContent);
+  
+          // Evento para cerrar al hacer clic fuera
+          modal.addEventListener('click', (event) => {
+              if (event.target === modal) {
+                  document.body.removeChild(modal);
+                  reject();
+              }
+          });
+  
+          // Prevenir que los clics dentro del contenido se propaguen y cierren el modal
+          modalContent.addEventListener('click', (event) => {
+              event.stopPropagation();
+          });
+  
+          // Agregar al documento
+          document.body.appendChild(modal);
+  
+          // Enfocar buscador al abrir
+          searchInput.focus();
+      });
+  }
     /**
      * Method to set external options
      * @param {Array} options - List of options with `value`, `label`, and optional `description`
@@ -937,19 +1002,46 @@ class DynamicForm extends HTMLElement {
       this.formConfig.darkMode = false;
       //this.emitchanges();
   }
+  reRender(initialData = null) {
+    // If initial data is provided, update the initial state
+    if (initialData) {
+        this.initialState = this._deepClone(initialData);
+        console.log("initialState", this.initialState, initialData, this._deepClone(initialData));
+        
+        // Update field values based on the new initial data  
+        this.fields.forEach(field => {
+            // Check if the field exists in the initial data
+            if (this.initialState[field.name] !== undefined) {
+                // Handle different field types
+                switch (field.type) {
+                    case 'checkbox':
+                        // Explicitly set checked state for checkboxes
+                        field.checked = !!this.initialState[field.name];
+                        break;
+                    case 'radio':
+                        // For radio buttons, set the value
+                        field.value = this.initialState[field.name];
+                        break;
+                    default:
+                        // For other field types, set the value
+                        field.value = this.initialState[field.name];
+                }
+                
+                console.log("restoreInitialState", field.name, this.initialState[field.name]);
+            }
+        });
+    }
 
-  /*     emitchanges(){
-      setInterval(() => {
-          this.dispatchEvent(new CustomEvent('allchanges', {
-          detail: this.getValues(),
-          bubbles: true,
-          composed: true
-      }));
-      }, 10000);
-  } */
-  _deepClone(obj) {
-      return JSON.parse(JSON.stringify(obj));
-  }
+    // Clear existing form and re-render
+    this.render();
+
+    return this;
+}
+
+// Helper method for deep cloning (if not already implemented)
+_deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
   addBeforeForm(elementConfig) {
       const defaultConfig = {
           type: 'div', // Tipo de elemento por defecto
@@ -1144,9 +1236,7 @@ class DynamicForm extends HTMLElement {
                   }
                   
                   // Agregar evento change para campos condicionales
-                  if (this.conditionalFields.has(field.name)) {
-                      radioInput.addEventListener('change', () => this.handleFieldChange(field.name, option.value));
-                  }
+                  radioInput.addEventListener('change', () => this.handleFieldChange(field.name, option.value));
                   
                   const radioLabel = document.createElement('label');
                   radioLabel.setAttribute('for', `${field.name}_${option.value}`);
@@ -1214,10 +1304,14 @@ class DynamicForm extends HTMLElement {
               if(field.placeholder) input.placeholder = field.placeholder;
               if(field.required) input.required = true;
               if(field.value) input.value = field.value;
+              if(field.checked) input.checked = field.checked;
               if(field.hidden) input.classList.add('hidden');
               if(field.readonly) input.readOnly = true;
               if(field.disabled) input.disabled = true;
               if(field.className) input.className = field.className;
+              setTimeout(() => {
+                if (input)this.handleFieldChange(field.name, field.checked || field.value);
+              }, 100);
               input.addEventListener('change', (e) => {
                   this.handleFieldChange(field.name, e.target.checked || e.target.value);
               });
@@ -1255,11 +1349,13 @@ class DynamicForm extends HTMLElement {
             case 'flexible-modal-selector':
                 // For flexible-modal-selector, parse the value
                 const rawValue = element.value;
-                if (rawValue) {
-                    values[field.name] = rawValue.includes(',') 
-                        ? rawValue.split(',').map(v => v.trim())  // Multiple values
-                        : rawValue;  // Single value
-                }
+                if (rawValue !== undefined && rawValue !== null) {
+                  values[field.name] = typeof rawValue === 'string' && rawValue.includes(',')
+                      ? rawValue.split(',').map(v => v.trim())  // Múltiples valores como cadena
+                      : Array.isArray(rawValue) 
+                          ? rawValue  // Ya es un arreglo
+                          : rawValue;  // Número u otro tipo, envuelto en un arreglo
+              }
                 break;
               case 'checkbox':
                   // Para checkboxes, usamos la propiedad checked
@@ -1322,7 +1418,7 @@ class DynamicForm extends HTMLElement {
   render() {
       this.form.removeEventListener('submit', this.boundHandleSubmit);
       this.form.innerHTML = '';
-
+      
       // Group fields by row
       const rowGroups = new Map();
       this.fields.forEach(field => {
@@ -1376,7 +1472,7 @@ class DynamicForm extends HTMLElement {
       this.form.appendChild(submitButton);
 
       this.form.addEventListener('submit', this.boundHandleSubmit);
-      this.fields.forEach(field => {
+/*       this.fields.forEach(field => {
         const inputs = this.form.querySelectorAll(`[name="${field.name}"]`);
         //console.log("input",input)
         inputs.forEach(input => {
@@ -1386,7 +1482,7 @@ class DynamicForm extends HTMLElement {
                });
            });
         })
-      });
+      }); */
       this.beforeFormElements.forEach(element => {
           this.form.appendChild(element);
       });
@@ -1492,31 +1588,6 @@ class DynamicForm extends HTMLElement {
       }));
   }
 
-  restoreInitialState() {
-      if (this.initialState) {
-          this.fields = this.fields.map(field => ({
-              ...field,
-              value: this.initialState[field.name] || '',
-              errorMessage: ''
-          }));
-          this.render();
-      }
-      return this;
-  }
-
-  setInitialState(data) {
-      this.initialState = this._deepClone(data);
-      return this.restoreInitialState();
-  }
-
-  hasChanges() {
-      if (!this.initialState) return true;
-      
-      const currentValues = this.getValues();
-      return Object.keys(this.initialState).some(key => 
-          this.initialState[key] !== currentValues[key]
-      );
-  }
 }
 
 customElements.define('dynamic-form', DynamicForm);
@@ -1929,8 +2000,8 @@ class CustomSelect extends HTMLElement {
                 const optionElement = document.createElement('div');
                 optionElement.classList.add('option');
                 
-                // Verificar si `option.image` es un SVG en texto
-                let imgSrc = option.image;
+                // Verificar si `option.image` es un SVG en texto (option.image || option.path).startsWith('http') ? (option.image || option.path) : `/media/${(option.image || option.path)}`
+                let imgSrc = option.image && option.image.startsWith('http') ? option.image : `/media/${option.image}`;
                 if (option.image && option.image.length > 50 && option.image.trim().startsWith('<svg')) {
                     // Crear un Blob para el SVG y generar una URL compatible
                     const svgBlob = new Blob([option.image], { type: 'image/svg+xml' });
@@ -3500,78 +3571,114 @@ class ResponsiveNavSidebar extends HTMLElement {
     constructor() {
         super();
         this.isOpen = false;
+        this.currentMode = 'dark'; // Default to dark mode
         this.onOpenCallback = null;
         this.onCloseCallback = null;
         
-        // Crear un shadow DOM para evitar conflictos de estilos
+        // Create shadow DOM
         this.attachShadow({ mode: 'open' });
         
-        // Crear estructura base del modal
+        // Create base modal structure
         const template = document.createElement('template');
-        template.innerHTML = `
+        template.innerHTML = /*html*/`
             <style>
-       :host {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            /* Agregamos la transición base */
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        /* Cuando está visible */
-        :host([visible]) {
-            opacity: 1;
-        }
-        .modal-content {
-            background: #1c1c1c;
-            padding: 0.5rem;
-            border-radius: 5px;
-            position: relative;
-            min-width: 300px;
-            max-height: 95dvh;
-            
-            opacity: 0;
-        }
-        :host([visible]) .modal-content {
-            transform: scale(1);
-            opacity: 1;
-        }
+                :host {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: opacity 0.5s ease;
+                }
+                :host([visible]) {
+                    opacity: 1;
+                }
+                .modal-content {
+                    padding: 1rem;
+                    border-radius: 8px;
+                    position: relative;
+                    min-width: 300px;
+                    max-height: 95dvh;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                    transform: scale(0.9);
+                }
+                :host([visible]) .modal-content {
+                    transform: scale(1);
+                    opacity: 1;
+                }
                 .modal-overlay {
                     position: fixed;
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: rgba(0, 0, 0, 0.5);
                     display: flex;
                     justify-content: center;
                     align-items: center;
+                    transition: background-color 0.3s ease;
                 }
+                
+                /* Dark Mode Styles */
+                :host(.dark-mode) .modal-overlay {
+                    background: rgba(0, 0, 0, 0.5);
+                }
+                :host(.dark-mode) .modal-content {
+                    background: #1c1c1c;
+                    color: #f4f4f4;
+                }
+                
+                /* Light Mode Styles */
+                :host(.light-mode) .modal-overlay {
+                    background: rgba(0, 0, 0, 0.3);
+                }
+                :host(.light-mode) .modal-content {
+                    background: #ffffff;
+                    color: #333;
+                    border: 1px solid #e0e0e0;
+                }
+                
                 .close-button {
                     position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    background-color: #dc3545;
+                    top: 1px;
+                    right: 1px;
+                    border: none;
+                    cursor: pointer;
                     width: 36px;
                     height: 36px;
+                    border-radius: 10%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 14px;
-                    padding: 0;
-                    border-radius: 25%;
+                    transition: all 0.3s ease;
                 }
-                .close-button:hover {
+                
+                /* Dark Mode Button */
+                :host(.dark-mode) .close-button {
+                    background-color: #dc3545;
+                    color: white;
+                }
+                :host(.dark-mode) .close-button:hover {
                     background-color: #c82333;
                 }
+                
+                /* Light Mode Button */
+                :host(.light-mode) .close-button {
+                    background-color: #f0f0f0;
+                    color: #333;
+                }
+                :host(.light-mode) .close-button:hover {
+                    background-color: #e0e0e0;
+                }
+                
                 .modal-body {
                     margin-top: 20px;
                 }
-                /* Slot styling */
+                
                 ::slotted(*) {
                     max-width: 100%;
                 }
@@ -3586,19 +3693,22 @@ class ResponsiveNavSidebar extends HTMLElement {
             </div>
         `;
 
-        // Agregar la estructura del modal al shadow DOM
+        // Add modal structure to shadow DOM
         this.shadowRoot.appendChild(template.content.cloneNode(true));
         
-        // Obtener referencias dentro del shadow DOM
+        // Get references within shadow DOM
         this.overlay = this.shadowRoot.querySelector('.modal-overlay');
         this.closeButton = this.shadowRoot.querySelector('.close-button');
         this.modalBody = this.shadowRoot.querySelector('.modal-body');
         
         this.setupEventListeners();
+        
+        // Set default to dark mode
+        this.setMode('dark');
     }
 
     connectedCallback() {
-        // No necesitamos hacer nada aquí ya que la estructura se crea en el constructor
+        // No additional setup needed in connectedCallback
     }
 
     setupEventListeners() {
@@ -3610,10 +3720,32 @@ class ResponsiveNavSidebar extends HTMLElement {
         });
     }
 
+    // New method to set mode
+    setMode(mode = 'dark') {
+        // Validate mode
+        if (!['dark', 'light'].includes(mode)) {
+            console.warn('Invalid mode. Using default dark mode.');
+            mode = 'dark';
+        }
+
+        // Remove existing mode classes
+        this.classList.remove('dark-mode', 'light-mode');
+        
+        // Add new mode class
+        this.classList.add(`${mode}-mode`);
+        this.currentMode = mode;
+    }
+
+    // Toggle between dark and light modes
+    toggleMode() {
+        const newMode = this.currentMode === 'dark' ? 'light' : 'dark';
+        this.setMode(newMode);
+    }
+
     open(onOpenCallback = null) {
         this.onOpenCallback = onOpenCallback;
         this.style.display = 'block';
-        // Forzamos un reflow
+        // Force reflow
         this.offsetHeight;
         this.setAttribute('visible', '');
         this.isOpen = true;
@@ -3625,33 +3757,31 @@ class ResponsiveNavSidebar extends HTMLElement {
 
     close(onCloseCallback = null) {
         this.onCloseCallback = onCloseCallback;
-        this.style.display = 'none';
-        this.isOpen = false;
         this.removeAttribute('visible');
-        // Esperamos a que termine la animación
+        this.isOpen = false;
+        
+        // Wait for transition to complete
         setTimeout(() => {
             this.style.display = 'none';
             this.isOpen = false;
             if (this.onCloseCallback) {
                 this.onCloseCallback();
             }
-        }, 300); // Mismo tiempo que la transición
+        }, 300); // Same as transition time
     }
 
-    // Método mejorado para agregar contenido
     appendChild(element) {
-        // Asegurarse de que el elemento se agregue al light DOM
+        // Ensure element is added to light DOM
         super.appendChild(element);
     }
 
-    // Método para limpiar y establecer nuevo contenido
     setContent(content) {
-        // Limpiar el contenido actual
+        // Clear current content
         while (this.firstChild) {
             this.removeChild(this.firstChild);
         }
 
-        // Agregar el nuevo contenido
+        // Add new content
         if (typeof content === 'string') {
             const div = document.createElement('div');
             div.innerHTML = content;
@@ -3666,7 +3796,6 @@ class ResponsiveNavSidebar extends HTMLElement {
     }
 }
 
-// Registrar el componente
 customElements.define('custom-modal', CustomModal);
 
 class CustomButton extends HTMLElement {
@@ -6869,22 +6998,35 @@ class DonationAlert extends HTMLElement {
 
   renderMediaGrid(items, type, theme) {
     const isVideo = type === 'video';
+    const isAudio = type === 'audio';
     const columns = Math.min(items.length, 2);
 
     return `
       <div class="media-grid columns-${columns}">
         ${items.map(src => {
           const sanitizedSrc = src.startsWith('http') ? src : `/media/${src}`;
-          return isVideo ? `
-            <video autoplay loop muted class="media-item">
-              <source src="${sanitizedSrc}" type="video/mp4">
-            </video>
-          ` : `
-            <img src="${sanitizedSrc}" alt="Donation media" class="media-item" />
-          `;
+          
+          if (isVideo) {
+            return `
+              <video autoplay loop muted class="media-item">
+                <source src="${sanitizedSrc}" type="video/mp4">
+              </video>
+            `;
+          } else if (isAudio) {
+            return `
+              <audio controls class="media-item">
+                <source src="${sanitizedSrc}" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            `;
+          } else {
+            return `
+              <img src="${sanitizedSrc}" alt="Donation media" class="media-item" />
+            `;
+          }
         }).join('')}
       </div>
-    `;
+      `;
   }
   getallTypesrender(){
       return ['multi-image','video-grid','image-grid','video-image','image','video','text']
@@ -7054,3 +7196,378 @@ class DonationAlert extends HTMLElement {
 }
 
 customElements.define('donation-alert', DonationAlert);
+class WindowManager extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.windows = new Map();
+  }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = /*html */`
+      <style>
+        :host {
+          display: block;
+          font-family: Arial, sans-serif;
+        }
+        .window-list {
+          display: grid;
+          gap: 1rem;
+        }
+        .window-card {
+          background-color: #2d3748;
+          border-radius: 0.5rem;
+          padding: 1rem;
+          color: white;
+        }
+        .window-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+        .window-header h3 {
+          font-size: 1.125rem;
+          font-weight: 600;
+        }
+        .close-btn {
+          color: #ef4444;
+          cursor: pointer;
+        }
+        .close-btn:hover {
+          color: #dc2626;
+        }
+        .option-label {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+        .option-label input {
+          margin-right: 0.5rem;
+        }
+      </style>
+      <div class="window-list" id="windowsList"></div>
+    `;
+  }
+
+  addWindow(id, config) {
+    // Validate config
+    const defaultConfig = {
+      url: 'New Window',
+      alwaysOnTop: false,
+      transparent: false,
+      ignoreMouseEvents: false
+    };
+    const mergedConfig = { ...defaultConfig, ...config };
+
+    // Create window card
+    const card = document.createElement('div');
+    card.className = 'window-card';
+    card.innerHTML = `
+      <div class="window-header">
+        <h3>${mergedConfig.url}</h3>
+        <button class="close-btn" data-id="${id}">Cerrar</button>
+      </div>
+      <div class="window-options">
+        <label class="option-label">
+          <input type="checkbox" 
+            ${mergedConfig.alwaysOnTop ? 'checked' : ''} 
+            data-property="alwaysOnTop" 
+            data-id="${id}">
+          Siempre Visible
+        </label>
+        <label class="option-label">
+          <input type="checkbox" 
+            ${mergedConfig.transparent ? 'checked' : ''} 
+            data-property="transparent" 
+            data-id="${id}">
+          Transparente
+        </label>
+        <label class="option-label">
+          <input type="checkbox" 
+            ${mergedConfig.ignoreMouseEvents ? 'checked' : ''} 
+            data-property="ignoreMouseEvents" 
+            data-id="${id}">
+          Ignorar Mouse
+        </label>
+      </div>
+    `;
+
+    // Add event listeners
+    card.querySelector('.close-btn').addEventListener('click', this.closeWindow.bind(this));
+    card.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', this.updateWindow.bind(this));
+    });
+
+    // Store window config and append card
+    this.windows.set(id, mergedConfig);
+    this.shadowRoot.getElementById('windowsList').appendChild(card);
+  }
+
+  updateWindow(event) {
+    const checkbox = event.target;
+    const id = checkbox.dataset.id;
+    const property = checkbox.dataset.property;
+    
+    // Get current config and update
+    const currentConfig = this.windows.get(id) || {};
+    const newConfig = { 
+      ...currentConfig, 
+      [property]: checkbox.checked 
+    };
+
+    // Update local map
+    this.windows.set(id, newConfig);
+
+    // Dispatch custom event for external handling
+    this.dispatchEvent(new CustomEvent('window-update', {
+      detail: { id, config: newConfig }
+    }));
+  }
+
+  closeWindow(event) {
+    const id = event.target.dataset.id;
+    
+    // Remove from map
+    this.windows.delete(id);
+
+    // Remove from DOM
+    event.target.closest('.window-card').remove();
+
+    // Dispatch custom event for external handling
+    this.dispatchEvent(new CustomEvent('window-close', {
+      detail: { id }
+    }));
+  }
+  deleteWindow(id) {
+    // Remove from windows map
+    this.windows.delete(id);
+  
+    // Find and remove the corresponding HTML element
+    const windowsList = this.shadowRoot.getElementById('windowsList');
+    const windowCard = windowsList.querySelector(`.window-card [data-id="${id}"]`)?.closest('.window-card');
+    
+    if (windowCard) {
+      windowCard.remove();
+  
+      // Dispatch a custom event to notify external listeners
+      this.dispatchEvent(new CustomEvent('window-close', {
+        detail: { id }
+      }));
+    }
+  }
+  // Method to get all current windows
+  getWindows() {
+    return Array.from(this.windows.entries());
+  }
+}
+
+// Define the custom element
+customElements.define('window-manager', WindowManager);
+class PreviewWebComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.iframe = null;
+    this.linkInput = null;
+  }
+
+  static get observedAttributes() {
+    return ['link', 'showpreview', 'mute'];
+  }
+
+  connectedCallback() {
+    this.render();
+    this.linkInput = this.shadowRoot.querySelector('#linkInput');
+    this.copyButton = this.shadowRoot.querySelector('#copyButton');
+    this.togglePreviewButton = this.shadowRoot.querySelector('#togglePreviewButton');
+
+    this.copyButton.addEventListener('click', this.copyLink.bind(this));
+    this.togglePreviewButton.addEventListener('click', this.togglePreview.bind(this));
+
+    this.showpreview = this.hasAttribute('showpreview') ? this.getAttribute('showpreview') === 'true' : false;
+    this.link = this.getAttribute('link') || '';
+    this.mute = this.hasAttribute('mute') ? this.getAttribute('mute') === 'true' : false;
+
+    if (this.showpreview) {
+      this.createIframe();
+    }
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'showpreview' && newValue !== oldValue) {
+      if (newValue === 'true') {
+        this.createIframe();
+      } else {
+        this.removeIframe();
+      }
+    }
+
+    if (name === 'link' && newValue !== oldValue) {
+      this.setLink(newValue);
+    }
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          font-family: Arial, sans-serif;
+          background-color: #fff;
+          color: black;
+        }
+        iframe {
+          width: 100%;
+          height: 400px;
+          border-radius: 8px;
+        }
+        #linkInput {
+          width: auto;
+          margin-bottom: 10px;
+          padding: 10px;
+          background: #f9f9f9;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 16px;
+        }
+        button {
+          margin-top: 10px;
+          padding: 8px 16px;
+          border: 1px solid #007BFF;
+          background-color: #007BFF;
+          color: white;
+          font-size: 14px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        button:hover {
+          background-color: #0056b3;
+          border-color: #0056b3;
+        }
+        button:focus {
+          outline: none;
+          box-shadow: 0 0 3px 3px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Dark Mode Styles */
+        :host([theme="dark"]) {
+          background-color: #333;
+          color: white;
+        }
+
+        :host([theme="dark"]) button {
+          background-color: #444;
+          border-color: #666;
+        }
+
+        :host([theme="dark"]) button:hover {
+          background-color: #222;
+          border-color: #444;
+        }
+
+        :host([theme="dark"]) #linkInput {
+          background: #555;
+          color: white;
+          border-color: #777;
+        }
+
+        :host([theme="dark"]) iframe {
+          border: none;
+        }
+      </style>
+      <input id="linkInput" type="text" value="${this.link}" disabled>
+      <button id="copyButton">Copy Link</button>
+      <button id="togglePreviewButton">Toggle Preview</button>
+    `;
+  }
+
+  createIframe() {
+    if (!this.iframe) {
+      this.iframe = document.createElement('iframe');
+      this.iframe.src = this.link;
+      this.iframe.muted = this.mute;
+      this.shadowRoot.appendChild(this.iframe);
+      this.dispatchEvent(new CustomEvent('linkchanged', {
+        detail: { link: this.link }
+      }));
+    }
+  }
+
+  removeIframe() {
+    if (this.iframe) {
+      this.iframe.remove();
+      this.iframe = null;
+    }
+  }
+
+  setLink(link) {
+    this.link = link;
+    if (this.linkInput) {
+      this.linkInput.value = this.link;
+    }
+    if (this.iframe) {
+      this.iframe.src = this.link;
+    }
+  }
+
+  showpreview(show) {
+    this.showpreview = show;
+    this.setAttribute('showpreview', show ? 'true' : 'false');
+  }
+
+  changeLink(newLink) {
+    this.setLink(newLink);
+    this.dispatchEvent(new CustomEvent('linkchanged', {
+      detail: { link: newLink }
+    }));
+  }
+
+  copyLink() {
+    navigator.clipboard.writeText(this.link)
+      .then(() => {
+        console.log('Link copied to clipboard');
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+  }
+
+  toggletheme(theme) {
+    if (theme === 'dark') {
+      this.setAttribute('theme', 'dark');
+    } else {
+      this.removeAttribute('theme');
+    }
+  }
+
+  togglePreview() {
+    this.showpreview = !this.showpreview;
+    this.setAttribute('showpreview', this.showpreview ? 'true' : 'false');
+    if (this.showpreview) {
+      this.createIframe();
+    } else {
+      this.removeIframe();
+    }
+  }
+
+  updateButtonText(copyText, toggleText) {
+    if (this.copyButton) {
+      this.copyButton.textContent = copyText;
+    }
+    if (this.togglePreviewButton) {
+      this.togglePreviewButton.textContent = toggleText;
+    }
+  }
+}
+
+customElements.define('preview-webcomponent', PreviewWebComponent);

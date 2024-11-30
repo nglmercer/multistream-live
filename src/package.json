@@ -1,0 +1,23 @@
+{
+  "name": "electron-bootstrap",
+  "description": "react-declarative electron app bootstrap",
+  "type": "commonjs",
+  "author": {
+    "name": "Petr Tripolsky",
+    "email": "tripolskypetr@gmail.com",
+    "url": "https://github.com/react-declarative/react-declarative"
+  },
+  "main": "./main.js",
+  "version": "1.0.0",
+  "devDependencies": {
+    "electron": "31.4.0"
+  },
+  "dependencies": {
+    "serve-handler": "6.1.5",
+    "axios": "^1.7.7",
+    "express": "^4.21.0",
+    "nodedb-json": "^1.0.0",
+    "socket.io": "^4.8.0",
+    "tiktok-live-connector": "^1.2.0"
+  }
+}

@@ -1,6 +1,6 @@
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { databases, IndexedDBManager, DBObserver } from '../database/indexdb.js'
-import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects,UserInteractionTracker } from '../utils/utils.js'
+import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects,UserInteractionTracker, unflattenObject, flattenObject } from '../utils/utils.js'
 import showAlert from '../components/alerts.js';
 import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
 import { getTranslation, translations } from '../translations.js';
@@ -51,7 +51,7 @@ function getallfilesmap(objetc) {
   try {
     console.log("files",objetc);
     const filesmap = objetc.map(file => ({
-      value: file.nombre,
+      value: file.id,
       label: file.nombre,
       path: file.path,
       mediaType: file.mediaType || file.type,
@@ -71,12 +71,12 @@ const actionsconfig = {
     type: 'text',
     returnType: 'string',
   },
-  color: {
+/*   color: {
     class: 'input-default',
     label: 'color',
     type: 'color',
     returnType: 'string',
-  },
+  }, */
   minecraft:{
     type: 'object',
     label: 'Minecraft Comands',
@@ -119,8 +119,15 @@ const actionsconfig = {
     src:{
       class: 'input-default',
       type: 'multiSelect',
+      mode: 'multi',
       returnType: 'array',
       options: getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))) ,
+    },
+    content: {
+      class: 'input-default',
+      type: 'text',
+      returnType: 'string',
+      label: 'content',
     },
     duration: {
       class: 'input-default',
@@ -148,7 +155,7 @@ const actionsconfig = {
   save: {
     class: 'default-button',
     type: 'button',
-    label: getTranslation('savechanges'),
+    label: getTranslation('edit'),
     callback: async (data,modifiedData,value) => {
       console.log("data",data,modifiedData,value)
       const alldata = await ActionsManager.getAllData()
@@ -186,7 +193,139 @@ const actionsconfig = {
     returnType: 'number',
     hidden: true,
   }
-} 
+}
+const newmodalaction = document.getElementById('actionformModal')
+
+const newactionform = document.createElement('dynamic-form');
+        newactionform.initialize()
+            .addField({
+                type: 'text',
+                name: 'nombre',
+                label: 'nombre de la accion',
+                value: 'nombre de la accion',
+            })
+            .addField({
+                type: 'checkbox',
+                name: 'minecraft_check',
+                label: 'minecraft',
+                checked: false,
+            })
+            .addField({
+              type: 'textarea',
+              name: 'minecraft_command',
+              placeholder: 'command',
+              label: 'command',
+              value: 'command',
+              showWhen: {
+                field: 'minecraft_check',
+                value: true
+              }
+            })
+            .addField({
+                type: 'checkbox',
+                name: 'tts_check',
+                label: 'tts',
+                checked: false,
+            })
+            .addField({
+                type: 'textarea',
+                name: 'tts_text',
+                label: 'texto a leer',
+                value: 'texto a leer',
+                placeholder: 'texto a leer',
+                showWhen: {
+                  field: 'tts_check',
+                  value: true
+                }
+            })
+            .addField({
+                type: 'number',
+                name: 'id',
+                label: '',
+                hidden: true,
+            })
+            .addField({
+                type: 'checkbox',
+                name: 'overlay_check',
+                label: 'overlay',
+                checked: false,
+            })
+            .addField({
+                type: 'flexible-modal-selector',
+                name: 'overlay_src',
+                label: 'overlay',
+                mode: 'multi',
+                options: getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))),
+                showWhen: {
+                  field: 'overlay_check',
+                  value: true
+                }
+            })
+            .addField(
+              {
+                type: 'text',
+                name: 'overlay_content',
+                label: 'content',
+                value: 'default text',
+                placeholder: 'default text',
+                showWhen: {
+                  field: 'overlay_check',
+                  value: true
+                }
+              }
+            )
+            .addField({
+              type: 'number',
+              name: 'overlay_duration',
+              placeholder: '60',
+              label: 'duration',
+              value: 60,
+              showWhen: {
+                field: 'overlay_check',
+                value: true
+              }
+            })
+            .render()
+            .toggleDarkMode(true);
+/* setTimeout(() => {
+  newactionform.reRender(testdata);
+}, 1000); */
+newactionform.addEventListener('form-submit', async (e) => {
+  console.log('Datos modificados:', e.detail);
+/*   newmodalaction.close();
+ */ 
+    console.log("data",e.detail)
+    const modifiedData = unflattenObject(e.detail);
+    console.log("modifiedData",modifiedData, flattenObject(modifiedData))
+    const alldata = await ActionsManager.getAllData()
+    const keysToCheck = [
+      { key: 'nombre', compare: 'isEqual' },
+    ];
+    const callbackFunction = (matchingObject, index, results) => {
+      console.log(`Objeto coincidente encontrado en el índice ${index}:`, matchingObject, results);
+    };
+    const primerValor = objeto => Object.values(objeto)[0];
+    const primeraKey = objeto => Object.keys(objeto)[0];
+  
+    const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
+    console.log("results",results)
+    if (!results.validResults.length >= 1 && !modifiedData.id)  {
+      newmodalaction.close();
+      ActionsManager.saveData(modifiedData)
+      showAlert('success','Se ha guardado el evento')
+    } else if (modifiedData.id && results.validResults.length <= 1){
+      newmodalaction.close();
+      ActionsManager.updateData(modifiedData)
+      showAlert('success','Se ha guardado el evento')
+    } else {
+      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`)
+    }
+  
+});
+newactionform.addEventListener('form-change', (e) => {
+  console.log('Form values changed:', e.detail);
+});
+newmodalaction.appendChild(newactionform);
 //console.log(mapgetAllscenesScenenameSceneindex(getlastdatafromstorage("getScenesList",[])?.scenes),"mapgetAllscenesScenenameSceneindex");
 function getlastdatafromstorage(key,type=[]) {
     console.log("getlastdatafromstorage",JSON.parse(localStorage.getItem(key)),key);
@@ -263,7 +402,6 @@ async function returnlistofinputs(arrayinputs) {
 }
 
 const ActionModal = document.getElementById('ActionModal');
-const Buttonform  = document.getElementById('ActionModalButton');
 const testdata = {
   nombre: getTranslation('nombre de la accion'),
   color: "#000000",
@@ -288,26 +426,19 @@ const testdata = {
   },
   id: undefined,
 }
-const Aformelement = new EditModal(actionsconfig,testdata);
+/* const Aformelement = new EditModal(actionsconfig,testdata);
 const HtmlAformelement = Aformelement.ReturnHtml(testdata);
-document.querySelector('#ActionModalContainer').appendChild(HtmlAformelement);
-Buttonform.className = 'open-modal-btn';
-Buttonform.onclick = () => {
-  updatemodaldata(testdata)
-  ActionModal.open();
-};
-function updatemodaldata(data = testdata) {
-  Aformelement.updateData(data)
-}
+document.querySelector('#ActionModalContainer').appendChild(HtmlAformelement); */
+
 
 /*tabla de Actions para modificar y renderizar todos los datos*/
 
 const tableconfigcallback = {
   callback: async (data,modifiedData) => {
-    console.log("callbacktable",data,modifiedData);
-    Aformelement.ReturnHtml(actionsconfig);
-    Aformelement.updateData(modifiedData)
-    ActionModal.open();
+    const rawdata = flattenObject(modifiedData);
+    console.log("callbacktable",rawdata);
+    newactionform.reRender(rawdata);
+    newmodalaction.open();  
   },
   deletecallback:  async (data,modifiedData) => {
     const index = await table.getRowIndex(data);
@@ -368,7 +499,7 @@ const tablereplacements = [
   },
   {
     path: 'save.label',
-    value: getTranslation('savechanges')
+    value: getTranslation('edit')
   },
   {
     path: 'close.label',

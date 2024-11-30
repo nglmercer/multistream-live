@@ -1,4 +1,4 @@
-import { WebcastPushConnection, signatureProvider } from 'tiktok-live-connector';
+/* import { WebcastPushConnection, signatureProvider } from 'tiktok-live-connector';
 import  { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'url';
 import path, { join, dirname } from 'node:path';
@@ -9,10 +9,23 @@ import http from 'http';
 import cors from 'cors';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-import WindowManager from './features/window-manager.js';
+import WindowManager from './features/window-manager.js'; */
+const WindowManager = require('./features/window-manager.js');
+const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
+const { app, BrowserWindow, ipcMain } = require('electron');
+const { fileURLToPath } = require('url');
+const path = require('node:path');
+const fs = require('node:fs');
+const express = require('express');
+const { Server } = require('socket.io');
+const http = require('http');
+const cors = require('cors');
 const windowManager = new WindowManager();
 const essapp = express();
 essapp.use(cors());
+const uri = path.join(__dirname, 'public');
+
+console.log(uri);console.log(uri);
 const httpServer = http.createServer(essapp);
 const io = new Server(httpServer, {
     cors: {
@@ -21,7 +34,7 @@ const io = new Server(httpServer, {
     }
   });
 const port = parseInt(process.env.PORT) || 9000;
-essapp.use(express.static('public'));
+essapp.use(express.static(uri));
 class RoomManager {
     constructor(io) {
       this.io = io;
@@ -120,7 +133,7 @@ essapp.get('/media/*', (req, res) => {
 function createWindow () {
     const mainWindow = new BrowserWindow({
       webPreferences: {
-        preload: join(__dirname, 'preload.js'), // Ruta absoluta al archivo preload        sandbox: false,
+        preload: path.join(__dirname, 'preload.js'), // Ruta absoluta al archivo preload        sandbox: false,
       },
     });
     const url = `http://localhost:${port}`

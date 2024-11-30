@@ -200,7 +200,8 @@
     border-color: #4CAF50;
     background-color: #4CAF50;
 }
-div#table-containerAction {
+
+.dynamic-table1 {
   overflow-x: auto;
 }
 .grid-container {

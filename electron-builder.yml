@@ -1,0 +1,22 @@
+appId: com.example.myapp
+productName: MyApp
+directories:
+  output: build
+  app: src
+files:
+  - filter:
+      - '**'
+extraResources:
+  - from: "lib"
+    to: ""
+win:
+  target:
+    - msi
+    - zip
+  icon: "./images/logo.png"
+linux:
+  target:
+    - AppImage
+    - deb
+  icon: "./images/logo.png"
+  category: "Utility"

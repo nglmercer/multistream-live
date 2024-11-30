@@ -748,7 +748,11 @@ table {
 .tab-button.active, [data-tab-button].active {
   background: #646cff;
 }
-
+.flex-wrap {
+  display: flex;  
+  flex-wrap: wrap;
+  flex-flow: wrap-reverse;
+}
 .external-buttons {
   display: flex;
   flex-wrap: wrap;
