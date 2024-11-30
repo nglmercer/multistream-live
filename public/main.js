@@ -722,8 +722,8 @@ function processAction(data,userdata) {
   }
 }
 const processActioncallbacks = {
-/*   minecraft: (data,userdata) => handleMinecraft(data,userdata),
-  tts: (data,userdata) => handletts(data,userdata), */
+  minecraft: (data,userdata) => handleMinecraft(data,userdata),
+  tts: (data,userdata) => handletts(data,userdata),
   overlay: (data,userdata) => handleOverlay(data,userdata),
 }
 async function Actionsprocessmanager(id,userdata) {
