@@ -123,6 +123,12 @@ const actionsconfig = {
       returnType: 'array',
       options: getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))) ,
     },
+    content: {
+      class: 'input-default',
+      type: 'text',
+      returnType: 'string',
+      label: 'content',
+    },
     duration: {
       class: 'input-default',
       type: 'number',
@@ -207,6 +213,7 @@ const newactionform = document.createElement('dynamic-form');
             .addField({
               type: 'textarea',
               name: 'minecraft_command',
+              placeholder: 'command',
               label: 'command',
               value: 'command',
               showWhen: {
@@ -225,6 +232,7 @@ const newactionform = document.createElement('dynamic-form');
                 name: 'tts_text',
                 label: 'texto a leer',
                 value: 'texto a leer',
+                placeholder: 'texto a leer',
                 showWhen: {
                   field: 'tts_check',
                   value: true
@@ -253,9 +261,23 @@ const newactionform = document.createElement('dynamic-form');
                   value: true
                 }
             })
+            .addField(
+              {
+                type: 'text',
+                name: 'overlay_content',
+                label: 'content',
+                value: 'default text',
+                placeholder: 'default text',
+                showWhen: {
+                  field: 'overlay_check',
+                  value: true
+                }
+              }
+            )
             .addField({
               type: 'number',
               name: 'overlay_duration',
+              placeholder: '60',
               label: 'duration',
               value: 60,
               showWhen: {

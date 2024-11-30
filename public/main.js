@@ -763,23 +763,35 @@ async function handleOverlay(data, userdata) {
   console.log("overlay", data, userdata);
 
   if (data?.check) {
-    const content = userdata.comment || userdata.giftName;
+    const content = replaceVariables(data.content, userdata);
+    console.log("content", content);
 
     if (data.src && data.src.length > 0) {
+      // Crear un array inicial para los elementos que no dependen de promesas
       let srcArray = [];
 
+      if (userdata.profilePictureUrl) {
+        srcArray.push({
+          nombre: userdata.nickname || userdata.uniqueId,
+          path: userdata.profilePictureUrl || userdata.imageUrl || "https://picsum.photos/200/200",
+          mediaType: 'image/png',
+        });
+      }
+
       if (Array.isArray(data.src)) {
-        // Procesar todos los src en paralelo y agrupar en un array
-        srcArray = await Promise.all(
-          data.src.map(async (src) => {
-            const filedata = await overlayfilesmanager.get(src);
-            return {
-              nombre: filedata.nombre,
-              path: filedata.path,
-              mediaType: filedata.mediaType || filedata.type,
-            };
-          })
-        );
+        // Crear un array de promesas para resolver
+        const srcPromises = data.src.map(async (src) => {
+          const filedata = await overlayfilesmanager.get(src);
+          return {
+            nombre: filedata.nombre,
+            path: filedata.path,
+            mediaType: filedata.mediaType || filedata.type,
+          };
+        });
+
+        // Resolver las promesas y agregar sus resultados al array inicial
+        const resolvedSrcs = await Promise.all(srcPromises);
+        srcArray = srcArray.concat(resolvedSrcs);
       } else {
         // Procesar un único src
         const filedata = await overlayfilesmanager.get(data.src);
@@ -822,5 +834,5 @@ function mapdatatooverlay(data,duration,content) {
 }
 // processActioncallbacks
 setTimeout(() => {
-  HandleAccionEvent('gift',{nombre: "coloca tu nombre",eventType: "gift",chat: "default text",like: 10,gift: 5655,Actions: [8],id: undefined})
+  HandleAccionEvent('gift',{eventType: "gift",chat: "default text",like: 10,gift: 5655,uniqueId: "123123",profilePictureUrl: "https://picsum.photos/200/200",Actions: [],id: undefined})
 }, 1000);
