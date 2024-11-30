@@ -7,7 +7,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
   },
   "author": "melser",
   "license": "Apache-2.0",
@@ -15,13 +16,14 @@
     "axios": "^1.7.7",
     "express": "^4.21.0",
     "import": "^0.0.6",
+    "nodedb-json": "^1.0.0",
     "socket.io": "^4.8.0",
-    "tiktok-live-connector": "^1.2.0",
-    "nodedb-json": "^1.0.0"
+    "tiktok-live-connector": "^1.2.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
+    "electron-builder": "^25.1.8",
     "electron": "^33.2.0",
+    "nodemon": "^3.0.1",
     "tailwindcss": "^3.4.15"
   }
 }
