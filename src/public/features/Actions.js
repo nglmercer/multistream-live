@@ -196,6 +196,10 @@ const actionsconfig = {
 }
 const newmodalaction = document.getElementById('actionformModal')
 
+
+/* document.getElementById('dropzone').addEventListener('change', (event) => {
+  console.log('File dropped: change', event.detail);
+}); */
 const newactionform = document.createElement('dynamic-form');
         newactionform.initialize()
             .addField({

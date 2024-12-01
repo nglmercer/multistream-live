@@ -1123,6 +1123,23 @@ class ArrayManagerUI {
       return { loadItems, addItem: handleAddItem, addDefault: handleAddDefault };
   }
 }
-
-export {LocalStorageManager,unflattenObject, flattenObject, Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI };
+function getallfilesmap(objetc) {
+  try {
+    logger.log("renderhtml","getallfilesmap",objetc);
+    const filesmap = objetc.map(file => ({
+      value: file.id,
+      label: file.nombre,
+      path: file.path,
+      mediaType: file.mediaType || file.type,
+      mediaUrl: file.mediaUrl || file.path,
+      id: file.id,
+    }));
+    logger.log("renderhtml","filesmap",filesmap);
+    return filesmap;
+  } catch (error) {
+    console.error('Error getting all files:', error);
+    return {};
+  }
+}
+export {LocalStorageManager,unflattenObject, flattenObject, Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI,getallfilesmap };
   

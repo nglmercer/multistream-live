@@ -152,6 +152,9 @@
           <custom-modal modal-type="form" id="windowModal">
               <div id="formmodal"></div>
           </custom-modal>
+          <script type="module">
+            //document.getElementById("windowModal").open();
+          </script>
           <custom-modal modal-type="form" id="eventformModal">
               <div id="eventformmodal"></div>
           </custom-modal>
@@ -173,6 +176,25 @@
               </custom-tabs>
               <div id="container123"></div>
           </custom-modal>
+          <script type="module">
+            setTimeout(() => {
+/*          
+            document.querySelectorAll('flexible-modal-selector').forEach(selector => {
+                console.log("selector",selector);
+                // if selector id is overlaysrc
+                if (selector.id === 'overlay'){
+                  console.log("selector overlay",selector);
+                } 
+            }); */
+              document.querySelectorAll('dynamic-form').forEach(modal => {
+                console.log("modal123",modal);
+                const shadow = modal.shadowRoot;
+                console.log("shadow",shadow);
+                const selectcomponent = shadow.querySelectorAll('flexible-modal-selector');
+                console.log(selectcomponent)
+              });
+            }, 4444);
+          </script>
         </div>
     </responsive-nav-sidebar>
 

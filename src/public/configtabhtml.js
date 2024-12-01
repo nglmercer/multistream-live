@@ -3,6 +3,8 @@ import { htmlminecraft } from './features/Minecraftconfig.js';
 //import { htmlobselement } from './features/obcontroller.js';
 import { getTranslation, translations } from './translations.js';
 import socketManager , { socketurl } from "./server/socketManager.js";
+import { LocalStorageManager,getallfilesmap } from './utils/utils.js';
+const filescontent = new LocalStorageManager('filePaths');
 const tabs = document.querySelector('custom-tabs');
 socketManager.emitMessage("join-room", "sala1");
 /* socketManager.onMessage("QRCode", (data) => {
@@ -45,6 +47,7 @@ const windowsList = document.getElementById('windowsList');
 function generatedropelement() {
     const div = document.createElement('div');
     const dropzone = document.createElement('drag-and-drop');
+    dropzone.id = "dropzone";
     const GridContainer = document.createElement('grid-container');
     GridContainer.id = "myGrid";
     
@@ -56,8 +59,36 @@ function generatedropelement() {
     });
     GridContainer.toggleDarkMode(true);
     GridContainer.addEventListener('itemRemoved', (event) => {
-        console.log('Elemento eliminado:', event.detail.id);
+        console.log('Elemento eliminado:', event.detail);
+        const id = event.detail.id.split("-");
+        console.log("id",id);
+        filescontent.remove(id[1]);
+        setTimeout( async () => {
+          const allfiles = await filescontent.getAll();
+          updateoptions(allfiles);
+        }, 1000);
+/*         filescontent.delete(event.detail.id);
+ */        
     });
+    GridContainer.addEventListener('change', async (event) => {
+        console.log('File dropped:', event.detail);
+        setTimeout( async () => {
+          const allfiles = await filescontent.getAll();
+          updateoptions(allfiles);
+        }, 1000);
+        
+    });
+/*     setTimeout(() => {
+      document.getElementById('dropzone').addEventListener('itemRemoved', (event) => {
+        console.log('Elemento eliminado:', event.detail);
+      });
+      document.querySelector('drag-and-drop').addEventListener('itemRemoved', (event) => {
+        console.log('Elemento eliminado:', event.detail);
+      });
+      document.getElementById('dropzone').addEventListener('change', (event) => {
+        console.log('File dropped: change', event.detail);
+      });
+    }, 4444); */
     GridContainer.addEventListener('itemClick', (event) => {
         console.log('Elemento clickeado:', event.detail);
         const mapconfig = mapdatatooverlay(event.detail.additionalData);
@@ -65,6 +96,36 @@ function generatedropelement() {
     });
     addfilesitems(GridContainer);
     return div;
+}
+function updateoptions(data) {
+  console.log("updateoptions",data);
+  const optionsmap = getallfilesmap(data);
+  console.log("optionsmap",optionsmap);
+  document.querySelectorAll('dynamic-form').forEach(modal => {
+    //console.log("modal123",modal);
+    const shadow = modal.shadowRoot;
+    //console.log("shadow",shadow);
+    const selectcomponent = shadow.querySelectorAll('flexible-modal-selector');
+    //console.log(selectcomponent)
+    selectcomponent.forEach(selector => {
+      console.log("selector",selector);
+      // if selector id is overlaysrc
+      if (selector.id === 'overlay_src' || selector.name === 'overlay_src'){
+        selector.setOptions(optionsmap);
+        console.log("selector overlay",selector);
+        //selector.setOptions(getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))));
+      } 
+    });
+  });
+  document.querySelectorAll('flexible-modal-selector').forEach(selector => {
+    console.log("selector",selector);
+    // if selector id is overlaysrc
+    if (selector.id === 'overlay_src' || selector.name === 'overlay_src'){
+      selector.setOptions(optionsmap);
+      console.log("selector overlay",selector);
+      //selector.setOptions(getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))));
+    } 
+  });
 }
 function mapdatatooverlay(data) {
   const config = {
@@ -192,51 +253,17 @@ socketManager.on('window-updated', (data) => {
 });
 function createWindowCard(id, config) {
   return windowManager.addWindow(id, config);  
-    const card = document.createElement('div');
-    card.className = 'bg-gray-800 p-4 rounded-lg';
-    card.innerHTML = `
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">${config.url}</h3>
-        <button class="text-red-500 hover:text-red-600" onclick="closeWindow('${id}')">
-          Cerrar
-        </button>
-      </div>
-      <div class="space-y-2">
-        <label class="flex items-center">
-          <input type="checkbox" ${config.alwaysOnTop ? 'checked' : ''}
-                 onchange="updateWindow('${id}', 'alwaysOnTop', this.checked)"
-                 class="mr-2">
-          Siempre Visible
-        </label>
-        <label class="flex items-center">
-          <input type="checkbox" ${config.transparent ? 'checked' : ''}
-                 onchange="updateWindow('${id}', 'transparent', this.checked)"
-                 class="mr-2">
-          Transparente
-        </label>
-        <label class="flex items-center">
-          <input type="checkbox" ${config.ignoreMouseEvents ? 'checked' : ''}
-                 onchange="updateWindow('${id}', 'ignoreMouseEvents', this.checked)"
-                 class="mr-2">
-          Ignorar Mouse
-        </label>
-      </div>
-    `;
-    return card;
   }
   windowManager.addEventListener('window-update', (event) => {
     const { id, config } = event.detail;
     console.log('Window updated:', id, config);
-    // You can add your socketManager.emitMessage() here
     socketManager.emitMessage('update-window', { id, config: config });
   });
 
-  // Listen for window close events
   windowManager.addEventListener('window-close', (event) => {
     const { id } = event.detail;
     console.log('Window closed:', id);
     socketManager.emitMessage('close-window', id);
-    // You can add your socketManager.emitMessage() here
   });
 /*   window.updateWindow = (id, property, value) => {
     const currentConfig = windows.get(id) || {};

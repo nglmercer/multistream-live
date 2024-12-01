@@ -693,21 +693,21 @@ class FlexibleModalSelector extends HTMLElement {
     }
 
     async showSelectorModal() {
-        try {
-            const result = await this.createSelectorModal({
-            selectedValues: this.selectedValues,
-            options: this.options,
-            mode: this.mode,
-            theme: this.isDarkMode ? 'dark' : 'light' // Use isDarkMode to determine theme
-        });
-            
-            if (result && result.values) {
-                this.setValues(result.values);
-            }
-        } catch (error) {
-            console.log('Selector modal cancelled');
-        }
-    }
+      try {
+          const result = await this.createSelectorModal({
+              selectedValues: this.selectedValues,
+              options: this.options, // Ensure always using current options
+              mode: this.mode,
+              theme: this.isDarkMode ? 'dark' : 'light'
+          });
+          
+          if (result && result.values) {
+              this.setValues(result.values);
+          }
+      } catch (error) {
+          console.log('Selector modal cancelled');
+      }
+  }
 
     /**
      * Method to create selector modal dynamically based on mode
@@ -6507,7 +6507,7 @@ class GridContainer extends HTMLElement {
       super();
       this.attachShadow({ mode: 'open' });
       this.items = new Map(); // Usamos Map para mantener un registro de elementos con ID
-      this.nextId = 1; // Counter para generar IDs únicos
+      this.nextId = 0; // Counter para generar IDs únicos
       this.render();
   }
 
@@ -6704,14 +6704,21 @@ class GridContainer extends HTMLElement {
         mediaUrl,
         mediaType
     });
-
+    this._emitchanges();
     return id;
-}
+  }
+  _emitchanges() {
+    this.dispatchEvent(new CustomEvent('change', {
+                    detail: this.getAllItems(),
+                    bubbles: true,
+                    composed: true
+                }));
+  }
   // Método para limpiar todos los elementos
   clearAll() {
       this.container.innerHTML = '';
       this.items.clear();
-      this.nextId = 1;
+      this.nextId = 0;
   }
 
   // Método para modificar un elemento específico
@@ -6753,11 +6760,12 @@ class GridContainer extends HTMLElement {
 
       // Emitir evento de eliminación
       const event = new CustomEvent('itemRemoved', {
-          detail: { id },
+          detail: { id, element: itemData },
           bubbles: true,
           composed: true
       });
       this.dispatchEvent(event);
+      this._emitchanges();
   }
 
   // Método para obtener todos los elementos
@@ -6830,6 +6838,12 @@ class DragAndDropComponent extends HTMLElement {
 
       fileInput.addEventListener('change', (e) => {
           const files = e.target.files;
+          const event = new CustomEvent('change', {
+                detail: files,
+                bubbles: true,
+                composed: true
+            });
+            this.dispatchEvent(event);
           for (const file of files) {
               processDroppedFile(file, e);
               const event = new CustomEvent('DroppedFile', {
@@ -6949,6 +6963,7 @@ async function processFileWithoutPath(file) {
       console.log('No se pudo obtener la ruta del archivo');
   }
 }
+
 function parseFile(file) {
   const filePath = file.path;
   return {
