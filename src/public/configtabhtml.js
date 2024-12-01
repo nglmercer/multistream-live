@@ -101,9 +101,11 @@ function updateoptions(data) {
   console.log("updateoptions",data);
   const optionsmap = getallfilesmap(data);
   console.log("optionsmap",optionsmap);
-  document.querySelectorAll('dynamic-form').forEach(modal => {
-    //console.log("modal123",modal);
-    const shadow = modal.shadowRoot;
+  const allforms = document.querySelectorAll('dynamic-form');
+  allforms.forEach(modal => {
+      console.log("modal123",modal);
+      modal.updateFieldOptions("overlay_src",optionsmap);
+/*     const shadow = modal.shadowRoot;
     //console.log("shadow",shadow);
     const selectcomponent = shadow.querySelectorAll('flexible-modal-selector');
     //console.log(selectcomponent)
@@ -115,7 +117,7 @@ function updateoptions(data) {
         console.log("selector overlay",selector);
         //selector.setOptions(getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))));
       } 
-    });
+    }); */
   });
   document.querySelectorAll('flexible-modal-selector').forEach(selector => {
     console.log("selector",selector);

@@ -1240,8 +1240,100 @@ class DynamicForm extends HTMLElement {
 
     return this;
 }
-
-// Helper method for deep cloning (if not already implemented)
+    updateFieldOptions(fieldName, newOptions) {
+        // Buscar el campo en la configuración de campos
+        const field = this.fields.find(f => f.name === fieldName);
+        
+        if (field) {
+            // Actualizar las opciones en la configuración del campo
+            field.options = newOptions;
+            
+            // Buscar el elemento en el DOM
+            const fieldElement = this.form.querySelector(`[name="${fieldName}"]`);
+            
+            if (fieldElement) {
+                switch (field.type) {
+                    case 'select':
+                        // Limpiar opciones existentes
+                        fieldElement.innerHTML = '';
+                        
+                        // Añadir nuevas opciones
+                        newOptions.forEach(option => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option.value;
+                            optionElement.textContent = option.label;
+                            fieldElement.appendChild(optionElement);
+                        });
+                        break;
+                    
+                    case 'modal-selector':
+                    case 'flexible-modal-selector':
+                        // Usar el método setOptions del componente personalizado
+                        fieldElement.setOptions(newOptions);
+                        break;
+                    
+                    case 'radio':
+                        // Rerender el grupo de radio buttons
+                        const radioGroup = fieldElement.closest('.radio-group');
+                        if (radioGroup) {
+                            radioGroup.innerHTML = '';
+                            newOptions.forEach(option => {
+                                const radioWrapper = document.createElement('div');
+                                radioWrapper.className = 'radio-item';
+                                
+                                const radioInput = document.createElement('input');
+                                radioInput.type = 'radio';
+                                radioInput.id = `${fieldName}_${option.value}`;
+                                radioInput.name = fieldName;
+                                radioInput.value = option.value;
+                                
+                                const radioLabel = document.createElement('label');
+                                radioLabel.setAttribute('for', `${fieldName}_${option.value}`);
+                                radioLabel.textContent = option.label;
+                                
+                                radioWrapper.appendChild(radioInput);
+                                radioWrapper.appendChild(radioLabel);
+                                radioGroup.appendChild(radioWrapper);
+                            });
+                        }
+                        break;
+                }
+            }
+        }
+        
+        return this;
+    }
+    updateFieldAttribute(fieldName, attribute, value) {
+    const field = this.fields.find(f => f.name === fieldName);
+    
+    if (field) {
+        // Actualizar el atributo en la configuración del campo
+        field[attribute] = value;
+        
+        const fieldElement = this.form.querySelector(`[name="${fieldName}"]`);
+        
+        if (fieldElement) {
+            switch (attribute) {
+                case 'required':
+                    fieldElement.required = value;
+                    break;
+                case 'disabled':
+                    fieldElement.disabled = value;
+                    break;
+                case 'min':
+                case 'max':
+                case 'step':
+                    if (fieldElement.tagName === 'INPUT') {
+                        fieldElement[attribute] = value;
+                    }
+                    break;
+                // Puedes agregar más casos según sea necesario
+            }
+        }
+    }
+    
+    return this;
+}
 _deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
