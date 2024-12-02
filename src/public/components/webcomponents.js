@@ -2153,7 +2153,7 @@ class CustomSelect extends HTMLElement {
               this.renderSelectedOption();
               return true;
           } else {
-              console.warn('Opción no encontrada:', value);
+              //console.warn('Opción no encontrada:', value);
               return false;
           }
       } catch (error) {

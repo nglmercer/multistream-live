@@ -54,7 +54,7 @@ function generatedropelement() {
     div.appendChild(dropzone);
     div.appendChild(GridContainer);
     dropzone.addEventListener('DroppedFile', (event) => {
-        console.log('File dropped:', event.detail.file);
+        //console.log('File dropped:', event.detail.file);
         addfilesitems(GridContainer);  
     });
     GridContainer.toggleDarkMode(true);
@@ -71,7 +71,7 @@ function generatedropelement() {
  */        
     });
     GridContainer.addEventListener('change', async (event) => {
-        console.log('File dropped:', event.detail);
+        //console.log('File dropped:', event.detail);
         setTimeout( async () => {
           const allfiles = await filescontent.getAll();
           updateoptions(allfiles);
@@ -98,12 +98,12 @@ function generatedropelement() {
     return div;
 }
 function updateoptions(data) {
-  console.log("updateoptions",data);
+  //console.log("updateoptions",data);
   const optionsmap = getallfilesmap(data);
-  console.log("optionsmap",optionsmap);
+  //console.log("optionsmap",optionsmap);
   const allforms = document.querySelectorAll('dynamic-form');
   allforms.forEach(modal => {
-      console.log("modal123",modal);
+      //console.log("modal123",modal);
       modal.updateFieldOptions("overlay_src",optionsmap);
 /*     const shadow = modal.shadowRoot;
     //console.log("shadow",shadow);
@@ -119,15 +119,15 @@ function updateoptions(data) {
       } 
     }); */
   });
-  document.querySelectorAll('flexible-modal-selector').forEach(selector => {
-    console.log("selector",selector);
+/*   document.querySelectorAll('flexible-modal-selector').forEach(selector => {
+    //console.log("selector",selector);
     // if selector id is overlaysrc
     if (selector.id === 'overlay_src' || selector.name === 'overlay_src'){
       selector.setOptions(optionsmap);
       console.log("selector overlay",selector);
       //selector.setOptions(getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))));
     } 
-  });
+  }); */
 }
 function mapdatatooverlay(data) {
   const config = {
@@ -148,10 +148,10 @@ function addfilesitems(GridContainer) {
   GridContainer.clearAll();
   setTimeout(() => {
     const files = JSON.parse(localStorage.getItem('filePaths'));
-    console.log(files);
+    console.log("addfilesitems",files);
     files.forEach(file => {
         GridContainer.addItem(file.nombre, file.path, file.mediaType || file.type,file);
-    console.log(file)});
+  });
   }, 250);
 }
 tabs.addContent(0, htmlvoiceevents); // Agrega al primer tab

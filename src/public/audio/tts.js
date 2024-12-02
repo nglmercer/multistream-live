@@ -267,7 +267,7 @@ function setupForm(form, name) {
     });
     
     form.addEventListener('form-change', (e) => {
-        console.log('Form values changed:', e.detail);
+        //console.log('Form values changed:', e.detail);
         localStorage.setItem(name, JSON.stringify(e.detail));
     });
     

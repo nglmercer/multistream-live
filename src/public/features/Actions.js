@@ -327,7 +327,7 @@ newactionform.addEventListener('form-submit', async (e) => {
   
 });
 newactionform.addEventListener('form-change', (e) => {
-  console.log('Form values changed:', e.detail);
+  //console.log('Form values changed:', e.detail);
 });
 newmodalaction.appendChild(newactionform);
 //console.log(mapgetAllscenesScenenameSceneindex(getlastdatafromstorage("getScenesList",[])?.scenes),"mapgetAllscenesScenenameSceneindex");

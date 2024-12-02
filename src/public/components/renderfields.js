@@ -772,7 +772,7 @@ function createMultiSelectField(field, onChangeCallback, initialValue) {
   multiSelect.id = field.name;
   multiSelect.setAttribute('name', field.name);
   multiSelect.setAttribute('mode', field.mode || 'multi');
-  console.log(field.theme);
+  logger.log(field.theme);
   multiSelect.setAttribute('theme', field.theme || 'light');
   multiSelect.toggleDarkMode();
   // Configurar el evento change del modal-selector
@@ -784,7 +784,7 @@ function createMultiSelectField(field, onChangeCallback, initialValue) {
   
   if (field.options) multiSelect.setOptions(field.options);
   // Si hay un valor inicial, establecerlo
-  console.log("renderhtml","createMultiSelectElement", field,initialValue);
+  logger.log("renderhtml","createMultiSelectElement", field,initialValue);
   if (field.value || initialValue) {
       multiSelect.setValues(initialValue || field.value);
   }
