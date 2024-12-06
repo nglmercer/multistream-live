@@ -7779,3 +7779,203 @@ class AlertComponent extends HTMLElement {
 
 // Define the custom element
 customElements.define('app-alert', AlertComponent);
+class LoginButton extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.isLoggedIn = false;
+    this.platform = '';
+    this.status = 'offline';
+  }
+
+  static get observedAttributes() {
+    return ['platform', 'logged-in', 'status'];
+  }
+
+  connectedCallback() {
+    this.platform = this.getAttribute('platform') || '';
+    this.render();
+    this.addEventListeners();
+    
+    // Add a global event listener for cross-element synchronization
+    document.addEventListener('login-state-update', this.handleGlobalStateUpdate.bind(this));
+  }
+
+  disconnectedCallback() {
+    // Remove the global event listener to prevent memory leaks
+    document.removeEventListener('login-state-update', this.handleGlobalStateUpdate);
+  }
+
+  handleGlobalStateUpdate(event) {
+    const { platform, isLoggedIn, status } = event.detail;
+    
+    // Update this element if the platform matches
+    if (this.platform.toLowerCase() === platform.toLowerCase()) {
+      this.isLoggedIn = isLoggedIn;
+      this.status = status;
+      this.render();
+    }
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      let shouldUpdate = false;
+      
+      switch(name) {
+        case 'logged-in':
+          this.isLoggedIn = newValue === 'true';
+          shouldUpdate = true;
+          break;
+        case 'status':
+          this.status = newValue || 'offline';
+          shouldUpdate = true;
+          break;
+        case 'platform':
+          this.platform = newValue;
+          shouldUpdate = true;
+          break;
+      }
+      
+      if (shouldUpdate) {
+        this.render();
+        this.broadcastStateUpdate();
+      }
+    }
+  }
+
+  broadcastStateUpdate() {
+    // Dispatch a global event to update all elements with the same platform
+    const event = new CustomEvent('login-state-update', {
+      detail: {
+        platform: this.platform,
+        isLoggedIn: this.isLoggedIn,
+        status: this.status
+      },
+      bubbles: true,
+      composed: true
+    });
+    document.dispatchEvent(event);
+  }
+
+  addEventListeners() {
+    const button = this.shadowRoot?.querySelector('button');
+    button?.addEventListener('click', () => {
+      // Toggle login state on click
+      this.setAttribute('logged-in', (!this.isLoggedIn).toString());
+      this.setAttribute('status', this.isLoggedIn ? 'offline' : 'online');
+    });
+  }
+
+  render() {
+    if (!this.shadowRoot) return;
+    
+    const statusColor = this.status === 'online' ? '#4CAF50' : '#f44336';
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: inline-block;
+        }
+        .login-button {
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background-color: #2b2b2b;
+          color: white;
+          transition: all 0.3s ease;
+        }
+        .login-button:hover {
+          opacity: 0.9;
+        }
+        .status-indicator {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background-color: ${statusColor};
+        }
+        .platform-icon {
+          width: 20px;
+          height: 20px;
+          margin-right: 10px;
+        }
+      </style>
+      <button class="login-button" data-platform="${this.platform}">
+        <span class="platform-icon">${this.getPlatformIcon()}</span>
+        ${this.isLoggedIn ? `Connected to ${this.platform}` : `Login with ${this.platform}`}
+        <span class="status-indicator"></span>
+      </button>
+    `;
+  }
+
+  getPlatformIcon() {
+    const icons = {
+      tiktok: '<svg viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>',
+      twitch: '<svg viewBox="0 0 24 24" fill="white"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>',
+      kick: '<svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.524 4.477 10 10 10s10-4.476 10-10c0-5.523-4.477-10-10-10z"/></svg>'
+    };
+    return icons[this.platform.toLowerCase()] || '';
+  }
+}
+
+customElements.define('login-button', LoginButton);
+  const sociallogin = ["tiktokloginbtn","twitchloginbtn","kickloginbtn"]
+ // Example of handling login state and status outside the web component
+ sociallogin.forEach(login => {
+  const buttonlogin = document.getElementById(login)
+  buttonlogin.addEventListener('click', (event) => {
+    const { platform, isLoggedIn, status } = event.detail;
+    console.log("webcomponent login data",event.detail,platform,isLoggedIn)
+    // Update the button's status based on the login result
+    
+    buttonlogin.setAttribute('logged-in', "true");
+    buttonlogin.setAttribute('status', "online");
+  });
+ }
+ );
+
+/*  document.addEventListener('loginStateChange', async (event) => {
+   const { platform, isLoggedIn } = event.detail;
+   console.log("webcomponent login data",event.detail,platform,isLoggedIn)
+   try {
+     // Simulating an async login process
+     const loginResult = await performLogin(platform, isLoggedIn);
+     
+     // Update the button's status based on the login result
+     const loginButton = document.querySelector('login-button');
+     loginButton.setAttribute('logged-in', String(loginResult.success));
+     loginButton.setAttribute('status', loginResult.success ? 'online' : 'offline');
+   } catch (error) {
+     console.error('Login failed:', error);
+     const loginButton = document.querySelector('login-button');
+     loginButton.setAttribute('logged-in', 'false');
+     loginButton.setAttribute('status', 'offline');
+   } 
+      const loginButton = document.querySelector('login-button');
+     loginButton.setAttribute('logged-in', "true");
+     loginButton.setAttribute(`status`, "online");
+
+ }); */
+ 
+ // Mock login function (replace with your actual login logic)
+ async function performLogin(platform, isLoggedIn) {
+   return new Promise((resolve, reject) => {
+     // Simulating an async login process
+     setTimeout(() => {
+       if (isLoggedIn) {
+         // Simulate successful login
+         resolve({ success: true });
+       } else {
+         // Simulate login attempt
+         const randomSuccess = Math.random() > 0.5;
+         if (randomSuccess) {
+           resolve({ success: true });
+         } else {
+           reject(new Error('Login failed'));
+         }
+       }
+     }, 1000);
+   });
+ }

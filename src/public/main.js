@@ -732,6 +732,7 @@ const processActioncallbacks = {
   minecraft: (data,userdata) => handleMinecraft(data,userdata),
   tts: (data,userdata) => handletts(data,userdata),
   overlay: (data,userdata) => handleOverlay(data,userdata),
+  keypress: (data,userdata) => handleKeypress(data,userdata),
 }
 async function Actionsprocessmanager(id,userdata) {
   console.log("accionesprocessmanager",id)
@@ -823,7 +824,13 @@ async function handleOverlay(data, userdata) {
     }
   }
 }
-
+function handleKeypress(data,userdata) {
+  if (data?.check) {
+      socketManager.emitMessage("presskey",data.key);
+  } else {
+    console.log("keypress no check",data)
+  }
+}
 function mapdatatooverlay(data,duration,content) {
   const config = {
     template: 'multi-grid',

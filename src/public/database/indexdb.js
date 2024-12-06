@@ -3,237 +3,182 @@ const databases = {
     ActionsDB: { name: 'Actions', version: 1, store: 'actions' },
   };
 
-class IndexedDBManager {
+  class IndexedDBManager {
     constructor(dbConfig, idbObserver) {
         this.dbConfig = dbConfig;
-        this.debouncedSaveData = debounce(this.saveData.bind(this), 300);
-        this.debouncedDeleteData = debounce(this.deleteData.bind(this), 300);
-        this.debouncedUpdateData = debounce(this.updateData.bind(this), 300);
         this.idbObserver = idbObserver;
-        this.newusers = new Set();
+        this.db = null;
     }
+    async updateDataById(id, updatedData) {
+        return this.executeTransaction(this.dbConfig.store, 'readwrite', (store) => {
+            return new Promise((resolve, reject) => {
+                // Convertir el id a número si es necesario y es requerido por la clave
+                const numericId = typeof id === 'number' ? id : Number(id);
+    
+                if (isNaN(numericId)) {
+                    return reject(new Error(`Invalid id: ${id}. The id must be a valid number.`));
+                }
+    
+                // Intentar obtener el registro con el id especificado
+                const getRequest = store.get(numericId);
+    
+                getRequest.onsuccess = () => {
+                    if (getRequest.result) {
+                        // Mezcla los datos existentes con los nuevos datos, manteniendo el id original
+                        const newData = { ...getRequest.result, ...updatedData, id: numericId };
+                        const putRequest = store.put(newData);
+    
+                        putRequest.onsuccess = () => {
+                            this.idbObserver?.notify('update', newData);
+                            resolve(newData);
+                        };
+                        putRequest.onerror = () => reject(putRequest.error);
+                    } else {
+                        reject(new Error(`No data found with id ${numericId}`));
+                    }
+                };
+    
+                getRequest.onerror = () => reject(getRequest.error);
+            });
+        });
+    }
+    
 
     async openDatabase() {
+        if (this.db) return this.db;
+        
         return new Promise((resolve, reject) => {
-        const request = indexedDB.open(this.dbConfig.name, this.dbConfig.version);
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            const objectStore = db.createObjectStore(this.dbConfig.store, { keyPath: 'id', autoIncrement: true });
-            objectStore.createIndex('name', 'name', { unique: true });
-            objectStore.createIndex('type', 'type', { unique: false });
-            objectStore.createIndex('path', 'path', { unique: false });
-        };
-        request.onsuccess = (event) => resolve(event.target.result);
-        request.onerror = (event) => reject(event.target.error);
+            const request = indexedDB.open(this.dbConfig.name, this.dbConfig.version);
+            
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(this.dbConfig.store)) {
+                    const objectStore = db.createObjectStore(this.dbConfig.store, { 
+                        keyPath: 'id'
+                    });
+                    objectStore.createIndex('name', 'name', { unique: true });
+                    objectStore.createIndex('type', 'type', { unique: false });
+                    objectStore.createIndex('path', 'path', { unique: false });
+                }
+            };
+            
+            request.onsuccess = () => {
+                this.db = request.result;
+                resolve(this.db);
+            };
+            
+            request.onerror = () => reject(request.error);
         });
     }
 
-    async performTransaction(mode, callback) {
+    async executeTransaction(storeName, mode, callback) {
         const db = await this.openDatabase();
         return new Promise((resolve, reject) => {
-        const transaction = db.transaction([this.dbConfig.store], mode);
-        const objectStore = transaction.objectStore(this.dbConfig.store);
-        callback(objectStore, resolve, reject);
+            const transaction = db.transaction([storeName], mode);
+            const store = transaction.objectStore(storeName);
+            
+            let result = null;
+            
+            transaction.oncomplete = () => resolve(result);
+            transaction.onerror = () => reject(transaction.error);
+            transaction.onabort = () => reject(new Error('Transaction aborted'));
+            
+            try {
+                result = callback(store);
+            } catch (error) {
+                transaction.abort();
+                reject(error);
+            }
         });
     }
 
-    async saveData(data, additionalData = {}) {
-        return this.performTransaction('readwrite', (objectStore, resolve, reject) => {
-            // If an id is provided but invalid, remove it
-            if (typeof data.id !== 'number' || data.id <= 0) {
-                delete data.id;
-            }
+    async getAllData() {
+        return this.executeTransaction(this.dbConfig.store, 'readonly', (store) => {
+            return new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        });
+    }
 
-            // Merge additional data if it exists
-            if (additionalData && Object.keys(additionalData).length > 0) {
-                // Create a new additionalData field or extend existing one
-                data.additionalData = {
-                    ...(data.additionalData || {}),
-                    ...additionalData
+    findMissingIds(allData) {
+        const existingIds = allData.map(item => item.id).sort((a, b) => a - b);
+        const missingIds = [];
+        let expectedId = 0;
+
+        for (const id of existingIds) {
+            while (expectedId < id) {
+                missingIds.push(expectedId);
+                expectedId++;
+            }
+            expectedId = id + 1;
+        }
+
+        return missingIds;
+    }
+
+    async saveData(data) {
+        const allData = await this.getAllData();
+        let targetId;
+
+        if (typeof data.id !== 'number' || data.id < 0) {
+            // Buscar IDs faltantes
+            const missingIds = this.findMissingIds(allData);
+            
+            if (missingIds.length > 0) {
+                // Si hay IDs faltantes, usar el primer ID disponible
+                targetId = missingIds[0];
+            } else {
+                // Si no hay IDs faltantes, usar el siguiente ID después del máximo
+                const maxId = allData.length > 0 ? Math.max(...allData.map(item => item.id)) : -1;
+                targetId = maxId + 1;
+            }
+        } else {
+            targetId = data.id;
+        }
+
+        const newData = { ...data, id: targetId };
+
+        return this.executeTransaction(this.dbConfig.store, 'readwrite', (store) => {
+            return new Promise((resolve, reject) => {
+                const request = store.put(newData);
+                request.onsuccess = () => {
+                    this.idbObserver?.notify('save', newData);
+                    resolve(newData);
                 };
-            }
-
-            const request = objectStore.add(data);
-            request.onsuccess = (event) => {
-                data.id = event.target.result;
-                resolve(data);
-            };
-            this.idbobserver('save', data); 
-            request.onerror = (event) => reject(event.target.error);
+                request.onerror = () => reject(request.error);
+            });
         });
     }
 
     async deleteData(id) {
-        return this.performTransaction('readwrite', (objectStore, resolve, reject) => {
-            const request = objectStore.delete(Number(id));
-            request.onsuccess = () => {
-                resolve(id);
-            };
-            this.idbobserver('delete', id);
-        request.onerror = (event) => reject(event.target.error);
-        });
-    }
-
-    async updateData(data, additionalData = {}) {
-        return this.performTransaction('readwrite', (objectStore, resolve, reject) => {
-            // Merge additional data if it exists
-            if (additionalData && Object.keys(additionalData).length > 0) {
-                // Create a new additionalData field or extend existing one
-                data.additionalData = {
-                    ...(data.additionalData || {}),
-                    ...additionalData
+        return this.executeTransaction(this.dbConfig.store, 'readwrite', (store) => {
+            return new Promise((resolve, reject) => {
+                const request = store.delete(Number(id));
+                request.onsuccess = () => {
+                    this.idbObserver?.notify('delete', id);
+                    resolve(id);
                 };
-            }
-
-            const request = objectStore.put(data);
-            request.onsuccess = () => {
-                resolve(data);
-            };
-            this.idbobserver('update', data);
-            request.onerror = (event) => reject(event.target.error);
+                request.onerror = () => reject(request.error);
+            });
         });
     }
 
-    async getDataByName(name) {
-        return this.performTransaction('readonly', (objectStore, resolve, reject) => {
-        const index = objectStore.index('name');
-        const request = index.get(name);
-        request.onsuccess = (event) => resolve(event.target.result);
-        request.onerror = (event) => reject(event.target.error);
-        });
-    }
-
-    async saveOrUpdateDataByName(data, additionalData = {}) {
-        try {
-            const existingData = await this.getDataByName(data.name);
-            if (existingData) {
-                // If exists, update the id and merge additional data
-                data.id = existingData.id;
-                console.log("Updating existing data", data);
-                return this.updateData(data, additionalData);
-            } else {
-                // If not exists, save new record with additional data
-                console.log("Saving new data", data);
-                return this.saveData(data, additionalData);
-            }
-        } catch (error) {
-            console.error("Error saving or updating data", error);
-            return this.saveData(data, additionalData); // Try to save if something fails
-        }
-    }
-    async updateAdditionalData(id, additionalData) {
-        try {
-            const existingData = await this.getDataById(id);
-            if (existingData) {
-                // Merge new additional data with existing
-                existingData.additionalData = {
-                    ...(existingData.additionalData || {}),
-                    ...additionalData
-                };
-                return this.updateData(existingData);
-            } else {
-                throw new Error(`No record found with ID ${id}`);
-            }
-        } catch (error) {
-            console.error("Error updating additional data:", error);
-            throw error;
-        }
-    }
-
-    async getAllData() {
-        return this.performTransaction('readonly', (objectStore, resolve, reject) => {
-        const request = objectStore.getAll();
-        request.onsuccess = (event) => resolve(event.target.result);
-        request.onerror = (event) => reject(event.target.error);
-        });
-    }
-
-    async exportDatabase() {
-        const data = await this.getAllData();
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${this.dbConfig.name}_backup.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-
-    async importDatabase(file) {
-        const data = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (event) => resolve(JSON.parse(event.target.result));
-            reader.readAsText(file);
-        });
-
-        return this.performTransaction('readwrite', (objectStore, resolve, reject) => {
-            const addNextItem = (index) => {
-                if (index >= data.length) {
+    async clearDatabase() {
+        return this.executeTransaction(this.dbConfig.store, 'readwrite', (store) => {
+            return new Promise((resolve, reject) => {
+                const request = store.clear();
+                request.onsuccess = () => {
+                    this.idbObserver?.notify('clear', null);
                     resolve();
-                    return;
-                }
-                const request = objectStore.put(data[index]);
-                request.onsuccess = () => addNextItem(index + 1);
-                request.onerror = (event) => reject(event.target.error);
-            };
-            addNextItem(0);
+                };
+                request.onerror = () => reject(request.error);
+            });
         });
     }
-        async idbobserver (eventype, data) {
-            if (this.idbObserver) {
-                this.idbObserver.notify(eventype, data);
-            }
-        }
-        // 1. Método para obtener un registro por ID
-        async getDataById(id) {
-        return this.performTransaction('readonly', (objectStore, resolve, reject) => {
-            const request = objectStore.get(Number(id));
-            request.onsuccess = (event) => resolve(event.target.result);
-            request.onerror = (event) => reject(event.target.error);
-        });
-        }
-
-        // 2. Método para modificar un campo específico de un registro por su ID
-        async updateFieldById(id, fieldName, newValue) {
-        try {
-            const existingData = await this.getDataById(id);
-            if (existingData) {
-            // Actualizamos el campo específico
-            existingData[fieldName] = newValue;
-            return this.updateData(existingData);  // Guardamos el registro actualizado
-            } else {
-            throw new Error(`No se encontró un registro con el ID ${id}`);
-            }
-        } catch (error) {
-            console.error("Error al actualizar el campo:", error);
-        }
-        }
-
-        // 3. Método que combina obtener el valor, modificarlo y guardarlo
-        async modifyFieldAndSave(id, fieldName, modifyFn) {
-        try {
-            const existingData = await this.getDataById(id);
-            if (existingData) {
-            // Modificamos el valor utilizando la función proporcionada
-            existingData[fieldName] = modifyFn(existingData[fieldName]);
-            return this.updateData(existingData);  // Guardamos el registro actualizado
-            } else {
-            throw new Error(`No se encontró un registro con el ID ${id}`);
-            }
-        } catch (error) {
-            console.error("Error al modificar y guardar el campo:", error);
-        }
-    }
 }
-function debounce(func, wait) {
-let timeout;
-return function(...args) {
-    const context = this;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), wait);
-};
-}
+
 class DBObserver {
 constructor() {
     this.listeners = [];
