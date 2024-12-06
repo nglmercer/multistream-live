@@ -3,10 +3,13 @@ import { databases, IndexedDBManager, DBObserver } from '../database/indexdb.js'
 import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects,UserInteractionTracker, unflattenObject, flattenObject } from '../utils/utils.js'
 import showAlert from '../components/alerts.js';
 import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
+import { filterworddefault,keyboard, valueboard, optionskeyboard, optionsvalueboard } from "../assets/jsondata.js"
 import { getTranslation, translations } from '../translations.js';
 import { sendcommandmc } from './Minecraftconfig.js'
 import { Replacetextoread, addfilterword } from './speechconfig.js'
 import { mapedarrayobs, arrayobs,executebykeyasync } from './obcontroller.js'
+import socketManager from '../server/socketManager.js';
+
 const ObserverActions = new DBObserver();
 const ActionsManager = new IndexedDBManager(databases.ActionsDB,ObserverActions);
 function replaceNestedValue(obj, path, newValue) {
@@ -289,6 +292,23 @@ const newactionform = document.createElement('dynamic-form');
                 value: true
               }
             })
+            .addField({
+              type: 'checkbox',
+              name: 'keypress_check',
+              label: 'keypress',
+              value: false,
+          }, { rowGroup: "keypressrow" })
+          .addField({
+              type: 'flexible-modal-selector',
+              mode: 'multi',
+              name: 'keypress_key',
+              label: 'keypress',
+              options: optionsvalueboard,
+              showWhen: {
+                  field: 'keypress_check',
+                  value: true
+              }
+          }, { rowGroup: "keypressrow" })
             .render()
             .toggleDarkMode(true);
 /* setTimeout(() => {
@@ -481,7 +501,12 @@ async function execobsaction(data) {
     }
   }
 }
-
+async function executekeys(data) {
+  if (data.keypress && data.keypress.check) {
+    const values = data.keypress.key;
+    socketManager.emitMessage("presskey",values);
+  }
+}
 function getValueByKey(value, object) {
   return object[value];
 }

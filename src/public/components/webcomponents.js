@@ -654,7 +654,7 @@ class FlexibleModalSelector extends HTMLElement {
       // Add image if exists in single mode
       if (this.mode === 'single' && selectedOptions[0] && (selectedOptions[0].image || selectedOptions[0].path)) {
           const img = document.createElement('img');
-          img.src = (selectedOptions[0].image || selectedOptions[0].path).startsWith('http') ? (selectedOptions[0].image || selectedOptions[0].path) : `/media/${(selectedOptions[0].image || selectedOptions[0].path)}`;
+          img.src = (selectedOptions[0].image || selectedOptions[0].path)?.startsWith('http') || (selectedOptions[0].image || selectedOptions[0].path)?.startsWith('blob:') ? (selectedOptions[0].image || selectedOptions[0].path) : `/media/${(selectedOptions[0].image || selectedOptions[0].path)}`;
           img.style.cssText = `
               position: absolute;
               left: 70%; 
@@ -833,7 +833,7 @@ class FlexibleModalSelector extends HTMLElement {
             // Add image support
             if (option.image || option.path) {
                 const img = document.createElement('img');
-                img.src = (option.image || option.path).startsWith('http') ? option.image || option.path : `/media/${option.image || option.path}`;
+                img.src = (option?.image || option?.path)?.startsWith('http') || (option?.image || option?.path)?.startsWith('blob:') ? option.image || option.path : `/media/${option.image || option.path}`;
                 img.style.cssText = `
                     width: 30px;
                     height: 30px;
@@ -1014,7 +1014,19 @@ class DynamicForm extends HTMLElement {
                   font-family: system-ui, -apple-system, sans-serif;
                   width: 100%;
               }
+                .form-row {                 
+                    border: 0.2rem solid transparent;
+                    transition: all 0.5s ease;
+                }
+                .form-row:hover {
+                    border-color: #d1d5db;
+                    border-radius: 0.375rem;
+                    margin: 0.25rem;
+                    padding: 0.25rem             
+                }
               .form-default {
+                  max-height: 90dvh;
+                  overflow-y: auto;
                   padding: 1rem;
                   border-radius: 0.5rem;
                   background: white;
@@ -1091,6 +1103,8 @@ class DynamicForm extends HTMLElement {
                   color: #374151;
               }
               input, select, textarea {
+                  min-width: 2.1rem;
+                  min-height: 2.1rem;
                   width: auto;
                   padding: 0.5rem;
                   border: 1px solid #d1d5db;
@@ -2295,8 +2309,8 @@ class CustomSelect extends HTMLElement {
                 const optionElement = document.createElement('div');
                 optionElement.classList.add('option');
                 
-                // Verificar si `option.image` es un SVG en texto (option.image || option.path).startsWith('http') ? (option.image || option.path) : `/media/${(option.image || option.path)}`
-                let imgSrc = option.image && option.image.startsWith('http') ? option.image : `/media/${option.image}`;
+                // Verificar si `option.image` es un SVG en texto (option.image || option.path)?.startsWith('http') ? (option.image || option.path) : `/media/${(option.image || option.path)}`
+                let imgSrc = option.image && option.image?.startsWith('http') ||option.image && option.image.startsWith('blob:') ? option.image : `/media/${option.image}`;
                 if (option.image && option.image.length > 50 && option.image.trim().startsWith('<svg')) {
                     // Crear un Blob para el SVG y generar una URL compatible
                     const svgBlob = new Blob([option.image], { type: 'image/svg+xml' });
@@ -6616,9 +6630,9 @@ class GridContainer extends HTMLElement {
               }
               .container {
                   display: grid;
-                  grid-template-columns: repeat(auto-fit, minmax(200px, auto));
+                  grid-template-columns: repeat(auto-fit, minmax(150px, auto));
                   gap: 1rem;
-                  height: 100dvh;
+                  max-height: 100dvh;
                   padding: 1rem;
                   overflow-y: auto;
               }
@@ -6739,10 +6753,11 @@ class GridContainer extends HTMLElement {
     
     let mediaElement = '';
     if (mediaUrl) {
+      const sanitizedurl = mediaUrl.startsWith('http') ? mediaUrl : `/media/${mediaUrl}`;
         if (mediaType.includes('video')) {
-            mediaElement = `<video src="/media/${mediaUrl}" controls></video>`;
+            mediaElement = `<video src="${sanitizedurl}" controls></video>`;
         } else {
-            mediaElement = `<img src="/media/${mediaUrl}" alt="${content || 'Item media'}">`;
+            mediaElement = `<img src="${sanitizedurl}" alt="${content || 'Item media'}">`;
         }
     }
 
@@ -7314,7 +7329,7 @@ class DonationAlert extends HTMLElement {
     return `
       <div class="media-grid columns-${columns}">
         ${items.map(src => {
-          const sanitizedSrc = src.startsWith('http') ? src : `/media/${src}`;
+          const sanitizedSrc = src?.startsWith('http') ? src : `/media/${src}`;
           
           if (isVideo) {
             return `
@@ -7349,22 +7364,22 @@ class DonationAlert extends HTMLElement {
     switch (alert.type) {
       case 'multi-image':
         const sanitizedImages = alert.images.map(img => 
-          img.startsWith('http') ? img : `/media/${img}`
+          img?.startsWith('http') ? img : `/media/${img}`
         );
         return this.renderMediaGrid(sanitizedImages, 'image', theme);
       case 'video-grid':
         const sanitizedVideos = alert.videos.map(video => 
-          video.startsWith('http') ? video : `/media/${video}`
+          video?.startsWith('http') ? video : `/media/${video}`
         );
         return this.renderMediaGrid(sanitizedVideos, 'video', theme);
       case 'image-grid':
         const sanitizedGridImages = alert.images.map(img => 
-          img.startsWith('http') ? img : `/media/${img}`
+          img?.startsWith('http') ? img : `/media/${img}`
         );
         return this.renderMediaGrid(sanitizedGridImages, 'image', theme);
       case 'video-image':
-        const videoSrc = alert.video.startsWith('http') ? alert.video : `/media/${alert.video}`;
-        const imageSrc = alert.image.startsWith('http') ? alert.image : `/media/${alert.image}`;
+        const videoSrc = alert.video?.startsWith('http') ? alert.video : `/media/${alert.video}`;
+        const imageSrc = alert.image?.startsWith('http') ? alert.image : `/media/${alert.image}`;
         return `
           <div class="media-combo">
             <video autoplay loop muted class="media-item">
@@ -7374,10 +7389,10 @@ class DonationAlert extends HTMLElement {
           </div>
         `;
       case 'image':
-        const imgSrc = alert.content.startsWith('http') ? alert.content : `/media/${alert.content}`;
+        const imgSrc = alert?.content?.startsWith('http') ? alert.content : `/media/${alert.content}`;
         return `<img src="${imgSrc}" alt="Donation alert" class="media-item" />`;
       case 'video':
-        const vidSrc = alert.content.startsWith('http') ? alert.content : `/media/${alert.content}`;
+        const vidSrc = alert.content?.startsWith('http') ? alert.content : `/media/${alert.content}`;
         return `
           <video autoplay loop muted class="media-item">
             <source src="${vidSrc}" type="video/mp4">
@@ -7678,3 +7693,89 @@ class WindowManager extends HTMLElement {
 
 // Define the custom element
 customElements.define('window-manager', WindowManager);
+class AlertComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  static get observedAttributes() {
+    return ['type', 'message', 'duration'];
+  }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'type' || name === 'message') {
+      this.render();
+    }
+  }
+
+  render() {
+    const type = this.getAttribute('type') || 'info';
+    const message = this.getAttribute('message') || '';
+    const duration = parseInt(this.getAttribute('duration') || 3000);
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 1000;
+        }
+        .alert {
+          padding: 15px;
+          border-radius: 4px;
+          color: white;
+          opacity: 0;
+          transform: translateX(100%);
+          transition: all 0.5s ease-in-out;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          max-width: 300px;
+          word-wrap: break-word;
+        }
+        .alert.show {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .alert.fade-out {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        .alert-success {
+          background-color: #28a745;
+        }
+        .alert-info {
+          background-color: #17a2b8;
+        }
+        .alert-warning {
+          background-color: #ffc107;
+          color: #212529;
+        }
+        .alert-error {
+          background-color: #dc3545;
+        }
+      </style>
+      <div class="alert alert-${type} show">
+        ${message}
+      </div>
+    `;
+
+    const alertElement = this.shadowRoot.querySelector('.alert');
+    
+    setTimeout(() => {
+      alertElement.classList.add('fade-out');
+      
+      alertElement.addEventListener('transitionend', () => {
+        this.remove();
+      });
+    }, duration);
+  }
+}
+
+// Define the custom element
+customElements.define('app-alert', AlertComponent);

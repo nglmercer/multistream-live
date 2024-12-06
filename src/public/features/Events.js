@@ -3,7 +3,7 @@ import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { databases, IndexedDBManager, DBObserver } from '../database/indexdb.js'
 import { Counter, flattenObject, TypeofData,ComboTracker, replaceVariables, compareObjects, unflattenObject } from '../utils/utils.js'
 import showAlert from '../components/alerts.js';
-import { GiftElementsManager } from '../components/renderhtml.js'
+//import { GiftElementsManager } from '../components/renderhtml.js'
 import { ActionsManager } from './Actions.js'
 import { getTranslation, translations } from '../translations.js';
 const ObserverEvents = new DBObserver();
@@ -226,13 +226,19 @@ ObserverEvents.subscribe(async (action, data) => {
   }
 });
 
-const giftlistmanager = new GiftElementsManager(mapselectgift);
 
-const handleProductClick = (product) => {
-    console.log('Producto seleccionado:', product);
-};
+const giftmap = document.getElementById("giftmap")
+giftmap.toggleDarkMode(true)
+giftmap.addEventListener('itemClick', (e) => {
+  console.log('Producto seleccionado:', e.detail);
+});
+mapselectgift.forEach(data => {
+  //console.log("data gift",data)
+  giftmap.addItem(data.label, data.image,"image",data)
+}
 
-giftlistmanager.renderToElement('giftmap', handleProductClick);
+)
+//giftlistmanager.renderToElement('giftmap', handleProductClick);
 
 
 export { EventsManager }

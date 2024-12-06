@@ -11,6 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import WindowManager from './features/window-manager.js'; */
 const WindowManager = require('./features/window-manager.js');
+const keynut = require("./features/keycontroll.js");
+
 const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { fileURLToPath } = require('url');
@@ -341,6 +343,8 @@ io.on('connection', (socket) => {
       Array.from(windowManager.getWindows().entries())
         .map(([id, config]) => ({ id, ...config }))
     );
+    socket.on("presskey", (key) => handleKeyPress(socket, key));
+    socket.on("pressKey2", (key) => handleKeyPress2(socket, key));
     socket.on('disconnect', () => {
       // Limpiar todas las salas donde estaba el usuario
       for (const [roomId, users] of roomManager.rooms.entries()) {
@@ -386,3 +390,21 @@ const filePaths = files.map(file => file.path);
 console.log('Rutas de archivos:', filePaths);
 return filePaths;
 });
+function handleKeyPress2(socket, key) {
+  try{
+  console.log("keypressed2", key);
+  keynut.keyboardController.handleKeyPress(key)
+  } catch (error) {
+    console.error("Error al presionar el teclado:", error);
+  }
+}
+function handleKeyPress(socket, key) {
+  console.log("keypressed", key);
+
+  try {
+    keynut.keyboardController.parseAndExecuteKeyCommand(key);
+    socket.emit("keypressed", key);
+  } catch (error) {
+    socket.emit("error", error.message);
+  }
+}

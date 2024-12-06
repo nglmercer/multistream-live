@@ -8,6 +8,7 @@
   "author": "USER",
   "scripts": {
     "start": "electron ./src",
+    "dev": "electron --no-sandbox ./src",
     "build": "rimraf build && electron-builder --config electron-builder.yml",
     "build:windows": "rimraf build && electron-builder --win --config electron-builder.yml",
     "build:linux": "rimraf build && electron-builder --linux --config electron-builder.yml",
