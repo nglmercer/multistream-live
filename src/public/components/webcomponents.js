@@ -7869,7 +7869,7 @@ class LoginButton extends HTMLElement {
   render() {
     if (!this.shadowRoot) return;
     
-    const statusColor = this.status === 'online' ? '#4CAF50' : '#f44336';
+    const statusColor = this.getcolors();
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -7904,17 +7904,57 @@ class LoginButton extends HTMLElement {
       </style>
       <button class="login-button" data-platform="${this.platform}">
         <span class="platform-icon">${this.getPlatformIcon()}</span>
-        ${this.isLoggedIn ? `Connected to ${this.platform}` : `Login with ${this.platform}`}
+        ${this.getstateelement()}
         <span class="status-indicator"></span>
       </button>
     `;
   }
-
+  getcolors() {
+    const colors = {
+      facebook: '#3b5998',
+      tiktok: '#FF4137',
+      twitch: '#6441A4',
+      kick: '#000000',
+      youtube: '#FF0000',
+      online: '#4CAF50',
+      offline: '#f44336',
+      away: '#FFC107',
+      busy: '#f44336',
+    }
+    return colors[this.status.toLowerCase()] || '#000000';
+  }
+  getstateelement() {
+    const htmlstates = {
+      isLoggedIn: `Connected to ${this.platform}`,
+      isNotLoggedIn: `Login with ${this.platform}`,
+      offline: `Login with ${this.platform}`,
+      online: `Connected to ${this.platform}`,
+      away: `Away`,
+      busy: `Busy`
+    }
+    console.log("status",this.status)
+    return htmlstates[this.status.toLowerCase()] || '';
+  }
   getPlatformIcon() {
     const icons = {
       tiktok: '<svg viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>',
       twitch: '<svg viewBox="0 0 24 24" fill="white"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>',
-      kick: '<svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.524 4.477 10 10 10s10-4.476 10-10c0-5.523-4.477-10-10-10z"/></svg>'
+      kick: `<svg viewBox="0 0 933 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto;">
+  <g clip-path="url(#clip0_9790_492437)">
+    <g clip-path="url(#clip1_9790_492437)">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H100V66.6667H133.333V33.3333H166.667V0H266.667V100H233.333V133.333H200V166.667H233.333V200H266.667V300H166.667V266.667H133.333V233.333H100V300H0V0ZM666.667 0H766.667V66.6667H800V33.3333H833.333V0H933.333V100H900V133.333H866.667V166.667H900V200H933.333V300H833.333V266.667H800V233.333H766.667V300H666.667V0ZM300 0H400V300H300V0ZM533.333 0H466.667V33.3333H433.333V266.667H466.667V300H533.333H633.333V200H533.333V100H633.333V0H533.333Z" fill="#53FC18"/>
+    </g>
+  </g>
+  <defs>
+    <clipPath id="clip0_9790_492437">
+      <rect width="933" height="300" fill="white"/>
+    </clipPath>
+    <clipPath id="clip1_9790_492437">
+      <rect width="933.333" height="300" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>
+`
     };
     return icons[this.platform.toLowerCase()] || '';
   }
