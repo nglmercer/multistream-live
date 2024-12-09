@@ -8225,11 +8225,13 @@ class CustomDropdown extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.position = this.getAttribute('position') || 'right';
+    this.mode = this.getAttribute('mode') || 'light';
   }
 
   connectedCallback() {
     this.render();
     this.setupEventListeners();
+    this.updateMode();
   }
 
   render() {
@@ -8296,14 +8298,6 @@ class CustomDropdown extends HTMLElement {
         ::slotted(a:hover) {
           background-color: var(--hover-bg, #f5f5f5);
         }
-
-        :host-context(.dark) {
-          --bg-color: #1a1a1a;
-          --text-color: #ffffff;
-          --border-color: rgba(255, 255, 255, 0.1);
-          --hover-bg: #2a2a2a;
-          --hover-color: #8b92ff;
-        }
       </style>
       <button class="dropdown-trigger">
         <slot name="trigger">Dropdown</slot>
@@ -8314,6 +8308,32 @@ class CustomDropdown extends HTMLElement {
     `;
   }
 
+  updateMode() {
+    const trigger = this.shadowRoot.querySelector('.dropdown-trigger');
+    const content = this.shadowRoot.querySelector('.dropdown-content');
+
+    if (trigger && content) {
+      if (this.mode === 'dark') {
+        trigger.style.setProperty('--text-color', '#ffffff');
+        trigger.style.setProperty('--hover-color', '#8b92ff');
+
+        content.style.setProperty('--bg-color', '#1a1a1a');
+        content.style.setProperty('--text-color', '#ffffff');
+        content.style.setProperty('--border-color', 'rgba(255, 255, 255, 0.1)');
+        content.style.setProperty('--hover-bg', '#2a2a2a');
+      } else {
+        trigger.style.setProperty('--text-color', '#333');
+        trigger.style.setProperty('--hover-color', '#646cff');
+
+        content.style.setProperty('--bg-color', 'white');
+        content.style.setProperty('--text-color', '#333');
+        content.style.setProperty('--border-color', 'rgba(0, 0, 0, 0.1)');
+        content.style.setProperty('--hover-bg', '#f5f5f5');
+      }
+    }
+  }
+
+  // Rest of the methods remain the same...
   updatePosition() {
     const trigger = this.shadowRoot.querySelector('.dropdown-trigger');
     const content = this.shadowRoot.querySelector('.dropdown-content');
@@ -8382,6 +8402,18 @@ class CustomDropdown extends HTMLElement {
         this.updatePosition();
       }
     }, true);
+  }
+
+  // Allow changing mode dynamically
+  static get observedAttributes() {
+    return ['mode'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'mode') {
+      this.mode = newValue;
+      this.updateMode();
+    }
   }
 }
 

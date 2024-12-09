@@ -21,9 +21,7 @@
   <nav-bar>
     <div slot="navbar-content" class="flex">
       <div>
-
-
-        <custom-dropdown>
+        <custom-dropdown mode="dark">
           <button slot="trigger" class="open-modal-btn">login</button>
           <login-button platform="tiktok"></login-button>
           <login-button platform="twitch"></login-button>
@@ -43,38 +41,6 @@
       
     </div>
   </side-bar>
-<!--     <responsive-nav-sidebar>
-        <div slot="nav-base-items">
-            <user-profile group-id="main" id="kicklogin" minimal></user-profile>
-        </div>
-
-        <div slot="sidebar-base-items">
-        </div>
-
-        <div slot="menu-items">
-
-
-  <div>
-
-    
-  </div>
-
-  <div id="languageInfo"></div>
-        </div>
-
-        <div slot="main-content">
-          <tab-manager>
-            <div slot="tab-buttons" class="tab-buttons">
-              <button data-tab-button="tab1" class="tab-button">1</button>
-              <button data-tab-button="tab2" class="tab-button">2</button>
-              <button data-tab-button="tab3" class="tab-button">3</button>
-              <button data-tab-button="tab4" class="tab-button">4</button>
-            </div>
-
-          </tab-manager>
-
-        </div>
-    </responsive-nav-sidebar> -->
     <main-content>
       <div slot="dashboard-content" class="bg-slate-800 text-white">
         <div slot="tab-content" data-tab-content="tab1">
@@ -169,11 +135,13 @@
 
       </div>
       <div slot="login-content" class="flex justify-center w-full">
-        <div class="flex flex-wrap">
-        <user-profile group-id="kick" id="kicklogin" minimal></user-profile>
-        <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
-        <user-profile group-id="twitch" id="twitchlogin" minimal></user-profile>
-
+        <div class="flex maxw-1/2">
+          <div class="flex flex-wrap">
+            <user-profile group-id="kick" id="kicklogin" minimal></user-profile>
+            <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
+            <user-profile group-id="twitch" id="twitchlogin" minimal></user-profile>
+    
+            </div>
         </div>
       </div>
       
@@ -224,6 +192,9 @@
         console.log(selectcomponent)
       });
     }, 4444);
+    document.querySelectorAll('login-button').forEach(login => {
+      console.log("login",login);
+    });
   </script>
   <script>
         // Obtener referencias a los selectores

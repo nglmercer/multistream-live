@@ -474,7 +474,6 @@ class NavBar extends HTMLElement {
         </style>
         <main>
           <div class="container">
-            <h1 class="title">${activePage.charAt(0).toUpperCase() + activePage.slice(1)}</h1>
             ${slots[activePage] || '<p>No content available</p>'}
           </div>
         </main>

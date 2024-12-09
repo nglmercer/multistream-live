@@ -102,7 +102,9 @@ custom-modal {
     display: flex;
 }
 
-
+.justify-center {
+    justify-content: center;
+}
 .modal-content {
     background-color: #1f1f1f; /* Fondo oscuro */
     padding: 20px;
