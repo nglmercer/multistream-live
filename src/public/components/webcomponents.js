@@ -2755,6 +2755,394 @@ class CustomMultiSelect extends HTMLElement {
 }
 
 customElements.define('custom-multi-select', CustomMultiSelect);
+class PlatformStateManager {
+  constructor() {
+    this.states = new Map();
+  }
+
+  getState(platform) {
+    if (!this.states.has(platform)) {
+      this.states.set(platform, {
+        isLoggedIn: false,
+        status: 'offline'
+      });
+    }
+    return this.states.get(platform);
+  }
+
+  updateState(platform, newState) {
+    this.states.set(platform, newState);
+    this.notifyStateChange(platform, newState);
+  }
+
+  notifyStateChange(platform, state) {
+    const event = new CustomEvent('platform-state-change', {
+      detail: {
+        platform,
+        ...state
+      },
+      bubbles: true,
+      composed: true
+    });
+    document.dispatchEvent(event);
+  }
+}
+
+const platformState = new PlatformStateManager();
+const styles = `
+  :host {
+    display: inline-block;
+    margin: 0.5rem;
+  }
+  
+  .login-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 200px;
+  }
+  
+  .platform-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .platform-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: auto;
+  }
+  
+  .login-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-button:active {
+    transform: translateY(0);
+  }
+`;
+const platformIcons = {
+  twitch: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>',
+  
+  youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+  
+  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>',
+  
+  kick: '<svg viewBox="0 0 933 300" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H100V66.6667H133.333V33.3333H166.667V0H266.667V100H233.333V133.333H200V166.667H233.333V200H266.667V300H166.667V266.667H133.333V233.333H100V300H0V0ZM666.667 0H766.667V66.6667H800V33.3333H833.333V0H933.333V100H900V133.333H866.667V166.667H900V200H933.333V300H833.333V266.667H800V233.333H766.667V300H666.667V0ZM300 0H400V300H300V0ZM533.333 0H466.667V33.3333H433.333V266.667H466.667V300H533.333H633.333V200H533.333V100H633.333V0H533.333Z"/></svg>',
+  
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'
+};
+const platformThemes = {
+  twitch: {
+    color: '#9146FF',
+    hoverColor: '#7C2BFF',
+    textColor: '#FFFFFF',
+    states: {
+      online: 'live on Twitch!',
+      offline: 'Go live on Twitch',
+      away: 'Stream Paused',
+      busy: 'Stream Ending Soon'
+    }
+  },
+  youtube: {
+    color: '#FF0000',
+    hoverColor: '#CC0000',
+    textColor: '#FFFFFF',
+    states: {
+      online: 'Live on YouTube!',
+      offline: 'Go Live on YouTube',
+      away: 'Stream Paused',
+      busy: 'Ending Stream'
+    }
+  },
+  tiktok: {
+    color: '#000000',
+    hoverColor: '#1a1a1a',
+    textColor: '#FFFFFF',
+    states: {
+      online: 'Live on TikTok!',
+      offline: 'Go Live on TikTok',
+      away: 'Stream Paused',
+      busy: 'Ending Stream'
+    }
+  },
+  kick: {
+    color: '#53FC18',
+    hoverColor: '#45D614',
+    textColor: '#000000',
+    states: {
+      online: 'live on Kick!',
+      offline: 'Start live on Kick',
+      away: 'Stream Paused',
+      busy: 'Stream Ending Soon'
+    }
+  },
+  facebook: {
+    color: '#1877F2',
+    hoverColor: '#0E5FC1',
+    textColor: '#FFFFFF',
+    states: {
+      online: 'Live on',
+      offline: 'Go Live',
+      away: 'Stream Paused',
+      busy: 'Ending Stream'
+    }
+  }
+};
+
+class LoginButton extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.platform = '';
+    this.isLoggedIn = false;
+    this.status = 'offline';
+    this.handleStateChange = this.handleStateChange.bind(this);
+  }
+
+  static get observedAttributes() {
+    return ['platform', 'logged-in', 'status', 'image', 'username'];
+  }
+  saveLoginData(data) {
+    const loginData = {
+      image: data.image || '',
+      username: data.username || '',
+      states: data.states || {}
+    };
+    localStorage.setItem(`login-${this.platform.toLowerCase()}`, JSON.stringify(loginData));
+  }
+
+  loadLoginData() {
+    const storedData = localStorage.getItem(`login-${this.platform.toLowerCase()}`);
+    if (storedData) {
+      return JSON.parse(storedData);
+    }
+    return null;
+  }
+
+  toggleState() {
+    const newState = {
+      isLoggedIn: !this.isLoggedIn,
+      status: !this.isLoggedIn ? 'online' : 'offline'
+    };
+    
+    platformState.updateState(this.platform.toLowerCase(), newState);
+    
+    // Save login data when state changes
+    this.saveLoginData({
+      states: newState
+    });
+  }
+  connectedCallback() {
+  this.platform = this.getAttribute('platform') || '';
+  const state = platformState.getState(this.platform.toLowerCase());
+  this.isLoggedIn = state.isLoggedIn;
+  this.status = state.status;
+  
+  document.addEventListener('platform-state-change', this.handleStateChange);
+  
+  const savedData = this.loadLoginData();
+  if (savedData && savedData.image) {
+    this.updateImage(savedData.image);
+  } else {
+    this.render();
+  }
+  
+  this.addEventListeners();
+}
+
+  disconnectedCallback() {
+    document.removeEventListener('platform-state-change', this.handleStateChange);
+  }
+
+  handleStateChange(event) {
+    const { platform, isLoggedIn, status } = event.detail;
+    if (platform.toLowerCase() === this.platform.toLowerCase()) {
+      this.isLoggedIn = isLoggedIn;
+      this.status = status;
+      this.render();
+    }
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) return;
+
+    switch(name) {
+      case 'platform':
+        this.platform = newValue;
+        const state = platformState.getState(this.platform.toLowerCase());
+        this.isLoggedIn = state.isLoggedIn;
+        this.status = state.status;
+        break;
+      case 'logged-in':
+        this.isLoggedIn = newValue === 'true';
+        break;
+      case 'status':
+        this.status = newValue || 'offline';
+        break;
+    }
+    
+    this.render();
+  }
+
+  addEventListeners() {
+    const button = this.shadowRoot?.querySelector('button');
+    button?.addEventListener('click', () => {
+      this.toggleState();
+      this.dispatchEvent(new CustomEvent('loginStateChange', {
+        detail: { 
+          state: this.isLoggedIn, 
+          platform: this.platform 
+        },
+        bubbles: true,
+        composed: true
+      }));
+    });
+  }
+  updateImage(imageUrl) {
+    // Update the stored image in localStorage
+    const currentData = this.loadLoginData() || {};
+    currentData.image = imageUrl;
+    this.saveLoginData(currentData);
+
+    // If you want to update the rendered component, modify the render method
+    this.render = () => {
+      if (!this.shadowRoot) return;
+      
+      const theme = this.getTheme();
+      const backgroundColor = this.isLoggedIn ? theme.hoverColor : theme.color;
+      
+      this.shadowRoot.innerHTML = `
+        <style>
+          ${styles}
+          .login-button {
+            background-color: ${backgroundColor};
+            color: ${theme.textColor};
+          }
+          .platform-icon {
+            width: 24px;
+            height: 24px;
+          }
+          .platform-image {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+        </style>
+        <button class="login-button" data-platform="${this.platform}">
+          <span class="platform-icon">
+            ${currentData.image 
+              ? `<img src="${currentData.image}" alt="Profile" class="platform-image">`
+              : this.getIcon()
+            }
+          </span>
+          ${this.getText()}
+          <span class="status-indicator" style="background-color: ${this.getStatusColor()}"></span>
+        </button>
+      `;
+    };
+
+    // Re-render the component
+    this.render();
+  }
+  toggleState() {
+    const newState = {
+      isLoggedIn: !this.isLoggedIn,
+      status: !this.isLoggedIn ? 'online' : 'offline'
+    };
+    
+    platformState.updateState(this.platform.toLowerCase(), newState);
+  }
+
+  getTheme() {
+    return platformThemes[this.platform.toLowerCase()] || platformThemes.twitch;
+  }
+
+  getIcon() {
+    return platformIcons[this.platform.toLowerCase()] || '';
+  }
+
+  getStatusColor() {
+    const colors = {
+      online: '#4CAF50',
+      offline: '#9EA1A5',
+      away: '#FFC107',
+      busy: '#F44336'
+    };
+    return colors[this.status] || colors.offline;
+  }
+
+  getText() {
+    const theme = this.getTheme();
+    return theme.states[this.status] || 'Connect';
+  }
+
+  render() {
+    if (!this.shadowRoot) return;
+    
+    const theme = this.getTheme();
+    const backgroundColor = this.isLoggedIn ? theme.hoverColor : theme.color;
+    
+    this.shadowRoot.innerHTML = `
+      <style>
+        ${styles}
+        .login-button {
+          background-color: ${backgroundColor};
+          color: ${theme.textColor};
+        }
+        .login-button:hover {
+          background-color: ${theme.hoverColor};
+        }
+        .platform-icon svg {
+          color: ${theme.textColor};
+        }
+      </style>
+      <button class="login-button" data-platform="${this.platform}">
+        <span class="platform-icon">${this.getIcon()}</span>
+        ${this.getText()}
+        <span class="status-indicator" style="background-color: ${this.getStatusColor()}"></span>
+      </button>
+    `;
+  }
+}
+
+customElements.define('login-button', LoginButton);
+function hexToRgb(hex) {
+  // Remove # if present
+  hex = hex.replace('#', '');
+  
+  // Handle 3-digit hex
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('');
+  }
+  
+  // Convert to RGB
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  
+  return `${r}, ${g}, ${b}`;
+}
 class UserProfile extends HTMLElement {
   constructor() {
     super();
@@ -2912,16 +3300,28 @@ class UserProfile extends HTMLElement {
 
   render() {
     const currentTranslations = this.translations[this.state.language];
-    const actualimageUrl = this.state.imageUrl ? this.state.imageUrl : this.createInitialState().imageUrl;
+    
+    // Determine image URL or platform icon
+    let displayImage = this.state.imageUrl;
+    if (!displayImage || displayImage === './favicon.svg') {
+      // Check if platform exists in platformIcons
+      if (platformIcons[this.state.platform]) {
+        // Create an SVG-based image using platform icon
+        displayImage = `data:image/svg+xml;base64,${btoa(platformIcons[this.state.platform])}`;
+      } else {
+        // Fallback to default
+        displayImage = './favicon.svg';
+      }
+    }
+
+    // Get platform theme for styling
+    const platformTheme = platformThemes[this.state.platform] || platformThemes.twitch;
+    console.log("platformTheme",platformTheme)
     this.shadowRoot.innerHTML = `
-      ${this.getStyles()}
+      ${this.getStyles(platformTheme)}
       <div class="container ${this.state.connected ? 'connected' : ''}">
         <div class="profile-wrapper">
-          <img 
-            class="profile-image" 
-            src="${actualimageUrl}"
-            alt="Profile"
-          />
+          ${this.getimagegprofile()}
           <div 
             class="status-indicator" 
             data-status="${this.state.connectionStatus}"
@@ -2942,6 +3342,26 @@ class UserProfile extends HTMLElement {
 
     this.setupEventListeners();
   }
+  getimagegprofile(){
+    //           <img 
+/*     class="profile-image" 
+    src="${displayImage}"
+    alt="Profile"
+  /> */
+  let displayImage = this.state.imageUrl;
+  if (!displayImage || displayImage === './favicon.svg') {
+    // Check if platform exists in platformIcons
+    if (platformIcons[this.state.platform])
+      displayImage = `data:image/svg+xml;base64,${btoa(platformIcons[this.state.platform])}`;
+      return `<div class='profile-image'>
+      ${platformIcons[this.state.platform]}</div>`
+    }
+    else {
+     return`<img class="profile-image" src="${displayImage}" alt="Profile"/>`
+    }
+    return displayImage;
+  }
+
 
   setupEventListeners() {
     this.activeListeners.forEach(({ element, type, handler }) => {
@@ -2982,7 +3402,7 @@ class UserProfile extends HTMLElement {
     }
   }
 
-  getStyles() {
+  getStyles(platformTheme) {
     return `
       <style>
         .container {
@@ -2991,8 +3411,8 @@ class UserProfile extends HTMLElement {
           align-items: center;
           gap: 20px;
           padding: 20px;
-          background-color: #1a1a2e;
-          border-radius: 8px;
+          background-color: ${platformTheme.color || '#1a1a2e'};
+          border-radius: 8px; 
           color: #fff;
         }
         .status-indicator {
@@ -3027,6 +3447,7 @@ class UserProfile extends HTMLElement {
           width: 36px;
           height: 36px;
           border-width: 2px;
+          display: flex;
         }
         :host([minimal]) .status-indicator {
           width: 12px;
@@ -3040,19 +3461,25 @@ class UserProfile extends HTMLElement {
           height: 120px;
           border-radius: 50%;
           object-fit: cover;
-          border: 3px solid #4d7cff;
-          box-shadow: 0 0 10px rgba(77, 124, 255, 0.3);
+          border: 3px solid  ${platformTheme.color || '#1a1a2e'};
+            box-shadow: 
+    0 5px 15px rgba(${platformTheme.color ? 
+      `${hexToRgb(platformTheme.color)}, 0.3` : 
+      '77, 124, 255, 0.3'}),
+    0 10px 25px rgba(${platformTheme.hoverColor ? 
+      `${hexToRgb(platformTheme.hoverColor)}, 0.2` : 
+      '77, 124, 255, 0.2'});
           transition: all 0.3s ease;
         }
         .profile-image:hover {
           transform: scale(1.05);
-          border-color: #4d9cff;
+          border-color:  ${platformTheme.hoverColor || '#4d7cff'};
         }
         input {
           width: 100%;
           padding: 12px;
           background-color: #162447;
-          border: 3px solid #4d9cff;
+          border: 3px solid ${platformTheme.color || '#1a1a2e'};
           border-radius: 8px;
           color: #fff;
           font-size: 14px;
@@ -3064,8 +3491,14 @@ class UserProfile extends HTMLElement {
         }
         input:focus {
           outline: none;
-          border-color: #e94560;
-          box-shadow: 0 0 10px rgba(233, 69, 96, 0.2);
+          border-color: ${platformTheme.hoverColor || '#4d7cff'};
+            box-shadow: 
+    0 5px 15px rgba(${platformTheme.color ? 
+      `${hexToRgb(platformTheme.color)}, 0.3` : 
+      '77, 124, 255, 0.3'}),
+    0 10px 25px rgba(${platformTheme.hoverColor ? 
+      `${hexToRgb(platformTheme.hoverColor)}, 0.2` : 
+      '77, 124, 255, 0.2'});
         }
         input::placeholder {
           color: #8a8a9e;
@@ -3078,8 +3511,8 @@ class UserProfile extends HTMLElement {
         button {
           width: 100%;
           padding: 12px 24px;
-          background: linear-gradient(135deg, #4d7cff 0%, #3b5998 100%);
-          color: white;
+          background: linear-gradient(135deg, ${platformTheme.color || '#4d7cff'} 0%, ${platformTheme.hoverColor || '#3b5998'} 100%);
+          color: ${platformTheme.textColor || 'white'};
           border: none;
           border-radius: 8px;
           font-size: 14px;
@@ -3095,10 +3528,17 @@ class UserProfile extends HTMLElement {
           font-size: 12px;
         }
         button:hover {
-          background: linear-gradient(135deg, #5a88ff 0%, #4866ab 100%);
+          background: linear-gradient(135deg, ${platformTheme.hoverColor || '#5a88ff'} 0%, ${platformTheme.color || '#4866ab'} 100%);
           transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(77, 124, 255, 0.3);
+                      box-shadow: 
+    0 5px 15px rgba(${platformTheme.color ? 
+      `${hexToRgb(platformTheme.color)}, 0.3` : 
+      '77, 124, 255, 0.3'}),
+    0 10px 25px rgba(${platformTheme.hoverColor ? 
+      `${hexToRgb(platformTheme.hoverColor)}, 0.2` : 
+      '77, 124, 255, 0.2'});
         }
+
         button:active {
           transform: translateY(0);
         }
@@ -3115,7 +3555,7 @@ class UserProfile extends HTMLElement {
       </style>
     `;
   }
-
+  
   connect(username) {
     this.state.connected = true;
     this.state.username = username;
@@ -7779,202 +8219,173 @@ class AlertComponent extends HTMLElement {
 
 // Define the custom element
 customElements.define('app-alert', AlertComponent);
-class LoginButton extends HTMLElement {
+
+class CustomDropdown extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.isLoggedIn = false;
-    this.platform = '';
-    this.status = 'offline';
-  }
-
-  static get observedAttributes() {
-    return ['platform', 'logged-in', 'status'];
+    this.position = this.getAttribute('position') || 'right';
   }
 
   connectedCallback() {
-    this.platform = this.getAttribute('platform') || '';
     this.render();
-    this.addEventListeners();
-    
-    // Add a global event listener for cross-element synchronization
-    document.addEventListener('login-state-update', this.handleGlobalStateUpdate.bind(this));
-  }
-
-  disconnectedCallback() {
-    // Remove the global event listener to prevent memory leaks
-    document.removeEventListener('login-state-update', this.handleGlobalStateUpdate);
-  }
-
-  handleGlobalStateUpdate(event) {
-    const { platform, isLoggedIn, status } = event.detail;
-    
-    // Update this element if the platform matches
-    if (this.platform.toLowerCase() === platform.toLowerCase()) {
-      this.isLoggedIn = isLoggedIn;
-      this.status = status;
-      this.render();
-    }
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue) {
-      let shouldUpdate = false;
-      
-      switch(name) {
-        case 'logged-in':
-          this.isLoggedIn = newValue === 'true';
-          shouldUpdate = true;
-          break;
-        case 'status':
-          this.status = newValue || 'offline';
-          shouldUpdate = true;
-          break;
-        case 'platform':
-          this.platform = newValue;
-          shouldUpdate = true;
-          break;
-      }
-      
-      if (shouldUpdate) {
-        this.render();
-        this.broadcastStateUpdate();
-      }
-    }
-  }
-
-  broadcastStateUpdate() {
-    // Dispatch a global event to update all elements with the same platform
-    const event = new CustomEvent('login-state-update', {
-      detail: {
-        platform: this.platform,
-        isLoggedIn: this.isLoggedIn,
-        status: this.status
-      },
-      bubbles: true,
-      composed: true
-    });
-    document.dispatchEvent(event);
-  }
-
-  addEventListeners() {
-    const button = this.shadowRoot?.querySelector('button');
-    button?.addEventListener('click', () => {
-      // Toggle login state on click
-      this.setAttribute('logged-in', (!this.isLoggedIn).toString());
-      this.setAttribute('status', this.isLoggedIn ? 'offline' : 'online');
-    });
+    this.setupEventListeners();
   }
 
   render() {
-    if (!this.shadowRoot) return;
-    
-    const statusColor = this.getcolors();
     this.shadowRoot.innerHTML = `
       <style>
         :host {
           display: inline-block;
+          position: relative;
         }
-        .login-button {
-          padding: 10px 20px;
-          border: none;
-          border-radius: 5px;
+
+        .dropdown-trigger {
           cursor: pointer;
+          padding: 8px 16px;
+          background: none;
+          border: none;
+          color: var(--text-color, #333);
+          font-size: 1rem;
           display: flex;
           align-items: center;
-          gap: 10px;
-          background-color: #2b2b2b;
-          color: white;
-          transition: all 0.3s ease;
+          gap: 4px;
+          transition: color 0.2s ease;
         }
-        .login-button:hover {
-          opacity: 0.9;
+
+        .dropdown-trigger:hover {
+          color: var(--hover-color, #646cff);
         }
-        .status-indicator {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background-color: ${statusColor};
+
+        .dropdown-content {
+          display: none;
+          position: absolute;
+          background: var(--bg-color, white);
+          min-width: 200px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 1000;
+          border-radius: 8px;
+          opacity: 0;
+          transform: translateY(-10px);
+          transition: opacity 0.2s ease, transform 0.2s ease;
+          border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
         }
-        .platform-icon {
-          width: 20px;
-          height: 20px;
-          margin-right: 10px;
+
+        .dropdown-content.active {
+          display: block;
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .dropdown-content.position-right {
+          left: 0;
+        }
+
+        .dropdown-content.position-left {
+          right: 0;
+        }
+
+        ::slotted(*) {
+          padding: 12px 16px;
+          display: block;
+          color: var(--text-color, #333);
+          text-decoration: none;
+          transition: background-color 0.2s ease;
+        }
+
+        ::slotted(a:hover) {
+          background-color: var(--hover-bg, #f5f5f5);
+        }
+
+        :host-context(.dark) {
+          --bg-color: #1a1a1a;
+          --text-color: #ffffff;
+          --border-color: rgba(255, 255, 255, 0.1);
+          --hover-bg: #2a2a2a;
+          --hover-color: #8b92ff;
         }
       </style>
-      <button class="login-button" data-platform="${this.platform}">
-        <span class="platform-icon">${this.getPlatformIcon()}</span>
-        ${this.getstateelement()}
-        <span class="status-indicator"></span>
+      <button class="dropdown-trigger">
+        <slot name="trigger">Dropdown</slot>
       </button>
+      <div class="dropdown-content">
+        <slot></slot>
+      </div>
     `;
   }
-  getcolors() {
-    const colors = {
-      facebook: '#3b5998',
-      tiktok: '#FF4137',
-      twitch: '#6441A4',
-      kick: '#000000',
-      youtube: '#FF0000',
-      online: '#4CAF50',
-      offline: '#f44336',
-      away: '#FFC107',
-      busy: '#f44336',
+
+  updatePosition() {
+    const trigger = this.shadowRoot.querySelector('.dropdown-trigger');
+    const content = this.shadowRoot.querySelector('.dropdown-content');
+    const rect = trigger.getBoundingClientRect();
+    
+    // Reset classes
+    content.classList.remove('position-left', 'position-right');
+
+    // Calculate available space on both sides
+    const spaceRight = window.innerWidth - rect.right;
+    const spaceLeft = rect.left;
+
+    // Determine optimal position
+    if (this.position === 'left' || spaceRight < 200) {
+      content.classList.add('position-left');
+    } else {
+      content.classList.add('position-right');
     }
-    return colors[this.status.toLowerCase()] || '#000000';
-  }
-  getstateelement() {
-    const htmlstates = {
-      isLoggedIn: `Connected to ${this.platform}`,
-      isNotLoggedIn: `Login with ${this.platform}`,
-      offline: `Login with ${this.platform}`,
-      online: `Connected to ${this.platform}`,
-      away: `Away`,
-      busy: `Busy`
+
+    // Adjust vertical position if needed
+    const contentRect = content.getBoundingClientRect();
+    if (contentRect.bottom > window.innerHeight) {
+      content.style.maxHeight = `${window.innerHeight - rect.bottom - 20}px`;
+      content.style.overflowY = 'auto';
     }
-    console.log("status",this.status)
-    return htmlstates[this.status.toLowerCase()] || '';
   }
-  getPlatformIcon() {
-    const icons = {
-      tiktok: '<svg viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>',
-      twitch: '<svg viewBox="0 0 24 24" fill="white"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>',
-      kick: `<svg viewBox="0 0 933 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: auto;">
-  <g clip-path="url(#clip0_9790_492437)">
-    <g clip-path="url(#clip1_9790_492437)">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H100V66.6667H133.333V33.3333H166.667V0H266.667V100H233.333V133.333H200V166.667H233.333V200H266.667V300H166.667V266.667H133.333V233.333H100V300H0V0ZM666.667 0H766.667V66.6667H800V33.3333H833.333V0H933.333V100H900V133.333H866.667V166.667H900V200H933.333V300H833.333V266.667H800V233.333H766.667V300H666.667V0ZM300 0H400V300H300V0ZM533.333 0H466.667V33.3333H433.333V266.667H466.667V300H533.333H633.333V200H533.333V100H633.333V0H533.333Z" fill="#53FC18"/>
-    </g>
-  </g>
-  <defs>
-    <clipPath id="clip0_9790_492437">
-      <rect width="933" height="300" fill="white"/>
-    </clipPath>
-    <clipPath id="clip1_9790_492437">
-      <rect width="933.333" height="300" fill="white"/>
-    </clipPath>
-  </defs>
-</svg>
-`
-    };
-    return icons[this.platform.toLowerCase()] || '';
+
+  setupEventListeners() {
+    const trigger = this.shadowRoot.querySelector('.dropdown-trigger');
+    const content = this.shadowRoot.querySelector('.dropdown-content');
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isActive = content.classList.contains('active');
+      
+      // Close all other dropdowns
+      document.querySelectorAll('custom-dropdown').forEach(dropdown => {
+        if (dropdown !== this) {
+          dropdown.shadowRoot.querySelector('.dropdown-content').classList.remove('active');
+        }
+      });
+
+      content.classList.toggle('active');
+      
+      if (!isActive) {
+        this.updatePosition();
+      }
+    });
+
+    // Update position on window resize
+    window.addEventListener('resize', () => {
+      if (content.classList.contains('active')) {
+        this.updatePosition();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!this.contains(e.target)) {
+        content.classList.remove('active');
+      }
+    });
+
+    // Handle scroll events to reposition dropdown if needed
+    document.addEventListener('scroll', () => {
+      if (content.classList.contains('active')) {
+        this.updatePosition();
+      }
+    }, true);
   }
 }
 
-customElements.define('login-button', LoginButton);
-  const sociallogin = ["tiktokloginbtn","twitchloginbtn","kickloginbtn"]
- // Example of handling login state and status outside the web component
- sociallogin.forEach(login => {
-  const buttonlogin = document.getElementById(login)
-  buttonlogin.addEventListener('click', (event) => {
-    const { platform, isLoggedIn, status } = event.detail;
-    console.log("webcomponent login data",event.detail,platform,isLoggedIn)
-    // Update the button's status based on the login result
-    
-    buttonlogin.setAttribute('logged-in', "true");
-    buttonlogin.setAttribute('status', "online");
-  });
- }
- );
+customElements.define('custom-dropdown', CustomDropdown);
 
 /*  document.addEventListener('loginStateChange', async (event) => {
    const { platform, isLoggedIn } = event.detail;
@@ -8019,3 +8430,4 @@ customElements.define('login-button', LoginButton);
      }, 1000);
    });
  }
+ 

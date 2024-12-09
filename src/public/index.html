@@ -11,205 +11,221 @@
   </head>
   <script src="./server/tmi.min.js"></script>
   <script type="module" src="./components/webcomponents.js"></script>
+  <script type="module" src="./components/navwebcomponent.js"></script>
   <script type="module" src="./main.js"></script>
   <script type="module" src="./audio/tts.js"></script>
   <script type="module" src="./configtabhtml.js"></script>
 <script src="./assets/socket.io.min.js"></script>
 
 <body theme="dark" class="bg-gray-900">
-    <responsive-nav-sidebar>
-        <!-- Items base para el navbar (móvil) -->
+  <nav-bar>
+    <div slot="navbar-content" class="flex">
+      <div>
+
+
+        <custom-dropdown>
+          <button slot="trigger" class="open-modal-btn">login</button>
+          <login-button platform="tiktok"></login-button>
+          <login-button platform="twitch"></login-button>
+          <login-button platform="kick"></login-button>
+
+        </custom-dropdown>
+      </div>
+    </div>
+  </nav-bar>
+  <side-bar>
+    <div slot="sidebar-content">
+      <login-button platform="tiktok"></login-button>
+      <login-button platform="twitch"></login-button>
+      <login-button platform="kick"></login-button>
+      <h2><translate-text key="selectlang"></translate-text></h2>
+      <language-selector id="selector2"></language-selector>
+      
+    </div>
+  </side-bar>
+<!--     <responsive-nav-sidebar>
         <div slot="nav-base-items">
             <user-profile group-id="main" id="kicklogin" minimal></user-profile>
         </div>
 
-        <!-- Los mismos items base para el sidebar (desktop) -->
         <div slot="sidebar-base-items">
-                <user-profile group-id="main" id="kicklogin"></user-profile>
         </div>
 
-        <!-- Items adicionales del menú -->
         <div slot="menu-items">
-            <p>TikTok login</p>
-            <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
-            <p>Twitch login</p>
-            <user-profile group-id="twitch" id="twitchlogin" minimal></user-profile>
-            <div class="external-buttons">
-              <button data-tab-button="tab1">Home</button>
-              <button data-tab-button="tab2">Configuration</button>
-              <button data-tab-button="tab3">Dashboard</button>
-              <button data-tab-button="tab4">More configs</button>
-              <login-button platform="TikTok" id="tiktokloginbtn"></login-button>
-              <login-button platform="Twitch" id="twitchloginbtn"></login-button>
-              <login-button platform="Kick" id="kickloginbtn"></login-button>
-              <login-button platform="TikTok" id="tiktokloginbtn"></login-button>
-              <login-button platform="Twitch" id="twitchloginbtn"></login-button>
-              <login-button platform="Kick" id="kickloginbtn"></login-button>
-            </div>
+
+
   <div>
-    <h2><translate-text key="selectlang"></translate-text></h2>
-    <language-selector id="selector2"></language-selector>
-    <!-- <language-selector id="selector1"></language-selector> -->
+
     
   </div>
 
   <div id="languageInfo"></div>
         </div>
 
-        <!-- Contenido principal -->
         <div slot="main-content">
           <tab-manager>
-            <!-- Tab Buttons -->
             <div slot="tab-buttons" class="tab-buttons">
               <button data-tab-button="tab1" class="tab-button">1</button>
               <button data-tab-button="tab2" class="tab-button">2</button>
               <button data-tab-button="tab3" class="tab-button">3</button>
               <button data-tab-button="tab4" class="tab-button">4</button>
             </div>
-      
-            <!-- Tab Content -->
-            <div slot="tab-content" data-tab-content="tab1">
-              <section class="section" id="users">
-                <h2>Chat</h2>
-                 
-                  <div class="containerbox relative">
-                    <div class="LiveContainer">
-                      <div  id="chat-container" class="chat1 chatcontainer">
-                        <message-container id="chatcontainer" wrapper-classes="maxh-15rem"></message-container>
-                      </div>
-                      <div class="gift2 giftcontainer">
-                        <message-container id="giftcontainer" wrapper-classes="maxh-15rem"></message-container>
-                      </div>
-                      <div class="events3 eventscontainer">
-                        <message-container id="eventscontainer" wrapper-classes="maxh-5rem"></message-container>
-                      </div>
-                      <audio-player></audio-player>
-                        <div id="chatbotconfig" class="grid grid-cols-2 gap-4"></div>
-                        <audio id="audio"></audio>
-                        <div id="MinecraftModalContainer"> 
-                        </div>
-                        <input type="text" id="speaktext" placeholder="Speak text" class="default-input">
-                        <button id="speakbutton" class="button default-button">Speak test</button>
-                  </div>
-                </div>
-                 <div class="containerbox relative flex-wrap">
-                  <div id="ttssettings"></div>
-                  <div id="ttssettings1"></div>
-                 </div>
-            </section>
-            </div>
-            
-            <div slot="tab-content" data-tab-content="tab2">
-              <section class="section" id="settings">
-                <div id="container" class="container">
-                </div>
 
-                <h2><translate-text key="configuration"></translate-text></h2>
-                  <div class="containerbox relative">
-                      <h3><translate-text key="eventtable"></translate-text>
-                          <button class="open-modal-btn" onclick="document.getElementById('eventformModal').open()"><translate-text key="addevent"></translate-text></button>
-
-                      </h3>
-                      <custom-modal modal-type="form" id="EventsModal">
-                        <div id="EventsModalContainer"></div>
-                      </custom-modal>
-                      <div id="table-containerEvent" class="dynamic-table1"></div>
-                    <h3><translate-text key="actiontable"></translate-text>
-                        <button class="open-modal-btn" onclick="document.getElementById('actionformModal').open()"><translate-text key="addaction"></translate-text></button>
-
-                    </h3>
-                    <custom-modal modal-type="form" id="ActionModal">
-                      <div id="ActionModalContainer"></div>
-                    </custom-modal>
-                    <div id="table-containerAction" class="dynamic-table1"></div>
-
-                </div>
-
-
-              </section>
-            </div>
-            
-            <div slot="tab-content" data-tab-content="tab3">
-              <section class="section" id="dashboard">
-                <h2>Dashboard</h2>
-
-                  <div class="containerbox relative">
-                    <grid-container id="giftmap"></grid-container>
-
-                  </div>
-
-                  
-              </section>
-            </div>
-            <div slot="tab-content" class="tab-content" data-tab-content="tab4">
-              <section class="section" id="WindowManager">
-                  <h1 class="text-3xl font-bold mb-6">Window Manager (Web Interface)</h1>
-                <button id="newWindowBtn" class="open-modal-btn" onclick="document.getElementById('windowModal').open()">
-                  Nueva Ventana
-                </button>
-                <div id="windowsList" class="mt-6 space-y-4"></div>
-                <window-manager id="myWindowManager"></window-manager>
-                <preview-webcomponent id="iframeweb" link="http://localhost:9000/overlaya.html" showpreview="false" theme="dark"></preview-webcomponent>
-              
-              </section>
-            </div>
           </tab-manager>
-          <custom-modal modal-type="form" id="windowModal">
-              <div id="formmodal"></div>
-          </custom-modal>
-          <script type="module">
-            //document.getElementById("windowModal").open();
-          </script>
-          <custom-modal modal-type="form" id="eventformModal">
-              <div id="eventformmodal"></div>
-          </custom-modal>
-          <custom-modal modal-type="form" id="actionformModal">
-              <div id="actionformmodal"></div>
-          </custom-modal>
 
-          
-          <div id="lasteventParse"></div>
-          <button id="openModal" class="modal-trigger" onclick="document.getElementById('Configurations').open()">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-                
-          </button>
-          <custom-modal modal-type="form" id="Configurations">
-              <custom-tabs id="tabscontent">
-              </custom-tabs>
-              <div id="container123"></div>
-          </custom-modal>
-          <script type="module">
-            setTimeout(() => {
-/*          
-            document.querySelectorAll('flexible-modal-selector').forEach(selector => {
-                console.log("selector",selector);
-                // if selector id is overlaysrc
-                if (selector.id === 'overlay'){
-                  console.log("selector overlay",selector);
-                } 
-            }); */
-              document.querySelectorAll('dynamic-form').forEach(modal => {
-                console.log("modal123",modal);
-                const shadow = modal.shadowRoot;
-                console.log("shadow",shadow);
-                const selectcomponent = shadow.querySelectorAll('flexible-modal-selector');
-                console.log(selectcomponent)
-              });
-            }, 4444);
-          </script>
         </div>
-    </responsive-nav-sidebar>
+    </responsive-nav-sidebar> -->
+    <main-content>
+      <div slot="dashboard-content" class="bg-slate-800 text-white">
+        <div slot="tab-content" data-tab-content="tab1">
+          <section class="section" id="users">
+            <h2>Chat</h2>
+             
+              <div class="containerbox relative">
+                <div class="LiveContainer">
+                  <div  id="chat-container" class="chat1 chatcontainer">
+                    <message-container id="chatcontainer" wrapper-classes="maxh-15rem"></message-container>
+                  </div>
+                  <div class="gift2 giftcontainer">
+                    <message-container id="giftcontainer" wrapper-classes="maxh-15rem"></message-container>
+                  </div>
+                  <div class="events3 eventscontainer">
+                    <message-container id="eventscontainer" wrapper-classes="maxh-5rem"></message-container>
+                  </div>
+                  <audio-player></audio-player>
+                    <div id="chatbotconfig" class="grid grid-cols-2 gap-4"></div>
+                    <audio id="audio"></audio>
+                    <div id="MinecraftModalContainer"> 
+                    </div>
+                    <input type="text" id="speaktext" placeholder="Speak text" class="default-input">
+                    <button id="speakbutton" class="button default-button">Speak test</button>
+              </div>
+            </div>
+             <div class="containerbox relative flex-wrap">
+              <div id="ttssettings"></div>
+              <div id="ttssettings1"></div>
+             </div>
+        </section>
+        </div>
+      </div>  
+      <div slot="projects-content">
+        <div slot="tab-content" data-tab-content="tab2">
+          <section class="section" id="settings">
+            <div id="container" class="container">
+            </div>
+
+            <h2><translate-text key="configuration"></translate-text></h2>
+              <div class="containerbox relative">
+                  <h3><translate-text key="eventtable"></translate-text>
+                      <button class="open-modal-btn" onclick="document.getElementById('eventformModal').open()"><translate-text key="addevent"></translate-text></button>
+
+                  </h3>
+                  <custom-modal modal-type="form" id="EventsModal">
+                    <div id="EventsModalContainer"></div>
+                  </custom-modal>
+                  <div id="table-containerEvent" class="dynamic-table1"></div>
+                <h3><translate-text key="actiontable"></translate-text>
+                    <button class="open-modal-btn" onclick="document.getElementById('actionformModal').open()"><translate-text key="addaction"></translate-text></button>
+
+                </h3>
+                <custom-modal modal-type="form" id="ActionModal">
+                  <div id="ActionModalContainer"></div>
+                </custom-modal>
+                <div id="table-containerAction" class="dynamic-table1"></div>
+
+            </div>
 
 
+          </section>
+        </div>
+      </div>
+      <div slot="messages-content">
+        <div slot="tab-content" data-tab-content="tab3">
+          <section class="section" id="dashboard">
+            <h2>Dashboard</h2>
 
+              <div class="containerbox relative">
+                <grid-container id="giftmap"></grid-container>
+
+              </div>
+
+              
+          </section>
+        </div>
+      </div>
+      <div slot="settings-content">
+        <div slot="tab-content" class="tab-content" data-tab-content="tab4">
+          <section class="section" id="WindowManager">
+              <h1 class="text-3xl font-bold mb-6">Window Manager (Web Interface)</h1>
+            <button id="newWindowBtn" class="open-modal-btn" onclick="document.getElementById('windowModal').open()">
+              Nueva Ventana
+            </button>
+            <div id="windowsList" class="mt-6 space-y-4"></div>
+            <window-manager id="myWindowManager"></window-manager>
+            <preview-webcomponent id="iframeweb" link="http://localhost:9000/overlaya.html" showpreview="false" theme="dark"></preview-webcomponent>
+          
+          </section>
+        </div>
+
+      </div>
+      <div slot="login-content" class="flex justify-center w-full">
+        <div class="flex flex-wrap">
+        <user-profile group-id="kick" id="kicklogin" minimal></user-profile>
+        <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
+        <user-profile group-id="twitch" id="twitchlogin" minimal></user-profile>
+
+        </div>
+      </div>
+      
+    </main-content>
+
+    <custom-modal modal-type="form" id="windowModal">
+      <div id="formmodal"></div>
+  </custom-modal>
+  <script type="module">
+    //document.getElementById("windowModal").open();
+  </script>
+  <custom-modal modal-type="form" id="eventformModal">
+      <div id="eventformmodal"></div>
+  </custom-modal>
+  <custom-modal modal-type="form" id="actionformModal">
+      <div id="actionformmodal"></div>
+  </custom-modal>
+
+  
+  <div id="lasteventParse"></div>
+  <button id="openModal" class="modal-trigger" onclick="document.getElementById('Configurations').open()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+        
+  </button>
+  <custom-modal modal-type="form" id="Configurations">
+      <custom-tabs id="tabscontent">
+      </custom-tabs>
+      <div id="container123"></div>
+  </custom-modal>
+  <script type="module">
+    setTimeout(() => {
+/*          
+    document.querySelectorAll('flexible-modal-selector').forEach(selector => {
+        console.log("selector",selector);
+        // if selector id is overlaysrc
+        if (selector.id === 'overlay'){
+          console.log("selector overlay",selector);
+        } 
+    }); */
+      document.querySelectorAll('dynamic-form').forEach(modal => {
+        console.log("modal123",modal);
+        const shadow = modal.shadowRoot;
+        console.log("shadow",shadow);
+        const selectcomponent = shadow.querySelectorAll('flexible-modal-selector');
+        console.log(selectcomponent)
+      });
+    }, 4444);
+  </script>
   <script>
-
-    const sections = document.querySelectorAll('section');
-    const menuItems = document.querySelectorAll('responsive-nav-sidebar .menu-item');
-
         // Obtener referencias a los selectores
         const selectorlang = document.getElementById('selector1') || document.getElementById('selector2');
         const languageInfo = document.getElementById('languageInfo');
