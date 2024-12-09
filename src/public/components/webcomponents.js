@@ -3316,7 +3316,6 @@ class UserProfile extends HTMLElement {
 
     // Get platform theme for styling
     const platformTheme = platformThemes[this.state.platform] || platformThemes.twitch;
-    console.log("platformTheme",platformTheme)
     this.shadowRoot.innerHTML = `
       ${this.getStyles(platformTheme)}
       <div class="container ${this.state.connected ? 'connected' : ''}">

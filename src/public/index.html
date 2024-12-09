@@ -135,7 +135,7 @@
 
       </div>
       <div slot="login-content" class="flex justify-center w-full">
-        <div class="flex maxw-1/2">
+        <div class="flex maxw-1/2" id="logintabcontainer">
           <div class="flex flex-wrap">
             <user-profile group-id="kick" id="kicklogin" minimal></user-profile>
             <user-profile group-id="tiktok" id="tiktoklogin" minimal></user-profile>
@@ -185,16 +185,47 @@
         } 
     }); */
       document.querySelectorAll('dynamic-form').forEach(modal => {
-        console.log("modal123",modal);
+        //console.log("modal123",modal);
         const shadow = modal.shadowRoot;
-        console.log("shadow",shadow);
+        //console.log("shadow",shadow);
         const selectcomponent = shadow.querySelectorAll('flexible-modal-selector');
-        console.log(selectcomponent)
+        //console.log(selectcomponent)
       });
     }, 4444);
     document.querySelectorAll('login-button').forEach(login => {
-      console.log("login",login);
+      login.addEventListener('loginStateChange', (e) => {
+        console.log("login",login,e.detail);
+        setActivePage('login');
+        resaltarContenedor('logintabcontainer');
+/*           window.location.hash = 'logintabcontainer';
+          document.getElementById('logintabcontainer').scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+          }); */
+      });
     });
+    function resaltarContenedor(container) {
+        const contenedor = document.getElementById(container);
+        
+        // Añadir efecto de sacudida
+        contenedor.classList.add('highlight-shake');
+        
+        // Quitar clase de sacudida después de la animación
+        setTimeout(() => {
+            contenedor.classList.remove('highlight-shake');
+        }, 500);
+    }
+    function setActivePage(pageName) {
+        // Dispatch a custom event to trigger page change
+        const pageChangeEvent = new CustomEvent('page-changed', {
+          detail: pageName,
+          bubbles: true,
+          composed: true
+        });
+        document.dispatchEvent(pageChangeEvent);
+
+        console.log(`Active page changed to: ${pageName}`);
+      }
   </script>
   <script>
         // Obtener referencias a los selectores

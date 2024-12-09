@@ -348,7 +348,9 @@ const PAGES = {
         `;
       }
   }
-  
+  document.addEventListener('page-changed', (e) => {
+    localStorage.setItem('activePage', e.detail);
+  });
 customElements.define('side-bar', SideBar);
 class NavBar extends HTMLElement {
     constructor() {
