@@ -14,6 +14,7 @@ const WindowManager = require('./features/window-manager.js');
 const keynut = require("./features/keycontroll.js");
 
 const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
+const  { createClient } = require('@retconned/kick-js'); 
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { fileURLToPath } = require('url');
 const path = require('node:path');
@@ -149,134 +150,206 @@ function createWindow () {
 // Mapa para guardar las instancias de TikTokLiveControl por sala
 const Livescreated = new Map();
 
-const LiveEvents = [
+const LiveEvents = ['ready', 'ChatMessage', 'Subscription', 'disconnected', 'login','close'];
+const tiktokLiveEvents = [
     'chat', 'gift', 'connected', 'disconnected',
     'websocketConnected', 'error', 'member', 'roomUser',
     'like', 'social', 'emote', 'envelope', 'questionNew',
     'subscribe', 'follow', 'share', 'streamEnd'
 ];
-signatureProvider.config.extraParams.apiKey = "NmYzMGMwNmMzODQ5YmUxYjkzNTI0OTIyMzBlOGZlMjgwNTJhY2JhMWQ0MzhhNWVmMGZmMjgy";
-class TiktokLiveControl {
-    constructor(uniqueId, options) {
-        this.uniqueId = this.normalizeUniqueId(uniqueId);
-        this.tiktokLiveConnection = new WebcastPushConnection(this.uniqueId , {
-            processInitialData: true,
-            enableExtendedGiftInfo: true,
-            enableWebsocketUpgrade: true,
-            requestPollingIntervalMs: 2000,
-            requestOptions: {
-                timeout: 10000
-            },
-            websocketOptions: {
-                timeout: 10000
-            },
-        });
-        this.isConnected = false;
-        this.options = options;
-        this.state = {}
-    }
+// Enum para los tipos de plataforma
+const PlatformType = {
+    TIKTOK: 'tiktok',
+    KICK: 'kick'
+};
+class PlatformConnection {
+  constructor(uniqueId, options = {}) {
+      this.uniqueId = uniqueId;
+      this.options = options;
+      this.isConnected = false;
+      this.state = {};
+      this.eventHandlersInitialized = false;
+  }
 
-    // Método para normalizar el uniqueId
-    normalizeUniqueId(uniqueId) {
-        // Eliminar espacios en blanco
-        uniqueId = uniqueId.trim();
-        // Asegurarse de que tenga @ al principio
-        if (!uniqueId.startsWith('@')) {
-            uniqueId = '@' + uniqueId;
-        }
-        return uniqueId;
-    }
+  normalizeUniqueId(uniqueId) {
+      return uniqueId.trim();
+  }
 
-    // Método para validar el uniqueId
-    static isValidUniqueId(uniqueId) {
-        if (!uniqueId) return false;
-        uniqueId = uniqueId.trim();
-        // Eliminar @ si existe para la validación
-        if (uniqueId.startsWith('@')) {
-            uniqueId = uniqueId.substring(1);
-        }
-        // Verificar que tenga al menos 2 caracteres y solo contenga caracteres válidos
-        return uniqueId.length >= 2 && /^[a-zA-Z0-9._]+$/.test(uniqueId);
-    }
+  getState() {
+      return this.state;
+  }
 
-    async connect(socket) {
-        try {
-            const state = await this.tiktokLiveConnection.connect();
-            console.log(`Connected to roomId ${state.roomId}`);
-            this.isConnected = true;
-            this.initializeEventHandlers();
-            this.state = state;
-            if (socket) {socket.emit('connected',this.getState())}
-            return state;
-        } catch (err) {
-            console.error('Failed to connect', this.uniqueId, err);
-            this.isConnected = false;
-            const errorMessage = err.message || err.toString();
-            console.log(errorMessage);
-            if (socket) {socket.emit('streamEnd',errorMessage)}
-            return errorMessage;
-        }
-    }
-    getState() {
-        return this.state;
-    }
-    initializeEventHandlers() {
-        LiveEvents.forEach(event => {
-            this.tiktokLiveConnection.on(event, (data) => {
-                io.to(this.uniqueId).emit(event, data);
-                if (event === 'disconnected') {
-                    console.log(`${event} event for ${this.uniqueId}`);
-                    this.isConnected = false;
-                }
-            });
-        });
-    }
-
-    disconnect() {
-        if (this.tiktokLiveConnection) {
-            this.tiktokLiveConnection.disconnect();
-            this.isConnected = false;
-        }
-    }
+  disconnect() {
+      this.isConnected = false;
+  }
 }
 
+signatureProvider.config.extraParams.apiKey = "NmYzMGMwNmMzODQ5YmUxYjkzNTI0OTIyMzBlOGZlMjgwNTJhY2JhMWQ0MzhhNWVmMGZmMjgy";
+// Clase específica para TikTok que extiende de PlatformConnection
+class TiktokConnection extends PlatformConnection {
+  constructor(uniqueId, options) {
+      super(uniqueId, options);
+      this.tiktokLiveConnection = new WebcastPushConnection(this.normalizeUniqueId(uniqueId), {
+          processInitialData: true,
+          enableExtendedGiftInfo: true,
+          enableWebsocketUpgrade: true,
+          requestPollingIntervalMs: 2000,
+          requestOptions: { timeout: 10000 },
+          websocketOptions: { timeout: 10000 },
+      });
+  }
+
+  normalizeUniqueId(uniqueId) {
+      uniqueId = uniqueId.trim();
+      return uniqueId.startsWith('@') ? uniqueId : '@' + uniqueId;
+  }
+
+  async connect(socket) {
+      try {
+          const state = await this.tiktokLiveConnection.connect();
+          this.isConnected = true;
+          this.state = state;
+          this.initializeEventHandlers(socket);
+          if (socket) {
+              socket.emit('connected', this.getState());
+          }
+          return state;
+      } catch (err) {
+          console.error('Failed to connect to TikTok:', err);
+          if (socket) {
+              socket.emit('streamEnd', err.message);
+          }
+          throw err;
+      }
+  }
+
+  initializeEventHandlers(socket) {
+      if (this.eventHandlersInitialized) return;
+
+      tiktokLiveEvents.forEach(event => {
+          this.tiktokLiveConnection.on(event, (data) => {
+              io.to(this.uniqueId).emit(event, data);
+              if (event === 'disconnected') {
+                  console.log(`TikTok ${event} event for ${this.uniqueId}`);
+                  this.isConnected = false;
+              }
+          });
+      });
+
+      this.eventHandlersInitialized = true;
+  }
+
+  disconnect() {
+      if (this.tiktokLiveConnection) {
+          this.tiktokLiveConnection.disconnect();
+          super.disconnect();
+      }
+  }
+}
+class KickConnection extends PlatformConnection {
+  constructor(uniqueId, options) {
+      super(uniqueId, options);
+      this.kickliveconnector = createClient(uniqueId, { logger: true });
+  }
+
+  normalizeUniqueId(uniqueId) {
+      return uniqueId.trim();
+  }
+
+  async connect(socket) {
+      try {
+          this.isConnected = true;
+          this.initializeEventHandlers(socket);
+          if (socket) {
+              socket.emit('connected', this.getState());
+          }
+          return this.state;
+      } catch (err) {
+          console.error('Failed to connect to Kick:', err);
+          throw err;
+      }
+  }
+
+  initializeEventHandlers(socket) {
+      if (this.eventHandlersInitialized) return;
+
+      LiveEvents.forEach(event => {
+          this.kickliveconnector.on(event, (data) => {
+              io.to(this.uniqueId).emit(event, data);
+              if (event === 'disconnected') {
+                  console.log(`Kick ${event} event for ${this.uniqueId}`);
+                  this.isConnected = false;
+              }
+          });
+      });
+
+      this.eventHandlersInitialized = true;
+  }
+
+  disconnect() {
+      if (this.kickliveconnector) {
+          this.kickliveconnector = null;
+          super.disconnect();
+      }
+  }
+}
+
+// Mapa para mantener las conexiones activas por plataforma
+const platformConnections = {
+  [PlatformType.TIKTOK]: new Map(),
+  [PlatformType.KICK]: new Map()
+};
 // Función para obtener o crear una instancia de TiktokLiveControl
-async function getOrCreateLiveConnection(uniqueId,socket) {
-    // Normalizar el uniqueId
-    const normalizedId = uniqueId.startsWith('@') ? uniqueId : '@' + uniqueId;
-    
-    // Verificar si ya existe una instancia
-    let existingConnection = Livescreated.get(normalizedId);
-    
-    if (existingConnection) {
-        // Si existe pero no está conectada, reconectar
-        if (!existingConnection.isConnected) {
-            try {
-                existingConnection.connect(socket);
-            } catch (err) {
-                throw new Error(`Failed to reconnect to ${normalizedId}: ${err.message}`);
-            }
-        }
-        if (socket && existingConnection.isConnected) {socket.emit('connected',existingConnection.getState())}
-        return existingConnection;
-    }
+async function getOrCreatePlatformConnection(platform, uniqueId, socket) {
+  const connections = platformConnections[platform];
+  const normalizedId = platform === PlatformType.TIKTOK ? 
+      (uniqueId.startsWith('@') ? uniqueId : '@' + uniqueId) : 
+      uniqueId.trim();
+  console.log(`getOrCreatePlatformConnection: ${platform} ${normalizedId}`);
+  // Verificar conexión existente
+  let connection = connections.get(normalizedId);
+  if (connection) {
+      if (!connection.isConnected) {
+          try {
+              await connection.connect(socket);
+          } catch (err) {
+              throw new Error(`Failed to reconnect to ${platform} ${normalizedId}: ${err.message}`);
+          }
+      }
+      if (socket && connection.isConnected) {
+          socket.emit('connected', connection.getState());
+      }
+      return connection;
+  }
 
-    // Validar el uniqueId antes de crear una nueva instancia
-    if (!TiktokLiveControl.isValidUniqueId(normalizedId)) {
-        throw new Error('Invalid TikTok username format');
-    }
-
-    // Crear nueva instancia
-    const newConnection = new TiktokLiveControl(normalizedId);
-    try {
-        await newConnection.connect(socket);
-        Livescreated.set(normalizedId, newConnection);
-        // set isconnected to true
-        newConnection.isConnected = true;
-        return newConnection;
-    } catch (err) {
-        throw new Error(`Failed to create new connection for ${normalizedId}: ${err.message}`);
-    }
+  // Crear nueva conexión según la plataforma
+  try {
+      connection = platform === PlatformType.TIKTOK ?
+          new TiktokConnection(normalizedId, { socketId: socket.id }) :
+          new KickConnection(normalizedId, { socketId: socket.id });
+      console.log(`conexión: ${platform} ${normalizedId}`);
+      await connection.connect(socket);
+      connections.set(normalizedId, connection);
+      return connection;
+  } catch (err) {
+      throw new Error(`Failed to create new ${platform} connection for ${normalizedId}: ${err.message}`);
+  }
+}
+function getAllConnectionsInfo() {
+  const allConnections = [];
+  
+  Object.entries(platformConnections).forEach(([platform, connections]) => {
+      connections.forEach((connection, uniqueId) => {
+          allConnections.push({
+              platform,
+              uniqueId: connection.uniqueId,
+              isConnected: connection.isConnected,
+              state: connection.getState()
+          });
+      });
+  });
+  
+  return allConnections;
 }
 function getLivesInfo(livesMap) {
     // Convertimos el Map a un array de objetos con la información requerida
@@ -291,19 +364,22 @@ function getLivesInfo(livesMap) {
 // Conexión con Socket.IO
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id, "disponible connections",Livescreated);
-    socket.emit('allromuser',getLivesInfo(Livescreated))
-    socket.on('joinRoom', async ({ uniqueId }) => {
+    socket.emit('allConnections', getAllConnectionsInfo());
+
+    socket.on('joinRoom', async ({ platform, uniqueId }) => {
         try {
-            const connection = await getOrCreateLiveConnection(uniqueId,socket);
-            
-            // Unir al usuario a la sala normalizada
+            if (!Object.values(PlatformType).includes(platform)) {
+                throw new Error('Invalid platform specified');
+            }
+
+            const connection = await getOrCreatePlatformConnection(platform, uniqueId, socket);
             socket.join(connection.uniqueId);
-            console.log(`User ${socket.id} joined room: ${connection.uniqueId}`);
             
-            // Enviar mensaje de bienvenida
+            console.log(`User ${socket.id} joined ${platform} room: ${connection.uniqueId}`);
+            
             socket.emit('message', {
                 type: 'success',
-                message: `Connected to TikTok live room: ${connection.uniqueId}`
+                message: `Connected to ${platform} live room: ${connection.uniqueId}`
             });
         } catch (error) {
             socket.emit('message', {
