@@ -27,7 +27,8 @@ const essapp = express();
 essapp.use(cors());
 const uri = path.join(__dirname, 'public');
 
-console.log(uri);console.log(uri);
+console.log(uri)
+;console.log(uri);
 const httpServer = http.createServer(essapp);
 const io = new Server(httpServer, {
     cors: {

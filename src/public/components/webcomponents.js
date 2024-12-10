@@ -7382,25 +7382,21 @@ class DragAndDropComponent extends HTMLElement {
       label.htmlFor = 'fileInput';
       label.textContent = 'Arrastra y suelta archivos aquí o haz clic para seleccionar';
 
-      fileInput.addEventListener('change', (e) => {
-          const files = e.target.files;
-          const event = new CustomEvent('change', {
-                detail: files,
+      fileInput.addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files); // Convertimos FileList a un array
+        for (const file of files) {
+            await processDroppedFile(file, e); // Procesa cada archivo secuencialmente
+    
+            // Dispara un evento por cada archivo procesado
+            const event = new CustomEvent('DroppedFile', {
+                detail: { file },
                 bubbles: true,
                 composed: true
             });
             this.dispatchEvent(event);
-          for (const file of files) {
-              processDroppedFile(file, e);
-              const event = new CustomEvent('DroppedFile', {
-                  detail: { file },
-                  bubbles: true,
-                  composed: true
-              });
-              this.dispatchEvent(event);
-          }
-      });
-
+        }
+    });
+    
       container.appendChild(label);
       container.appendChild(fileInput);
       
@@ -7434,56 +7430,26 @@ class DragAndDropComponent extends HTMLElement {
       dropArea.addEventListener('drop', this.handleDrop.bind(this), false);
   }
 
-  handleDrop(e) {
-      const files = e.dataTransfer.files;
-      for (const file of files) {
-          processDroppedFile(file,e);
-          const event = new CustomEvent('DroppedFile', {
+  async handleDrop(e) {
+    const files = Array.from(e.dataTransfer.files); // Convertimos FileList a un array
+    for (const file of files) {
+        await processDroppedFile(file, e); // Procesa cada archivo de forma secuencial
+
+        // Dispara un evento por cada archivo procesado
+        const event = new CustomEvent('DroppedFile', {
             detail: { file },
             bubbles: true,
             composed: true
         });
         this.dispatchEvent(event);
-      }
-  }
+    }
+}
+
   
 }
 const filePaths = new LocalStorageManager('filePaths');
 (async () => {
   const files = await filePaths.getAll();
-  console.log(files);
- 
-  /*
-  const galeriaElementos = document.querySelector('galeria-elementos');
-  galeriaElementos.addEventListener('elemento-agregado', (e) => {
-      console.log('Elemento agregado:', e.detail);
-  });
-
-  galeriaElementos.addEventListener('elemento-eliminado', (e) => {
-      console.log('Elemento eliminado:', e.detail);
-  });
-  files.forEach(file => galeriaElementos.agregarElemento(file));
-galeriaElementos.agregarElemento({
-          nombre: 'archivo.txt',
-          path: 'c:/user/example/archivo.txt',
-          size: 123456,
-          type: 'text/plain',
-          lastModified: 1679488000000
-      });
-      galeriaElementos.agregarElemento({
-          nombre: 'archivo.img',
-          path: 'c:/user/example/archivo.img',
-          size: 123456,
-          type: 'image/webp',
-          lastModified: 1679488000000
-      });
-      galeriaElementos.agregarElemento({
-          nombre: 'video.mp4',
-          path: 'c:/user/example/video.mp4',
-          size: 9876543,
-          type: 'video/mp4',
-          lastModified: 1679488000000
-      }); */
 })();
 async function processDroppedFile(file,e) {
   if (file.path) {
@@ -7494,21 +7460,24 @@ async function processDroppedFile(file,e) {
 }
 async function processFileWithPath(file) {
   console.log('Archivo cargado:', file);
-  filePaths.add(parseFile(file));
-  console.log(filePaths.getAll());
+  await filePaths.add(parseFile(file)); // Asegura que se complete antes de continuar
+  const allFiles = await filePaths.getAll();
+  console.log(allFiles);
 }
+
 async function processFileWithoutPath(file) {
   console.log('processFileWithoutPath Archivo cargado:', file);
-  if (electron && file){ 
-      const filePath = electron.showFilePath(file);
+  if (electron && file) { 
+      const filePath = await electron.showFilePath(file); // Asegúrate de esperar la respuesta
       Object.assign(file, { path: filePath });
-      filePaths.add(parseFile(file));
+      await filePaths.add(parseFile(file)); // Asegura que se complete antes de continuar
       const allFiles = await filePaths.getAll();
-      console.log("processFileWithoutPath",allFiles, file);
+      console.log("processFileWithoutPath", allFiles, file);
   } else {    
       console.log('No se pudo obtener la ruta del archivo');
   }
 }
+
 
 function parseFile(file) {
   const filePath = file.path;

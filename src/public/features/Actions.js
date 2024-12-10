@@ -338,14 +338,28 @@ newactionform.addEventListener('form-submit', async (e) => {
       ActionsManager.saveData(modifiedData)
       showAlert('success','Se ha guardado el evento')
     } else if (modifiedData.id && results.validResults.length <= 1){
-      newmodalaction.close();
-      ActionsManager.updateData(modifiedData)
-      showAlert('success','Se ha guardado el evento')
+      if (idexist(modifiedData.id,results.validResults)) {
+        showAlert('error','ya existe un elemento en la base de datos igual')
+      } else {
+        newmodalaction.close();
+        ActionsManager.updateData(modifiedData)
+        showAlert('success','Se ha guardado el evento')
+      }
     } else {
       showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`)
     }
   
 });
+function idexist(id,allresults) {
+  let exists = false;
+  for (let i = 0; i < allresults.length; i++) {
+    if (allresults[i].id === id) {
+      exists = true;
+      break;
+    }
+  }
+  return exists;
+}
 newactionform.addEventListener('form-change', (e) => {
   //console.log('Form values changed:', e.detail);
 });

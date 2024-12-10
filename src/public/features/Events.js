@@ -123,19 +123,34 @@ eventform.addEventListener('form-submit', async (e) => {
   
   const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
   console.log("results",results)
-  if (!results.validResults.length >= 1 && !modifiedData.id) {
+  if (!modifiedData.id) {
     newmodalevent.close();
     EventsManager.saveData(modifiedData)
     showAlert('success','Se ha guardado el evento')
   } else if (modifiedData.id && results.validResults.length <= 1) {
-    newmodalevent.close();
-    EventsManager.updateData(modifiedData)
-    showAlert('success','Se ha guardado el evento')
+    if (idexist(modifiedData.id,results.validResults)) {
+      showAlert('error','ya existe un elemento en la base de datos igual')
+    } else {
+      newmodalevent.close();
+      EventsManager.updateData(modifiedData)
+      showAlert('success','Se ha guardado el evento')
+    }
   } else {
     console.log(modifiedData.id,"id de la base de datos")
     showAlert('error','ya existe un elemento en la base de datos igual')
   }
+  
 });
+function idexist(id,allresults) {
+  let exists = false;
+  for (let i = 0; i < allresults.length; i++) {
+    if (allresults[i].id === id) {
+      exists = true;
+      break;
+    }
+  }
+  return exists;
+}
 eventform.addEventListener('form-change', (e) => {
   console.log('Form values changed:', e.detail);
 });
