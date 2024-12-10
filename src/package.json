@@ -1,5 +1,5 @@
 {
-  "name": "electron-bootstrap",
+  "name": "multiztream-live",
   "description": "react-declarative electron app bootstrap",
   "type": "commonjs",
   "author": {
@@ -8,7 +8,7 @@
     "url": "https://github.com/react-declarative/react-declarative"
   },
   "main": "./main.js",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "devDependencies": {
     "electron": "31.4.0"
   },
