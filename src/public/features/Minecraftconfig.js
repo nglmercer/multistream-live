@@ -47,14 +47,13 @@ const minecraftdata = localStorage.getItem("MinecraftPluginServer") ? JSON.parse
 const Aformelement = new EditModal(minecraftconfig);
 
 const trackerMultiple = new UserInteractionTracker({autoDestroy: true});
-trackerMultiple.addInteractionListener(async (interaction) => {
-    const interacted = trackerMultiple.getAllInteractionsByArray(['click','touchstart','keydown','input']);
-    if (interacted) {
-      console.log("interacted",interacted);
-      handlebotconnect("connect-plugin",minecraftdata);
-      trackerMultiple.destroy();
-    }
-});
+trackerMultiple.addInteractionListener(handlemcconnect);
+
+function handlemcconnect(interaction) {
+  console.log("handlemcconnect",interaction);
+    handlebotconnect("connect-plugin",minecraftdata);
+  
+}
 const htmlminecraft = Aformelement.ReturnHtml(minecraftdata);
 htmlminecraft.classList.add('grid');
 //   document.getElementById('sendcommandmc').addEventListener('submit', function(e) {
