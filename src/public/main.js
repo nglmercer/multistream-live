@@ -145,33 +145,23 @@ class GetAvatarUrlKick {
 }
 
 
-const trackerMultiple = new UserInteractionTracker();
-trackerMultiple.addInteractionListener(async event => {
-  try {
-  const interacted = trackerMultiple.getAllInteractionsByArray([
-    'click', 
-    'touchstart', 
-    'keydown',
-  ]);
-  
-  //userProfile.setConnectionStatus('offline');
-  if (interacted) {
-    console.log('Usuario ha interactuado se conectara');
-    if (userProfile.state.connected) {
-      userProfile.setConnectionStatus('away');
-      joinRoom(userProfile.state.username, userProfile.state.platform);
-      //if (userProfile.state.platform === 'kick') userProfile.setProfileImage(await GetAvatarUrlKick.getProfilePic(userProfile.state.username));
-    };
-    if (userProfile2.state.connected) {
-      userProfile2.setConnectionStatus('away');
-      joinRoom(userProfile2.state.username, userProfile2.state.platform);
-    };
-    trackerMultiple.destroy()
-  }
-} catch (error) {
-  console.error('Error al detectar interacción:', error);
-}
+const trackerMultiple = new UserInteractionTracker({
+  // Opcional: destruir automáticamente después de la primera interacción
+  autoDestroy: true
 });
+trackerMultiple.addInteractionListener(handleUserInteraction);
+function handleUserInteraction(){
+  if (userProfile.state.connected) {
+    userProfile.setConnectionStatus('away');
+    joinRoom(userProfile.state.username, userProfile.state.platform);
+    //if (userProfile.state.platform === 'kick') userProfile.setProfileImage(await GetAvatarUrlKick.getProfilePic(userProfile.state.username));
+  };
+  if (userProfile2.state.connected) {
+    userProfile2.setConnectionStatus('away');
+    joinRoom(userProfile2.state.username, userProfile2.state.platform);
+  };
+}
+
 await client.connect()
 .then(() => {
     const hashVal = window.location.hash.slice(1);
@@ -847,9 +837,9 @@ function mapdatatooverlay(data,duration,content) {
   return config;
 }
 // processActioncallbacks
-setTimeout(() => {
+/* setTimeout(() => {
   HandleAccionEvent('chat',{giftId:5655, comment:"qweqweqwe",likeCount: 10,uniqueId: "123123",profilePictureUrl: "https://picsum.photos/200/200",Actions: [],id: undefined},"isEqual",true)
-}, 1000);
+}, 1000); */
 const preview = document.getElementById('iframeweb');
 preview.togglePreview(false);
 preview.setLink('http://localhost:9000/overlaya.html');

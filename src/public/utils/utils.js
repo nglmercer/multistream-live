@@ -780,39 +780,74 @@ console.log(tracker.comboCounters);
 //   user2: { likeCount: 4, commentCount: 1 }
 // }
 
+
+// Crear una instancia del tracker
+const tracker = new UserInteractionTracker({
+  // Opcional: destruir automáticamente después de la primera interacción
+  autoDestroy: true
+});
+
+// Añadir un listener para el evento de interacción
+function handleUserInteraction(event) {
+  console.log('Interacción detectada:', event.detail);
+  // Este callback solo se ejecutará una vez
+}
+
+// Agregar el listener de interacción
+tracker.addInteractionListener(handleUserInteraction);
+
+// Ejemplo de cómo se comportará
+document.addEventListener('DOMContentLoaded', () => {
+  // Supongamos que tenemos algunos elementos interactivos
+  const button = document.getElementById('myButton');
+  const input = document.getElementById('myInput');
+
+  // El primer evento que ocurra (click, scroll, etc.) 
+  // activará el listener una única vez
+  button.addEventListener('click', () => {
+    console.log('Botón clickeado');
+  });
+
+  input.addEventListener('input', () => {
+    console.log('Input modificado');
+  });
+
+  // Si quieres reiniciar manualmente para permitir otra interacción
+  // tracker.reset();
+});
+
+// Opcional: manejar el evento de destrucción del tracker
+document.addEventListener('trackerDestroyed', (event) => {
+  console.log('Tracker destruido con estado final:', event.detail.finalState);
+});
+export default UserInteractionTracker;
 // Total acumulado de todos los combos (likes + comentarios)
 console.log('Total de combos acumulados:', tracker.getTotalCombos()); // 12 */
 class UserInteractionTracker {
   constructor(options = {}) {
     // Estado de interacción general
     this.hasInteracted = false;
-
+    // Bandera para controlar la emisión única del evento
+    this.eventEmitted = false;
     // Mapa para seguir tipos específicos de interacciones
     this.interactions = new Map();
-
     // Lista de eventos que consideramos como interacción
     this.interactionEvents = [
       'click',
       'touchstart',
       'keydown',
-      'mousemove',
-      'scroll',
       'input',
     ];
-
     // Callbacks almacenados
     this.callbacks = new Set();
-
     // Opciones de configuración
     this.options = {
-      autoDestroy: false,  // Destruir automáticamente después de la primera interacción
-      destroyCondition: null,  // Función personalizada para determinar cuándo destruir
+      autoDestroy: false, // Destruir automáticamente después de la primera interacción
+      destroyCondition: null, // Función personalizada para determinar cuándo destruir
       ...options
     };
-
     // Bind del método para mantener el contexto
     this._handleInteraction = this._handleInteraction.bind(this);
-
     // Inicializar listeners
     this.initializeTracking();
   }
@@ -828,12 +863,14 @@ class UserInteractionTracker {
   _handleInteraction(event) {
     // Actualizar estado general
     this.hasInteracted = true;
-
     // Actualizar estado específico del tipo de evento
     this.interactions.set(event.type, true);
-
-    // Disparar evento personalizado
-    this._dispatchInteractionEvent(event.type);
+    
+    // Disparar evento personalizado solo una vez
+    if (!this.eventEmitted) {
+      this._dispatchInteractionEvent(event.type);
+      this.eventEmitted = true;
+    }
 
     // Verificar si debemos destruir los listeners
     if (this.shouldDestroy()) {
@@ -845,11 +882,9 @@ class UserInteractionTracker {
     if (this.options.destroyCondition) {
       return this.options.destroyCondition(this.getAllInteractions());
     }
-    
     if (this.options.autoDestroy) {
       return this.hasInteracted;
     }
-
     return false;
   }
 
@@ -895,12 +930,11 @@ class UserInteractionTracker {
     this.interactionEvents.forEach(eventType => {
       document.removeEventListener(eventType, this._handleInteraction);
     });
-
+    
     // Eliminar todos los callbacks registrados
     this.callbacks.forEach(callback => {
       document.removeEventListener('userInteraction', callback);
     });
-    
     this.callbacks.clear();
     
     // Disparar un evento final de destrucción
@@ -915,6 +949,7 @@ class UserInteractionTracker {
 
   reset() {
     this.hasInteracted = false;
+    this.eventEmitted = false;
     this.interactionEvents.forEach(eventType => {
       this.interactions.set(eventType, false);
     });
