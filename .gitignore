@@ -3,3 +3,4 @@ build
 .DS_Store
 lib/*
 node_modules/.bin/asar
+bun.lockb

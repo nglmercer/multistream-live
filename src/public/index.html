@@ -42,8 +42,7 @@
     </div>
   </side-bar>
     <main-content>
-      <div slot="dashboard-content" class="bg-slate-800 text-white">
-        <div slot="tab-content" data-tab-content="tab1">
+      <div slot="1-content" class="bg-slate-800 text-white">
           <section class="section" id="users">
             <h2>Chat</h2>
              
@@ -72,10 +71,8 @@
               <div id="ttssettings1"></div>
              </div>
         </section>
-        </div>
       </div>  
-      <div slot="projects-content">
-        <div slot="tab-content" data-tab-content="tab2">
+      <div slot="2-content">
           <section class="section" id="settings">
             <div id="container" class="container">
             </div>
@@ -103,10 +100,8 @@
 
 
           </section>
-        </div>
       </div>
-      <div slot="messages-content">
-        <div slot="tab-content" data-tab-content="tab3">
+      <div slot="3-content">
           <section class="section" id="dashboard">
             <h2>Dashboard</h2>
 
@@ -117,10 +112,8 @@
 
               
           </section>
-        </div>
       </div>
-      <div slot="settings-content">
-        <div slot="tab-content" class="tab-content" data-tab-content="tab4">
+      <div slot="4-content">
           <section class="section" id="WindowManager">
               <h1 class="text-3xl font-bold mb-6">Window Manager (Web Interface)</h1>
             <button id="newWindowBtn" class="open-modal-btn" onclick="document.getElementById('windowModal').open()">
@@ -131,10 +124,9 @@
             <preview-webcomponent id="iframeweb" link="http://localhost:9000/overlaya.html" showpreview="false" theme="dark"></preview-webcomponent>
           
           </section>
-        </div>
 
       </div>
-      <div slot="login-content" class="flex justify-center w-full">
+      <div slot="5-content" class="flex justify-center w-full">
         <div class="flex maxw-1/2" id="logintabcontainer">
           <div class="flex flex-wrap">
             <user-profile group-id="kick" id="kicklogin" minimal></user-profile>

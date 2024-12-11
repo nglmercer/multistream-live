@@ -222,170 +222,174 @@ clipboard: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="current
 </svg>`
 
 }
-const PAGES = {
-    DASHBOARD: 'dashboard',
-    PROJECTS: 'projects',
-    MESSAGES: 'messages',
-    SETTINGS: 'settings',
-    LOGIN: 'login'
+
+class AppConfig {
+  static PAGES = {
+    tab1: '1',
+    tab2: '2',
+    tab3: '3',
+    tab4: '4',
+    tab5: '5'
   };
-  const PAGE_CONFIG = {
-    [PAGES.DASHBOARD]: {
+  static PAGE_CONFIG = {
+    [this.PAGES.tab1]: {
         label: 'Chat', 
         icon: svgs.chat
     },
-    [PAGES.PROJECTS]: {
+    [this.PAGES.tab2]: {
         label: 'Action Events',
         icon: svgs.settings
     },
-    [PAGES.MESSAGES]: {
+    [this.PAGES.tab3]: {
         label: 'image',
         icon: svgs.image
     },
-    [PAGES.SETTINGS]: {
+    [this.PAGES.tab4]: {
         label: 'Settings',
         icon: svgs.config
     },
-    [PAGES.LOGIN]: {
+    [this.PAGES.tab5]: {
         label: 'Login',
         icon: svgs.login
     },
     
   }
-  
-  function getSvgIcon(page) {
-    return PAGE_CONFIG[page]?.icon || '';
-}
-
-function getButtonContent(page, index) {
-    const pageConfig = PAGE_CONFIG[page];
+  static slots = {
+    1: '<slot name="1-content">No content available for Dashboard</slot>',
+    2: '<slot name="2-content">No content available for Projects</slot>',
+    3: '<slot name="3-content">No content available for Messages</slot>',
+    4: '<slot name="4-content">No content available for Settings</slot>',
+    5: '<slot name="5-content">No content available for Login</slot>'
+  };
+  static getSvgIcon(page) {
+    return this.PAGE_CONFIG[page]?.icon || '';
+  }
+  static getButtonContent(page, index) {
+    const pageConfig = this.PAGE_CONFIG[page];
     return `
-        <span class="nav-button-text">${pageConfig.label}</span>
-        <span class="sm:hidden">
-            ${pageConfig.icon || `<span class="font-bold">${index + 1}</span>`}
-        </span>
+      <span class="nav-button-text">${pageConfig.label}</span>
+      <span class="sm:hidden">
+        ${pageConfig.icon || `<span class="font-bold">${index + 1}</span>`}
+      </span>
     `;
-}
+  }
 
-function getSidebarContent(page, index, activePage) {
-    const pageConfig = PAGE_CONFIG[page];
+  static getSidebarContent(page, index, activePage) {
+    const pageConfig = this.PAGE_CONFIG[page];
     return `
-        <a href="#" class="nav-link flex items-center px-6 py-2 hover:bg-gray-700 ${activePage === page ? 'active' : ''}" 
-           data-page="${page}">
-            ${pageConfig.icon}
-            ${pageConfig.label}
-        </a>
+      <a href="#" class="nav-link flex items-center px-6 py-2 hover:bg-gray-700 ${activePage === page ? 'active' : ''}" 
+         data-page="${page}">
+        ${pageConfig.icon}
+        ${pageConfig.label}
+      </a>
     `;
-}
-  const pages = Object.values(PAGES);
-  // Set active page in localStorage
-  function setActivePage(page) {
+  }
+  static setActivePage(page) {
     localStorage.setItem('activePage', page);
     document.dispatchEvent(new CustomEvent('page-changed', { detail: page }));
+  } 
+
+  static getActivePage() {
+    return localStorage.getItem('activePage') || Object.values(this.PAGES)[0];
   }
-  
-  // Get active page from localStorage or default to DASHBOARD
-  function getActivePage() {
-    return localStorage.getItem('activePage') || pages[0];
+}
+const pages = Object.values(AppConfig.PAGES);
+
+class SideBar extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.isOpen = false;
   }
-  
-  class SideBar extends HTMLElement {
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-      this.isOpen = false;
-    }
-  
-    connectedCallback() {
-      this.render();
-      this.setupEventListeners();
-    }
-  
-    setupEventListeners() {
-      let toggleTimeout;
-      const toggleButton = document.querySelector('[data-toggle-sidebar]');
-  
-      document.addEventListener('toggle-sidebar', (e) => {
-        const isToggleButtonClick = e.target === toggleButton;
-  
-        this.isOpen = !this.isOpen;
-        this.updateVisibility();
-  
-        if (toggleTimeout) {
-          clearTimeout(toggleTimeout);
-        }
-  
-        if (this.isOpen && !isToggleButtonClick) {
-          toggleTimeout = setTimeout(() => {
-            const outsideClickHandler = (e) => {
-              const sidebar = this.shadowRoot.querySelector('.sidebar');
+
+  connectedCallback() {
+    this.render();
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    let toggleTimeout;
+    const toggleButton = document.querySelector('[data-toggle-sidebar]');
+
+    document.addEventListener('toggle-sidebar', (e) => {
+      const isToggleButtonClick = e.target === toggleButton;
+
+      this.isOpen = !this.isOpen;
+      this.updateVisibility();
+
+      if (toggleTimeout) {
+        clearTimeout(toggleTimeout);
+      }
+
+      if (this.isOpen && !isToggleButtonClick) {
+        toggleTimeout = setTimeout(() => {
+          const outsideClickHandler = (e) => {
+            const sidebar = this.shadowRoot.querySelector('.sidebar');
+            
+            if (this.isOpen && !sidebar.contains(e.target) && e.target !== toggleButton) {
+              this.isOpen = false;
+              this.updateVisibility();
               
-              if (this.isOpen && !sidebar.contains(e.target) && e.target !== toggleButton) {
-                this.isOpen = false;
-                this.updateVisibility();
-                
-                document.removeEventListener('click', outsideClickHandler);
-              }
-            };
-  
-            document.addEventListener('click', outsideClickHandler);
-          }, 599);
-        }
-      });
-  
-      const navLinks = this.shadowRoot.querySelectorAll('.nav-link');
-      navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          setActivePage(link.dataset.page);
-          this.updateActiveLink(link.dataset.page);
-        });
-      });
-  
-      document.addEventListener('page-changed', (e) => {
-        this.updateActiveLink(e.detail);
-      });
-    }
-  
-    updateActiveLink(activePage) {
-      const links = this.shadowRoot.querySelectorAll('.nav-link');
-      links.forEach(link => {
-        if (link.dataset.page === activePage) {
-          link.classList.add('active');
-        } else {
-          link.classList.remove('active');
-        }
-      });
-    }
-  
-    updateVisibility() {
-      const sidebar = this.shadowRoot.querySelector('.sidebar');
-      if (this.isOpen) {
-        sidebar.classList.remove('-translate-x-full');
-      } else {
-        sidebar.classList.add('-translate-x-full');
+              document.removeEventListener('click', outsideClickHandler);
+            }
+          };
+
+          document.addEventListener('click', outsideClickHandler);
+        }, 599);
       }
-    }
-  
-    render() {
-        const activePage = getActivePage();
-    
-        this.shadowRoot.innerHTML = `
-          <style>
-            ${STYLES}
-          </style>
-          <div class="sidebar fixed top-16 left-0 h-full w-64 bg-gray-800 text-white transform -translate-x-full transition-transform duration-300 ease-in-out">
-            <nav class="mt-5">
-              ${pages.map((page, index) => getSidebarContent(page, index, activePage)).join('')}
-            </nav>
-            <slot name="sidebar-content"></slot> <!-- Aquí va el slot -->
-          </div>
-        `;
-      }
+    });
+
+    const navLinks = this.shadowRoot.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        AppConfig.setActivePage(link.dataset.page);
+        this.updateActiveLink(link.dataset.page);
+      });
+    });
+
+    document.addEventListener('page-changed', (e) => {
+      this.updateActiveLink(e.detail);
+    });
   }
-  document.addEventListener('page-changed', (e) => {
-    localStorage.setItem('activePage', e.detail);
-  });
+
+  updateActiveLink(activePage) {
+    const links = this.shadowRoot.querySelectorAll('.nav-link');
+    links.forEach(link => {
+      if (link.dataset.page === activePage) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  }
+
+  updateVisibility() {
+    const sidebar = this.shadowRoot.querySelector('.sidebar');
+    if (this.isOpen) {
+      sidebar.classList.remove('-translate-x-full');
+    } else {
+      sidebar.classList.add('-translate-x-full');
+    }
+  }
+
+  render() {
+      const activePage = AppConfig.getActivePage();
+  
+      this.shadowRoot.innerHTML = `
+        <style>
+          ${STYLES}
+        </style>
+        <div class="sidebar fixed top-16 left-0 h-full w-64 bg-gray-800 text-white transform -translate-x-full transition-transform duration-300 ease-in-out">
+          <nav class="mt-5">
+            ${pages.map((page, index) => AppConfig.getSidebarContent(page, index, activePage)).join('')}
+          </nav>
+          <slot name="sidebar-content"></slot> <!-- Aquí va el slot -->
+        </div>
+      `;
+    }
+}
+
 customElements.define('side-bar', SideBar);
 class NavBar extends HTMLElement {
     constructor() {
@@ -406,7 +410,7 @@ class NavBar extends HTMLElement {
       const navButtons = this.shadowRoot.querySelectorAll('.nav-button');
       navButtons.forEach(button => {
         button.addEventListener('click', () => {
-          setActivePage(button.dataset.page);
+          AppConfig.setActivePage(button.dataset.page);
           this.updateActiveButton(button.dataset.page);
         });
       });
@@ -428,7 +432,7 @@ class NavBar extends HTMLElement {
     }
   
     render() {
-        const activePage = getActivePage();
+        const activePage = AppConfig.getActivePage();
     
         this.shadowRoot.innerHTML = `
           <style>
@@ -448,7 +452,7 @@ class NavBar extends HTMLElement {
                     ${pages.map((page, index) => `
                       <button class="nav-button px-3 py-2 transparent border-0 rounded text-gray-300 hover:text-white ${activePage === page ? 'active' : ''}" 
                         data-page="${page}">
-                        ${getButtonContent(page, index)}
+                        ${AppConfig.getButtonContent(page, index)}
                       </button>
                     `).join('')}
                   </div>
@@ -463,59 +467,54 @@ class NavBar extends HTMLElement {
       }
   }
   
-  customElements.define('nav-bar', NavBar);
-  class MainContent extends HTMLElement {
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-    }
-  
-    connectedCallback() {
-      this.render();
-      this.setupEventListeners();
-    }
-  
-    setupEventListeners() {
-      document.addEventListener('page-changed', () => {
-        this.render();
-      });
-    }
-  
-    render() {
-      const activePage = getActivePage();
-      const slots = {
-        dashboard: '<slot name="dashboard-content">No content available for Dashboard</slot>',
-        projects: '<slot name="projects-content">No content available for Projects</slot>',
-        messages: '<slot name="messages-content">No content available for Messages</slot>',
-        settings: '<slot name="settings-content">No content available for Settings</slot>',
-        login: '<slot name="login-content">No content available for Login</slot>'
-      };
-  
-      this.shadowRoot.innerHTML = `
-        <style>
-          main {
-            padding-top: 4rem;
-            min-height: 100vh;
-            background-color: rgb(24, 24, 27);
-            color: white;
-          } 
-          .container {
-            padding: 1.5rem; /* p-6 */
-          }
-          .title {
-            font-size: 1.875rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
-            margin-bottom: 1rem; /* mb-4 */
-          }
-        </style>
-        <main>
-          <div class="container">
-            ${slots[activePage] || '<p>No content available</p>'}
-          </div>
-        </main>
-      `;
-    }
+customElements.define('nav-bar', NavBar);
+class MainContent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
   }
-  
-  customElements.define('main-content', MainContent);
-  
+
+  connectedCallback() {
+    this.render();
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    document.addEventListener('page-changed', () => {
+      this.render();
+    });
+  }
+
+  render() {
+    const activePage = AppConfig.getActivePage();
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        main {
+          padding-top: 4rem;
+          min-height: 100vh;
+          background-color: rgb(24, 24, 27);
+          color: white;
+        } 
+        .container {
+          padding: 1.5rem; /* p-6 */
+        }
+        .title {
+          font-size: 1.875rem; /* text-3xl */
+          font-weight: 700; /* font-bold */
+          margin-bottom: 1rem; /* mb-4 */
+        }
+      </style>
+      <main>
+        <div class="container">
+          ${AppConfig.slots[activePage] || '<p>No content available</p>'}
+        </div>
+      </main>
+    `;
+  }
+}
+
+customElements.define('main-content', MainContent);
+document.addEventListener('page-changed', (e) => {
+  localStorage.setItem('activePage', e.detail);
+});
