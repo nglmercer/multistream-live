@@ -8,7 +8,7 @@
     "url": "https://github.com/react-declarative/react-declarative"
   },
   "main": "./main.js",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "devDependencies": {
     "electron": "31.4.0"
   },
