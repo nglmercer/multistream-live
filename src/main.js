@@ -134,7 +134,7 @@ essapp.get('/media/*', (req, res) => {
       fileStream.pipe(res);
     });
   });
-function createWindow () {
+  function createWindow () {
     const mainWindow = new BrowserWindow({
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'), // Ruta absoluta al archivo preload        sandbox: false,
@@ -143,10 +143,11 @@ function createWindow () {
     const url = `http://localhost:${port}`
     mainWindow.loadURL(url)
   }
-// essapp.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/public/index.html');
-// });
-
+  // essapp.get('/', (req, res) => {
+    //     res.sendFile(__dirname + '/public/index.html');
+    // });
+    
+signatureProvider.config.extraParams.apiKey = "NmYzMGMwNmMzODQ5YmUxYjkzNTI0OTIyMzBlOGZlMjgwNTJhY2JhMWQ0MzhhNWVmMGZmMjgy";
 // Mapa para guardar las instancias de TikTokLiveControl por sala
 const Livescreated = new Map();
 
@@ -184,7 +185,6 @@ class PlatformConnection {
   }
 }
 
-signatureProvider.config.extraParams.apiKey = "NmYzMGMwNmMzODQ5YmUxYjkzNTI0OTIyMzBlOGZlMjgwNTJhY2JhMWQ0MzhhNWVmMGZmMjgy";
 // Clase específica para TikTok que extiende de PlatformConnection
 class TiktokConnection extends PlatformConnection {
   constructor(uniqueId, options) {
@@ -223,20 +223,28 @@ class TiktokConnection extends PlatformConnection {
       }
   }
 
-  initializeEventHandlers(socket) {
-      if (this.eventHandlersInitialized) return;
+  initializeEventHandlers(socket, platform, uniqueId) {
+    // Only initialize if not already initialized or if platform/uniqueId combination is new
+    const handlerKey = `${platform}_${uniqueId}`;
+    if (this.eventHandlersInitialized && this.lastHandlerKey === handlerKey) return;
 
-      tiktokLiveEvents.forEach(event => {
-          this.tiktokLiveConnection.on(event, (data) => {
-              io.to(this.uniqueId).emit(event, data);
-              if (event === 'disconnected') {
-                  console.log(`TikTok ${event} event for ${this.uniqueId}`);
-                  this.isConnected = false;
-              }
-          });
+    this.lastHandlerKey = handlerKey;
+    this.eventHandlersInitialized = false;  // Reset to allow re-initialization
+
+    tiktokLiveEvents.forEach(event => {
+      // Remove previous listeners
+      this.tiktokLiveConnection.removeAllListeners(event);
+
+      this.tiktokLiveConnection.on(event, (data) => {
+        socket.emit(event, data);  // Emit directly to the socket
+        if (event === 'disconnected') {
+          console.log(`TikTok ${event} event for ${this.uniqueId}`);
+          this.isConnected = false;
+        }
       });
+    });
 
-      this.eventHandlersInitialized = true;
+    this.eventHandlersInitialized = true;
   }
 
   disconnect() {
@@ -270,22 +278,35 @@ class KickConnection extends PlatformConnection {
       }
   }
 
-  initializeEventHandlers(socket) {
-      if (this.eventHandlersInitialized) return;
+  initializeEventHandlers(socket, platform, uniqueId) {
+    // Only initialize if not already initialized or if platform/uniqueId combination is new
+    const handlerKey = `${platform}_${uniqueId}`;
+    if (this.eventHandlersInitialized && this.lastHandlerKey === handlerKey) return;
 
-      LiveEvents.forEach(event => {
-          this.kickliveconnector.on(event, (data) => {
-              io.to(this.uniqueId).emit(event, data);
-              if (event === 'disconnected') {
-                  console.log(`Kick ${event} event for ${this.uniqueId}`);
-                  this.isConnected = false;
-              }
-          });
+    this.lastHandlerKey = handlerKey;
+    
+    // Unbind previous event listeners if they exist
+    LiveEvents.forEach(event => {
+      // Use standard event unbinding if possible
+      if (this.kickliveconnector.off) {
+        this.kickliveconnector.off(event);
+      }
+    });
+
+    this.eventHandlersInitialized = false;
+
+    LiveEvents.forEach(event => {
+      this.kickliveconnector.on(event, (data) => {
+        socket.emit(event, data);  // Emit directly to the socket
+        if (event === 'disconnected') {
+          console.log(`Kick ${event} event for ${this.uniqueId}`);
+          this.isConnected = false;
+        }
       });
+    });
 
-      this.eventHandlersInitialized = true;
+    this.eventHandlersInitialized = true;
   }
-
   disconnect() {
       if (this.kickliveconnector) {
           this.kickliveconnector = null;
@@ -367,26 +388,28 @@ io.on('connection', (socket) => {
     socket.emit('allConnections', getAllConnectionsInfo());
 
     socket.on('joinRoom', async ({ platform, uniqueId }) => {
-        try {
-            if (!Object.values(PlatformType).includes(platform)) {
-                throw new Error('Invalid platform specified');
-            }
-
-            const connection = await getOrCreatePlatformConnection(platform, uniqueId, socket);
-            socket.join(connection.uniqueId);
-            
-            console.log(`User ${socket.id} joined ${platform} room: ${connection.uniqueId}`);
-            
-            socket.emit('message', {
-                type: 'success',
-                message: `Connected to ${platform} live room: ${connection.uniqueId}`
-            });
-        } catch (error) {
-            socket.emit('message', {
-                type: 'error',
-                message: error.message
-            });
+      try {
+        if (!Object.values(PlatformType).includes(platform)) {
+          throw new Error('Invalid platform specified');
         }
+   
+        const connection = await getOrCreatePlatformConnection(platform, uniqueId, socket);
+        
+        // Modify the event handlers to check for unique platform and user combination
+        connection.initializeEventHandlers(socket, platform, uniqueId);
+        
+        socket.join(connection.uniqueId);
+        console.log(`User ${socket.id} joined ${platform} room: ${connection.uniqueId}`);
+        socket.emit('message', {
+          type: 'success',
+          message: `Connected to ${platform} live room: ${connection.uniqueId}`
+        });
+      } catch (error) {
+        socket.emit('message', {
+          type: 'error',
+          message: error.message
+        });
+      }
     });
     socket.on('join-room', (roomId) => {
       const roomInfo = roomManager.joinRoom(socket, roomId);

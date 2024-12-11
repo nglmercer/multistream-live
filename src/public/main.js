@@ -31,7 +31,7 @@ loginelements.forEach(element => {
       console.log('Usuario conectado:', e.detail.username);
       element.setConnectionStatus('away');
       //joinRoom(e.detail.username, e.detail.platform);
-      socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "kick" });
+      //socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "kick" });
     });
     element.addEventListener('userDisconnected', (e) => {
       console.log('Usuario desconectado' ,e);
@@ -44,7 +44,7 @@ loginelements2.forEach(element => {
       console.log('Usuario conectado:', e.detail.username);
       element.setConnectionStatus('away');
       //joinRoom(e.detail.username, e.detail.platform);
-      socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "tiktok" });
+      //socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "tiktok" });
     });
     element.addEventListener('userDisconnected', (e) => {
       console.log('Usuario desconectado' ,e);
@@ -193,7 +193,7 @@ events.forEach(event => {
     socket.on(event, async (data) => {
         Readtext(event, data);
         localStorage.setItem('last'+event, JSON.stringify(data));
-        //console.log("event",event,data)
+        console.log("event",event,data)
         
         switch (event) {
             case 'ready':
@@ -216,6 +216,7 @@ events.forEach(event => {
 });
 tiktokLiveEvents.forEach(event => {
     socket.on(event, async (data) => {
+        console.log("event",event,data)
         Readtext(event, data);
         localStorage.setItem('last'+event, JSON.stringify(data));
         //console.log("event",event,data)
