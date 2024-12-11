@@ -195,53 +195,64 @@ const PAGES = {
     SETTINGS: 'settings',
     LOGIN: 'login'
   };
-  
-  // Helper function to generate the SVG for a given page
-  function getSvgIcon(page) {
-    const icons = {
-      [PAGES.DASHBOARD]: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-      </svg>`,
-      [PAGES.PROJECTS]: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-      </svg>`,
-      [PAGES.MESSAGES]: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-      </svg>`,
-      [PAGES.SETTINGS]: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-      </svg>`,
-      [PAGES.LOGIN]: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+  const PAGE_CONFIG = {
+    [PAGES.DASHBOARD]: {
+        label: 'Chat', 
+        icon: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
         </svg>`
-    };
-  
-    return icons[page] || '';
+    },
+    [PAGES.PROJECTS]: {
+        label: 'Action Events',
+        icon: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>`
+    },
+    [PAGES.MESSAGES]: {
+        label: 'Messages',
+        icon: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+        </svg>`
+    },
+    [PAGES.SETTINGS]: {
+        label: 'Settings',
+        icon: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+        </svg>`
+    },
+    [PAGES.LOGIN]: {
+        label: 'Login',
+        icon: `<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>`
+    }
   }
   
-  // Get button content (with icon and label)
-  function getButtonContent(page, index) {
+  function getSvgIcon(page) {
+    return PAGE_CONFIG[page]?.icon || '';
+}
+
+function getButtonContent(page, index) {
+    const pageConfig = PAGE_CONFIG[page];
     return `
-      <span class="nav-button-text">${page.charAt(0).toUpperCase() + page.slice(1)}</span>
-      <span class="sm:hidden">
-        ${getSvgIcon(page) || `<span class="font-bold">${index + 1}</span>`}
-      </span>
+        <span class="nav-button-text">${pageConfig.label}</span>
+        <span class="sm:hidden">
+            ${pageConfig.icon || `<span class="font-bold">${index + 1}</span>`}
+        </span>
     `;
-  }
-  
-  // Get sidebar content (with icon and label)
-  function getSidebarContent(page, index, activePage) {
-    const pageName = page.charAt(0).toUpperCase() + page.slice(1);
-  
+}
+
+function getSidebarContent(page, index, activePage) {
+    const pageConfig = PAGE_CONFIG[page];
     return `
-      <a href="#" class="nav-link flex items-center px-6 py-2 hover:bg-gray-700 ${activePage === page ? 'active' : ''}" 
-         data-page="${page}">
-        ${getSvgIcon(page)}
-        ${pageName}
-      </a>
+        <a href="#" class="nav-link flex items-center px-6 py-2 hover:bg-gray-700 ${activePage === page ? 'active' : ''}" 
+           data-page="${page}">
+            ${pageConfig.icon}
+            ${pageConfig.label}
+        </a>
     `;
-  }
-  
+}
+  const pages = Object.values(PAGES);
   // Set active page in localStorage
   function setActivePage(page) {
     localStorage.setItem('activePage', page);
@@ -250,7 +261,7 @@ const PAGES = {
   
   // Get active page from localStorage or default to DASHBOARD
   function getActivePage() {
-    return localStorage.getItem('activePage') || PAGES.DASHBOARD;
+    return localStorage.getItem('activePage') || pages[0];
   }
   
   class SideBar extends HTMLElement {
@@ -333,7 +344,6 @@ const PAGES = {
   
     render() {
         const activePage = getActivePage();
-        const pages = [PAGES.DASHBOARD, PAGES.PROJECTS, PAGES.MESSAGES, PAGES.SETTINGS, PAGES.LOGIN];
     
         this.shadowRoot.innerHTML = `
           <style>
@@ -394,7 +404,6 @@ class NavBar extends HTMLElement {
   
     render() {
         const activePage = getActivePage();
-        const pages = [PAGES.DASHBOARD, PAGES.PROJECTS, PAGES.MESSAGES, PAGES.SETTINGS, PAGES.LOGIN];
     
         this.shadowRoot.innerHTML = `
           <style>
