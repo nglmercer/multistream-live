@@ -1,6 +1,5 @@
 import DynamicTable, { EditModal } from '../components/renderfields.js';
-import { showAlert } from '../components/message.js';
-import {replaceVariables, logger, ArrayStorageManager, ArrayManagerUI} from '../utils/utils.js';
+import {replaceVariables, logger, ArrayStorageManager, ArrayManagerUI,showAlert} from '../utils/utils.js';
 import { leerMensajes, handleleermensaje } from '../audio/tts.js';
 import { voicelistmap } from '../audio/voiceoptions.js';
 import { getTranslation, translations } from '../translations.js';

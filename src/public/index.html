@@ -83,7 +83,7 @@
             <h2><translate-text key="configuration"></translate-text></h2>
               <div class="containerbox relative">
                   <h3><translate-text key="eventtable"></translate-text>
-                      <button class="open-modal-btn" onclick="document.getElementById('eventformModal').open()"><translate-text key="addevent"></translate-text></button>
+                      <button id="openeventformModal" class="open-modal-btn" onclick="document.getElementById('eventformModal').open()"><translate-text key="addevent"></translate-text></button>
 
                   </h3>
                   <custom-modal modal-type="form" id="EventsModal">
@@ -91,7 +91,7 @@
                   </custom-modal>
                   <div id="table-containerEvent" class="dynamic-table1"></div>
                 <h3><translate-text key="actiontable"></translate-text>
-                    <button class="open-modal-btn" onclick="document.getElementById('actionformModal').open()"><translate-text key="addaction"></translate-text></button>
+                    <button id="openactionformModal" class="open-modal-btn" onclick="document.getElementById('actionformModal').open()"><translate-text key="addaction"></translate-text></button>
 
                 </h3>
                 <custom-modal modal-type="form" id="ActionModal">
@@ -172,7 +172,6 @@
   <custom-modal modal-type="form" id="Configurations">
       <custom-tabs id="tabscontent">
       </custom-tabs>
-      <div id="container123"></div>
   </custom-modal>
   <script type="module">
     setTimeout(() => {

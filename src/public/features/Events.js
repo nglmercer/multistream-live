@@ -1,8 +1,7 @@
 import { Giftsparsed, mapselectgift } from '../assets/gifts.js';
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { databases, IndexedDBManager, DBObserver, getAllDataFromDatabase } from '../database/indexdb.js'
-import { Counter, flattenObject, TypeofData,ComboTracker, replaceVariables, compareObjects, unflattenObject } from '../utils/utils.js'
-import showAlert from '../components/alerts.js';
+import { Counter,showAlert, flattenObject, TypeofData,ComboTracker, replaceVariables, compareObjects, unflattenObject } from '../utils/utils.js'
 import { getTranslation, translations } from '../translations.js';
 const ObserverEvents = new DBObserver();
 const EventsManager = new IndexedDBManager(databases.eventsDB,ObserverEvents);
@@ -18,6 +17,8 @@ async function EventsManagermap() {
       return [];
     }
 }
+const openeventformModal = document.getElementById('openeventformModal')
+
 const newmodalevent = document.getElementById('eventformModal')
 const testdata = {
   nombre: getTranslation('nombre_del_evento'),
@@ -97,6 +98,10 @@ const eventform = document.createElement('dynamic-form');
             })
             .render()
             .toggleDarkMode(true);
+openeventformModal.addEventListener('click',() => {
+  document.getElementById('eventformModal').open();
+  eventform.reRender(testdata);
+})
 eventform.addEventListener('form-submit', async (e) => {
   console.log('Datos modificados:', e.detail);
   const modifiedData = unflattenObject(e.detail);

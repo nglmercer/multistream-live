@@ -1,5 +1,4 @@
-import { Counter, compareObjects, replaceVariables, logger, UserInteractionTracker, EvaluerLikes, LocalStorageManager } from './utils/utils.js';
-import { ChatContainer, ChatMessage, showAlert } from './components/message.js';
+import { showAlert, Counter, compareObjects, replaceVariables, logger, UserInteractionTracker, EvaluerLikes, LocalStorageManager } from './utils/utils.js';
 import { Replacetextoread, addfilterword, existuserinArray,adduserinArray } from './features/speechconfig.js';
 import { handleleermensaje } from './audio/tts.js';
 import { getTranslation, translations } from './translations.js';

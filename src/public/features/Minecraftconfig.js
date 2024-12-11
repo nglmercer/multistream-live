@@ -1,6 +1,6 @@
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { getTranslation, translations } from '../translations.js';
-import { UserInteractionTracker } from '../utils/utils.js'
+import { UserInteractionTracker, logger,showAlert } from '../utils/utils.js'
 const minecraftconfig = {
     ip: {
       class: 'input-default',
@@ -31,7 +31,7 @@ const minecraftconfig = {
       type: 'button',
       label: getTranslation('connect'),
       callback: async (data,modifiedData) => {
-        console.log("minecraftcallback",data,modifiedData);
+        logger.log("minecraft","minecraftcallback",data,modifiedData);
         localStorage.setItem("MinecraftPluginServer",JSON.stringify(modifiedData));
         handlebotconnect("connect-plugin",modifiedData);
       },
@@ -50,7 +50,7 @@ const trackerMultiple = new UserInteractionTracker({autoDestroy: true});
 trackerMultiple.addInteractionListener(handlemcconnect);
 
 function handlemcconnect(interaction) {
-  console.log("handlemcconnect",interaction);
+  logger.log("minecraft","handlemcconnect",interaction);
     handlebotconnect("connect-plugin",minecraftdata);
   
 }
@@ -74,11 +74,11 @@ htmlminecraft.classList.add('grid');
         pluginconnect(data);
         break;
       default:
-          console.log(`Tipo de evento desconocido: ${eventType}`,data);
+          logger.log("minecraft",`Tipo de evento desconocido: ${eventType}`,data);
     }
   }
   class WebSocketManager {
-    constructor(maxReconnectAttempts = 10, reconnectInterval = 1000) {
+    constructor(maxReconnectAttempts = 3, reconnectInterval = 1000) {
         this.maxReconnectAttempts = maxReconnectAttempts;
         this.reconnectInterval = reconnectInterval;
         this.reconnectAttempts = 0;
@@ -102,28 +102,28 @@ htmlminecraft.classList.add('grid');
         this.setCookie(password);
   
         this.ws.onopen = () => {
-            console.log('Opened connection');
+            logger.log("minecraft",'Opened connection');
             this.ws.send(`/say conectado `);
             this.reconnectAttempts = 0; // Reset reconnect attempts on successful connection
         };
   
         this.ws.onmessage = (event) => {
-            // console.log('Message from server:', event.data);
+            // logger.log("minecraft",'Message from server:', event.data);
             // document.getElementById('output').innerText += '\n' + event.data.replace(/\n/g, '<br>');
         };
   
         this.ws.onerror = (error) => {
-            console.log('WebSocket Error:', error);
+            logger.log("minecraft",'WebSocket Error:', error);
         };
   
         this.ws.onclose = () => {
-            console.log('Closed connection');
+            logger.log("minecraft",'Closed connection');
             if (this.reconnectAttempts < this.maxReconnectAttempts) {
                 this.reconnectAttempts++;
-                console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`,wsurl);
+                logger.log("minecraft",`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`,wsurl);
                 setTimeout(() => this.connect(wsurl), this.reconnectInterval);
             } else {
-                console.log('Max reconnect attempts reached. Giving up.');
+                logger.log("minecraft",'Max reconnect attempts reached. Giving up.');
             }
         };
     }
@@ -131,11 +131,11 @@ htmlminecraft.classList.add('grid');
     async sendCommand(command) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(command);
-            console.log("Command sent:", command);
+            logger.log("minecraft","Command sent:", command);
         } else {
             await this.waitForConnection();
             this.ws.send(command);
-            console.log("Command sent after reconnecting:", command);
+            logger.log("minecraft","Command sent after reconnecting:", command);
         }
     }
   
@@ -148,7 +148,7 @@ htmlminecraft.classList.add('grid');
   const ws = new WebSocketManager();
   function sendcommandmc(command) {
       ws.sendCommand(command);
-      console.log("sendcommandmc", command);
+      logger.log("minecraft","sendcommandmc", command);
   }
   function pluginconnect(data) {
     let defaultOptions = {

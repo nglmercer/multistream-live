@@ -818,7 +818,10 @@ class FlexibleModalSelector extends HTMLElement {
                 cursor: pointer;
                 background-color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedBackground : currentColors.background};
                 color: ${currentlySelectedValues.has(option.value) ? currentColors.selectedText : currentColors.text};
+                position: relative;
             `;
+    
+    
   
             // Checkbox para modo multi
             if (mode === 'multi') {
@@ -830,18 +833,90 @@ class FlexibleModalSelector extends HTMLElement {
                 optionElement.appendChild(checkbox);
             }
   
-            // Add image support
-            if (option.image || option.path) {
-                const img = document.createElement('img');
-                img.src = (option?.image || option?.path)?.startsWith('http') || (option?.image || option?.path)?.startsWith('blob:') ? option.image || option.path : `/media/${option.image || option.path}`;
-                img.style.cssText = `
-                    width: 30px;
-                    height: 30px;
-                    object-fit: cover;
-                    margin-right: 0.5rem;
-                    border-radius: 0.25rem;
-                `;
-                optionElement.appendChild(img);
+            let mediaHoverOverlay = null;
+            let hoverTimeoutId = null;
+            if (option.image || option.path || option.mediaType) {
+              // Create media element using the function
+              const mediaElement = document.createElement('div');
+              mediaElement.innerHTML = generateMediaElement({
+                  image: option.image, 
+                  path: option.path, 
+                  mediaType: option.mediaType,
+                  label: option.label
+              });
+              
+              // Get the actual media element (img, video, or audio)
+              const mediaChild = mediaElement.firstChild;
+              
+              // Apply styling consistent with your existing code
+              mediaChild.style.cssText = `
+                  width: 30px;
+                  height: 30px;
+                  object-fit: cover;
+                  margin-right: 0.5rem;
+                  border-radius: 0.25rem;
+                  transition: transform 0.3s ease;
+              `;
+              
+              // Hover event to show large preview
+              mediaChild.addEventListener('mouseenter', (e) => {
+                // Clear any existing timeout
+                if (hoverTimeoutId) {
+                  clearTimeout(hoverTimeoutId);
+                }
+    
+                // Delay creation of overlay to prevent quick disappearance
+                hoverTimeoutId = setTimeout(() => {
+                  // Create overlay for large preview
+                  mediaHoverOverlay = document.createElement('div');
+                  mediaHoverOverlay.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 1002;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                    max-width: 300px;
+                    max-height: 300px;
+                    object-fit: contain;
+                  `;
+    
+                  const largeMedia = mediaChild.cloneNode(true);
+                  largeMedia.style.cssText = `
+                    max-width: 300px;
+                    max-height: 300px;
+                    object-fit: contain;
+                  `;
+    
+                  mediaHoverOverlay.appendChild(largeMedia);
+                  document.body.appendChild(mediaHoverOverlay);
+    
+                  // Event listeners to handle overlay interaction
+                  const hideOverlay = () => {
+                    if (mediaHoverOverlay) {
+                      document.body.removeChild(mediaHoverOverlay);
+                      mediaHoverOverlay = null;
+                    }
+                  };
+    
+                  mediaHoverOverlay.addEventListener('mouseleave', hideOverlay);
+                  mediaHoverOverlay.addEventListener('click', hideOverlay);
+                }, 200); // 200ms delay to stabilize hover
+              });
+    
+              mediaChild.addEventListener('mouseleave', () => {
+                // Clear timeout if mouse leaves before overlay appears
+                if (hoverTimeoutId) {
+                  clearTimeout(hoverTimeoutId);
+                }
+              });
+              
+              optionElement.appendChild(mediaChild);
             }
   
             const label = document.createElement('span');
@@ -1487,7 +1562,6 @@ class DynamicForm extends HTMLElement {
               input.id = field.name;
               input.setAttribute('name', field.name);
               input.setAttribute('mode', field.mode || 'single');
-              console.log(field.theme);
               input.setAttribute('theme', field.theme || 'light');
               input.toggleDarkMode();
               // Configurar el evento change del modal-selector
@@ -6767,7 +6841,6 @@ class ChatMessage extends HTMLElement {
     }
   
     const messageContent = this.shadowRoot.querySelector('.message-content');
-    console.log("content webcomponent",content)
     content.forEach(item => {
       const messageItem = document.createElement('div');
       const classNameitem = item.class ? item.class : 'message-item';
@@ -7046,6 +7119,30 @@ class LocalStorageManager {
     console.error(message, error);
     throw error;
   }
+}
+function generateMediaElement(file) {
+  // Sanitize the URL to prevent XSS file.path || file.image || '';           img.src = (selectedOptions[0].image || selectedOptions[0].path)?.startsWith('http') || (selectedOptions[0].image || selectedOptions[0].path)?.startsWith('blob:') ? (selectedOptions[0].image || selectedOptions[0].path) : `/media/${(selectedOptions[0].image || selectedOptions[0].path)}`;
+
+  const sanitizedUrl = (file.path || file.image)?.startsWith('http') ? file.path || file.image : '/media/' + (file.path || file.image);
+  const mediaType = file.mediaType || '';
+  const content = file.label || '';
+
+  // Default to image if no specific media type is provided
+  if (!mediaType) {
+      return `<img src="${sanitizedUrl}" alt="${content || 'Item media'}">`;
+  }
+
+  // Handle different media types
+  if (mediaType.includes('video')) {
+      return `<video src="${sanitizedUrl}" controls></video>`;
+  }
+
+  if (mediaType.includes('audio')) {
+      return `<audio src="${sanitizedUrl}" controls></audio>`;
+  }
+
+  // Fallback to image
+  return `<img src="${sanitizedUrl}" alt="${content || 'Item media'}">`;
 }
 class GridContainer extends HTMLElement {
   constructor() {

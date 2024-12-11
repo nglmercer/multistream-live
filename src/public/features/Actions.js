@@ -1,10 +1,9 @@
-import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects,UserInteractionTracker, unflattenObject, flattenObject } from '../utils/utils.js'
+import { Counter, TypeofData,ComboTracker, replaceVariables,showAlert, compareObjects,UserInteractionTracker, unflattenObject, flattenObject } from '../utils/utils.js'
 import { filterworddefault,keyboard, valueboard, optionskeyboard, optionsvalueboard } from "../assets/jsondata.js"
 import { databases, IndexedDBManager, DBObserver, getAllDataFromDatabase } from '../database/indexdb.js'
 import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { getTranslation, translations } from '../translations.js';
 import socketManager from '../server/socketManager.js';
-import showAlert from '../components/alerts.js';
 import { eventform } from './Events.js'
 import { mapedarrayobs, arrayobs,executebykeyasync } from './obcontroller.js'
 import { sendcommandmc } from './Minecraftconfig.js'
@@ -344,6 +343,7 @@ const newactionform = document.createElement('dynamic-form');
 /* setTimeout(() => {
   newactionform.reRender(testdata);
 }, 1000); */
+const openactionformModal = document.getElementById('openactionformModal')
 newactionform.addEventListener('form-submit', async (e) => {
   console.log('Datos modificados:', e.detail);
 /*   newmodalaction.close();
@@ -390,6 +390,12 @@ function idexist(id,allresults) {
   }
   return exists;
 }
+openactionformModal.addEventListener('click',() => {
+  document.getElementById('actionformModal').open();
+  const rawdata = flattenObject(testdata);
+  newactionform.reRender(rawdata);
+  newactionform.updateFieldOptions('overlay_src',getallfilesmap(JSON.parse(localStorage.getItem('filePaths'))));
+})
 newactionform.addEventListener('form-change', (e) => {
   //console.log('Form values changed:', e.detail);
 });
@@ -472,7 +478,6 @@ async function returnlistofinputs(arrayinputs) {
 const ActionModal = document.getElementById('ActionModal');
 const testdata = {
   nombre: getTranslation('nombre de la accion'),
-  color: "#000000",
   minecraft: {
     check: false,
     command: getTranslation('command_mc'),
@@ -480,17 +485,6 @@ const testdata = {
   tts: {
     check: false,
     text: getTranslation('texttoread'),
-  },
-  obs: {
-    check: true,
-    action: 'setCurrentScene',
-  },
-  params: {
-    inputName: 'Camera',
-    sceneName: 'Scene',
-    duration: 60,
-    toggle: true,
-    db: 0,
   },
   id: undefined,
 }

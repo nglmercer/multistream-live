@@ -728,7 +728,7 @@ const logger = new Logger({debug: true, info: true}, false);
 // logger.addCategory('datos'); // Habilitada por defecto
 // logger.addCategory('valores'); // Habilitada por defecto
 logger.addCategory('speechchat', true);
-logger.addCategory('minecraft', true);
+logger.addCategory('minecraft', false);
 logger.addCategory('Event', true);
 logger.addCategory('Action', true);
 logger.addCategory('EventAction', true);
@@ -1176,5 +1176,31 @@ function getallfilesmap(objetc) {
     return {};
   }
 }
-export {LocalStorageManager,unflattenObject, flattenObject, Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI,getallfilesmap };
+function showAlert(type='info', message, duration = 3000,data) {
+  const alert = document.createElement('app-alert');
+  alert.setAttribute('type', type);
+  alert.setAttribute('message', message);
+  if (data) alert.setAttribute('details', JSON.stringify(data));
+  alert.setAttribute('dark-mode', ''); // Enables dark mode
+  alert.setAttribute('duration', duration); // Enables close button
+/*   switch (type) {
+    case 'success':
+        alert.classList.add('alert-success');
+        break;
+    case 'info':
+        alert.classList.add('alert-info');
+        break;
+    case 'warning':
+        alert.classList.add('alert-warning');
+        break;
+    case 'error':
+        alert.classList.add('alert-error');
+        break;
+    default:
+        alert.classList.add('alert-info');
+} */
+document.body.appendChild(alert);
+
+}
+export {LocalStorageManager,unflattenObject, showAlert,flattenObject, Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI,getallfilesmap };
   
