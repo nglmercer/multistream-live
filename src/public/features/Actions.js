@@ -1,17 +1,30 @@
-import DynamicTable, { EditModal } from '../components/renderfields.js';
-import { databases, IndexedDBManager, DBObserver } from '../database/indexdb.js'
 import { Counter, TypeofData,ComboTracker, replaceVariables, compareObjects,UserInteractionTracker, unflattenObject, flattenObject } from '../utils/utils.js'
-import showAlert from '../components/alerts.js';
-import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
 import { filterworddefault,keyboard, valueboard, optionskeyboard, optionsvalueboard } from "../assets/jsondata.js"
+import { databases, IndexedDBManager, DBObserver, getAllDataFromDatabase } from '../database/indexdb.js'
+import DynamicTable, { EditModal } from '../components/renderfields.js';
 import { getTranslation, translations } from '../translations.js';
+import socketManager from '../server/socketManager.js';
+import showAlert from '../components/alerts.js';
+import { eventform } from './Events.js'
+import { mapedarrayobs, arrayobs,executebykeyasync } from './obcontroller.js'
 import { sendcommandmc } from './Minecraftconfig.js'
 import { Replacetextoread, addfilterword } from './speechconfig.js'
-import { mapedarrayobs, arrayobs,executebykeyasync } from './obcontroller.js'
-import socketManager from '../server/socketManager.js';
+import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
 
 const ObserverActions = new DBObserver();
 const ActionsManager = new IndexedDBManager(databases.ActionsDB,ObserverActions);
+async function EventsManagermap() {
+  try {
+    const alldata = await getAllDataFromDatabase(databases.ActionsDB);
+    return  alldata.map(data => ({
+      value: data.id,
+      label: data.nombre,
+    }))
+    } catch (error) {
+      console.error('Error getting all files:', error);
+      return [];
+    }
+}
 function replaceNestedValue(obj, path, newValue) {
   const keys = path.split('.');
   const lastKey = keys.pop();
@@ -137,6 +150,12 @@ const actionsconfig = {
       type: 'number',
       returnType: 'number',
       label: 'duration',
+    },
+    volume: {
+      class: 'input-default',
+      type: 'slider',
+      returnType: 'number',
+      label: 'volume',
     }
   },
 /*   obs: {
@@ -287,6 +306,17 @@ const newactionform = document.createElement('dynamic-form');
               placeholder: '60',
               label: 'duration',
               value: 60,
+              showWhen: {
+                field: 'overlay_check',
+                value: true
+              }
+            })
+            .addField({
+              type: 'range',
+              name: 'overlay_volume',
+              placeholder: '60',
+              label: 'volume',
+              value: 50,
               showWhen: {
                 field: 'overlay_check',
                 value: true
@@ -603,6 +633,7 @@ ObserverActions.subscribe(async (action, data) => {
     //   table.addRow(data);
     // });
     console.log("dataupdate",action,data)
+    eventform.updateFieldOptions('Actions',await EventsManagermap());
     table.addRow(data);
     const newbutton = addCustomButton(data);
     //renderer.addCustomElement(data.id,newbutton);
@@ -613,6 +644,8 @@ ObserverActions.subscribe(async (action, data) => {
       table.addRow(data);
     }); */
     console.log("dataupdate",action,data)
+    eventform.updateFieldOptions('Actions',await EventsManagermap());
+
     //renderer.removeElement(data);
   }
   else if (action === "update") {

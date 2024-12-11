@@ -41,8 +41,7 @@ const databases = {
                 getRequest.onerror = () => reject(getRequest.error);
             });
         });
-    }
-    
+    } 
 
     async openDatabase() {
         if (this.db) return this.db;
@@ -178,6 +177,25 @@ const databases = {
         });
     }
 }
+async function getAllDataFromDatabase(databaseConfig) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(databaseConfig.name, databaseConfig.version);
+
+        request.onsuccess = () => {
+            const db = request.result;
+            const transaction = db.transaction([databaseConfig.store], 'readonly');
+            const store = transaction.objectStore(databaseConfig.store);
+
+            const getAllRequest = store.getAll();
+            getAllRequest.onsuccess = () => resolve(getAllRequest.result);
+            getAllRequest.onerror = () => reject(getAllRequest.error);
+
+            transaction.oncomplete = () => db.close();
+        };
+
+        request.onerror = () => reject(request.error);
+    });
+}
 
 class DBObserver {
 constructor() {
@@ -196,7 +214,7 @@ notify(action, data) {
     this.listeners.forEach(listener => listener(action, data));
 }
 }
-export { databases, IndexedDBManager, DBObserver } 
+export { databases, IndexedDBManager, DBObserver, getAllDataFromDatabase } 
   
   // Usage example
   // IndexedDBManager.updateData({ name: 'User 1', points: 100 }, 'name');
