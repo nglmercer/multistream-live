@@ -8105,10 +8105,14 @@ class AlertComponent extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.detailsData = null;
+    this.isDarkMode = false;
+    this.alertElement = null;
+    this.modalOpen = false;
   }
 
   static get observedAttributes() {
-    return ['type', 'message', 'duration'];
+    return ['type', 'message', 'duration', 'details', 'dark-mode'];
   }
 
   connectedCallback() {
@@ -8116,7 +8120,7 @@ class AlertComponent extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'type' || name === 'message') {
+    if (['type', 'message', 'details', 'dark-mode'].includes(name)) {
       this.render();
     }
   }
@@ -8124,9 +8128,42 @@ class AlertComponent extends HTMLElement {
   render() {
     const type = this.getAttribute('type') || 'info';
     const message = this.getAttribute('message') || '';
-    const duration = parseInt(this.getAttribute('duration') || 3000);
+    const duration = parseInt(this.getAttribute('duration') || 3000); // Extended duration
+    const details = this.getAttribute('details');
+    this.isDarkMode = this.hasAttribute('dark-mode');
 
-    this.shadowRoot.innerHTML = `
+    // Parse details
+    this.parseDetails(details);
+
+    this.shadowRoot.innerHTML = this.getTemplate(type, message);
+
+    this.alertElement = this.shadowRoot.querySelector('.alert');
+    const detailsIcon = this.shadowRoot.querySelector('.details-icon');
+
+    // Add details modal functionality
+    if (detailsIcon) {
+      detailsIcon.addEventListener('click', () => this.showDetailsModal());
+    }
+
+    // Handle auto-dismiss with condition for modal state
+    setTimeout(() => {
+      if (!this.modalOpen) {
+        this.dismissAlert();
+      }
+    }, duration);
+  }
+
+  parseDetails(details) {
+    try {
+      this.detailsData = details ? JSON.parse(details) : null;
+    } catch (error) {
+      console.error('Invalid details JSON', error);
+      this.detailsData = null;
+    }
+  }
+
+  getTemplate(type, message) {
+    return `
       <style>
         :host {
           display: block;
@@ -8145,6 +8182,8 @@ class AlertComponent extends HTMLElement {
           box-shadow: 0 4px 6px rgba(0,0,0,0.1);
           max-width: 300px;
           word-wrap: break-word;
+          display: flex;
+          align-items: center;
         }
         .alert.show {
           opacity: 1;
@@ -8154,39 +8193,124 @@ class AlertComponent extends HTMLElement {
           opacity: 0;
           transform: translateX(100%);
         }
-        .alert-success {
-          background-color: #28a745;
+        .alert-success { background-color: #28a745; }
+        .alert-info { background-color: #17a2b8; }
+        .alert-warning { background-color: #ffc107; color: #212529; }
+        .alert-error { background-color: #dc3545; }
+        
+        .details-icon {
+          margin-left: 10px;
+          cursor: pointer;
+          color: rgba(255,255,255,0.7);
         }
-        .alert-info {
-          background-color: #17a2b8;
+        
+        .modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1001;
         }
-        .alert-warning {
-          background-color: #ffc107;
-          color: #212529;
+        
+        .modal-content {
+          background: white;
+          padding: 20px;
+          border-radius: 5px;
+          max-width: 500px;
+          max-height: 80%;
+          overflow-y: auto;
+          position: relative;
         }
-        .alert-error {
-          background-color: #dc3545;
+        
+        .modal-content.dark-mode {
+          background: #333;
+          color: #f4f4f4;
+        }
+        
+        .copy-icon {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          cursor: pointer;
+          opacity: 0.7;
+        }
+        
+        .copy-icon:hover {
+          opacity: 1;
         }
       </style>
       <div class="alert alert-${type} show">
         ${message}
+        ${this.detailsData ? `<span class="details-icon" title="View Details">&#9432;</span>` : ''}
       </div>
     `;
+  }
 
-    const alertElement = this.shadowRoot.querySelector('.alert');
-    
-    setTimeout(() => {
-      alertElement.classList.add('fade-out');
-      
-      alertElement.addEventListener('transitionend', () => {
+  showDetailsModal() {
+    if (!this.detailsData) return;
+
+    this.modalOpen = true;
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = `modal-content ${this.isDarkMode ? 'dark-mode' : ''}`;
+
+    const detailsText = this.formatDetailsToText(this.detailsData);
+    modalContent.innerHTML = `
+      <div class="copy-icon" title="Copy Details">📋</div>
+      <pre>${detailsText}</pre>
+    `;
+
+    modal.appendChild(modalContent);
+    this.shadowRoot.appendChild(modal);
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        this.shadowRoot.removeChild(modal);
+        this.modalOpen = false;
+        this.dismissAlert();
+      }
+    });
+
+    // Copy functionality
+    const copyIcon = modalContent.querySelector('.copy-icon');
+    copyIcon.addEventListener('click', () => {
+      navigator.clipboard.writeText(detailsText).then(() => {
+        copyIcon.textContent = '✅';
+        setTimeout(() => {
+          copyIcon.textContent = '📋';
+        }, 1000);
+      });
+    });
+  }
+
+  dismissAlert() {
+    if (this.alertElement) {
+      this.alertElement.classList.add('fade-out');
+      this.alertElement.addEventListener('transitionend', () => {
         this.remove();
       });
-    }, duration);
+    }
+  }
+
+  formatDetailsToText(details) {
+    return JSON.stringify(details, null, 2);
   }
 }
 
 // Define the custom element
 customElements.define('app-alert', AlertComponent);
+
 
 class CustomDropdown extends HTMLElement {
   constructor() {

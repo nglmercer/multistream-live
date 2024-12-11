@@ -1,17 +1,11 @@
-function showAlert(type='info', message, duration = 3000) {
-  // Buscar el contenedor de alertas o crearlo si no existe
-  let alertContainer = document.querySelector('.alert-container');
-  if (!alertContainer) {
-      alertContainer = document.createElement('div');
-      alertContainer.className = 'alert-container';
-      document.body.appendChild(alertContainer);
-      alertContainer.style.pointerEvents = 'none';
-  }
-
-  const alert = document.createElement('div');
-  alert.classList.add('alert');
-  alert.style.pointerEvents = 'none';
-  switch (type) {
+function showAlert(type='info', message, duration = 3000,data) {
+    const alert = document.createElement('app-alert');
+    alert.setAttribute('type', type);
+    alert.setAttribute('message', message);
+    if (data) alert.setAttribute('details', JSON.stringify(data));
+    alert.setAttribute('dark-mode', ''); // Enables dark mode
+    alert.setAttribute('duration', duration); // Enables close button
+/*   switch (type) {
       case 'success':
           alert.classList.add('alert-success');
           break;
@@ -26,18 +20,9 @@ function showAlert(type='info', message, duration = 3000) {
           break;
       default:
           alert.classList.add('alert-info');
-  }
+  } */
+  document.body.appendChild(alert);
 
-  alert.textContent = message;
-  alertContainer.appendChild(alert);
-
-  // Remover la alerta después de la duración especificada
-  setTimeout(() => {
-      alert.classList.add('fade-out');
-      alert.addEventListener('transitionend', () => alert.remove());
-      //borramos el elemento del DOM
-      alert.remove();
-  }, duration);
 }
 {/* <button onclick="showAlert('success', 'This is a success message!')">Show Success</button>
 <button onclick="showAlert('info', 'This is an info message!')">Show Info</button>

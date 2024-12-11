@@ -193,11 +193,11 @@ const actionsconfig = {
       const results = compareObjects(modifiedData, alldata, keysToCheck, callbackFunction);
       console.log("results",results)
       if (results.validResults.length >= 1) {
-        showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`)
+        showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`,9999,modifiedData)
       } else {
         ActionModal.close();
         ActionsManager.saveData(modifiedData)
-        showAlert('success','Se ha guardado el evento')
+        showAlert('success','Se ha guardado el evento',9888,modifiedData)
       }
     },
   },
@@ -366,17 +366,17 @@ newactionform.addEventListener('form-submit', async (e) => {
     if (!results.validResults.length >= 1 && !modifiedData.id)  {
       newmodalaction.close();
       ActionsManager.saveData(modifiedData)
-      showAlert('success','Se ha guardado el evento')
+      showAlert('success','Se ha guardado el evento',9999,modifiedData)
     } else if (modifiedData.id && results.validResults.length <= 1){
       if (idexist(modifiedData.id,results.validResults)) {
         showAlert('error','ya existe un elemento en la base de datos igual')
       } else {
         newmodalaction.close();
         ActionsManager.updateData(modifiedData)
-        showAlert('success','Se ha guardado el evento')
+        showAlert('success','Se ha guardado el evento',9999,modifiedData)
       }
     } else {
-      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`)
+      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`,9999,data)
     }
   
 });
@@ -645,7 +645,7 @@ ObserverActions.subscribe(async (action, data) => {
     }); */
     console.log("dataupdate",action,data)
     eventform.updateFieldOptions('Actions',await EventsManagermap());
-
+    showAlert ('info', "Actualizado", "1000",9999,data)
     //renderer.removeElement(data);
   }
   else if (action === "update") {
@@ -656,7 +656,7 @@ ObserverActions.subscribe(async (action, data) => {
     // });
     const newbuttonchange = addCustomButton(data);
     //renderer.addCustomElement(data.id,newbuttonchange);
-    showAlert ('info', "Actualizado", "1000");
+    showAlert ('info', "Actualizado", "1000",9999,data)
   }
 });
 export { actionsconfig,ActionsManager }

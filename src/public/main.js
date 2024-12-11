@@ -197,7 +197,7 @@ events.forEach(event => {
         
         switch (event) {
             case 'ready':
-              showAlert('success', `Connected`);
+              showAlert('success', `Connected`, 3000,data)
               console.log("ready",data)
                 userProfile.setProfileImage(await GetAvatarUrlKick.getProfilePic(data.username));
                 break;
@@ -261,7 +261,7 @@ tiktokLiveEvents.forEach(event => {
             const lastownerdata = localStorage.getItem('ownerdata');
             if (lastownerdata) userProfile2.setProfileImage(getAvatarUrl(JSON.parse(lastownerdata)));
             console.log(event, data);
-            showAlert('success', `Connected`);
+            showAlert('success', `Connected`,3000,data)
             break;
           default:
             HandleAccionEvent(event,data)
