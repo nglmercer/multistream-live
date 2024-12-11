@@ -396,7 +396,7 @@ io.on('connection', (socket) => {
         const connection = await getOrCreatePlatformConnection(platform, uniqueId, socket);
         
         // Modify the event handlers to check for unique platform and user combination
-        connection.initializeEventHandlers(socket, platform, uniqueId);
+        //connection.initializeEventHandlers(socket, platform, uniqueId);
         
         socket.join(connection.uniqueId);
         console.log(`User ${socket.id} joined ${platform} room: ${connection.uniqueId}`);
