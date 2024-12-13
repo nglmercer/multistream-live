@@ -231,8 +231,8 @@ tiktokLiveEvents.forEach(event => {
             break;
           case 'member':
             HandleAccionEvent('welcome',data)
-            const eventmember = webcomponentevent(data,defaulteventsmenu,{type:"text",value:'member', class: "gold"});
-            appendmessage2(eventmember,"eventscontainer",true);
+            const eventmember = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'member', class: "gold"});
+            appendMessage(eventmember,"eventscontainer",true);
             console.log("member",data)
             break;
           case 'roomUser':
@@ -240,19 +240,19 @@ tiktokLiveEvents.forEach(event => {
             break;
           case 'like':
             HandleAccionEvent(event,data, 'isInRange')
-            const eventlike = webcomponentevent(data,defaulteventsmenu,{type:"text",value:'like', class: "gold"});
-            appendmessage2(eventlike,"eventscontainer",true);
+            const eventlike = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'like', class: "gold"});
+            appendMessage(eventlike,"eventscontainer",true);
             console.log("like",data)
             break;
           case 'follow':
             HandleAccionEvent('follow',data);
-            const eventfollow = webcomponentevent(data,defaulteventsmenu,{type:"text",value:'follow', class: "gold"});
-            appendmessage2(eventfollow,"eventscontainer",true);
+            const eventfollow = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'follow', class: "gold"});
+            appendMessage(eventfollow,"eventscontainer",true);
             console.log("follow",data)
             break;
           case 'share':
-            const eventshare = webcomponentevent(data,defaulteventsmenu,{type:"text",value:'share', class: "gold"});
-            appendmessage2(eventshare,"eventscontainer",true);
+            const eventshare = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'share', class: "gold"});
+            appendMessage(eventshare,"eventscontainer",true);
             console.log("share",data)
             break;
           case 'connected':
@@ -406,22 +406,7 @@ async function mapChatMessagetochat(data) {
     profilePictureUrl: await GetAvatarUrlKick.getProfilePic(data.sender?.username),
   }
 }
-/* const textcontent = {
-    content: {
-      1: ["text", getTranslation('username'),"white"],
-      2: ["text", "uniqueId","silver"],
-      3: ["text", "comentario = ","gold"],
-      4: ["text", "comment","gold"],
-      // 4: ["url", "https://example.com", "blue", "Click para ir a mi perfil"]
-  
-    },
-    comment: "texto de prueba123123123",
-    // data: {
-    //   comment: "texto de prueba123123123",
-    //   number: 123,
-    //   text: "text",
-    // }
-  } */
+
 const newtextcontent = {
   user: {
     name: "username",
@@ -432,19 +417,6 @@ const newtextcontent = {
     { type: 'text', value: "comentario = comment" },
   ],
 }
-/* const numbercontent = {
-  content: {
-    1: ["text", getTranslation('username'),"white"],
-    2: ["text", "uniqueId","silver"],
-    3: ["number", 1,"gold"],
-    4: ["text", "= repeatCount","gold"],
-    5: ["text", "giftname = rose","cyan"],
-  },
-  data: {
-    number: 123,
-    text: "text",
-  }
-} */
 const newnumbercontent = {
   user: {
     name: "username",
@@ -456,16 +428,6 @@ const newnumbercontent = {
     { type: 'text', value: "rose = giftname" },
   ],
 }
-/* const eventcontent = {
-  content: {
-    1: ["text", "UniqueId","white"],
-    2: ["text", getTranslation('followed'),"yellow"],
-  },
-  data: {
-    number: 123,
-    text: "text",
-  }
-} */
 const neweventcontent = {
   user: {
     name: "username",
@@ -493,106 +455,99 @@ const filterwordadd = (data) => {
     addfilterword(data.comment);
   }
 }
+// Menú genérico
+const createMenu = (text, callback) => ({ text, callback });
 
-const defaultmenuchat = [
-  {
-    text: 'filtrar comentarios - dividir',
-    callback: (messageData) => {
-      console.log('Responder clicked', messageData);
-      const { user, content } = messageData;
-      const { name, value, photo,data } = user;
-      console.log('Responder clicked', user, content);
-      splitfilterwords(value);
-    }
+// Callbacks reutilizables
+const callbacks = {
+  splitFilterWords: (messageData) => {
+    console.log("Split Filter Words clicked", messageData);
+    splitfilterwords(messageData.user.value);
   },
-  {
-    text: 'filtrar comentario',
-    callback: (messageData) => {
-      console.log('Responder clicked', messageData);
-      const { user, content } = messageData;
-      const { name, value, photo,data } = user;
-      console.log('Responder clicked', user, content);
-      filterwordadd(value);
-    }
+  filterWordAdd: (messageData) => {
+    console.log("Filter Word Add clicked", messageData);
+    filterwordadd(messageData.user.value);
   },
-  {
-    text: 'Bloquear usuario',
-    callback: (messageData) => {
-      console.log('Responder clicked', messageData);
-      const { user, content } = messageData;
-      const { name, value, photo,data } = user;
-      console.log('Responder clicked', user, content);
-      adduserinArray(name);
-      // create functio to block user example blockuser(name);
-    }
-  }
+  blockUser: (messageData) => {
+    console.log("Block User clicked", messageData);
+    adduserinArray(messageData.user.name);
+  },
+  moreInfo: (messageData) => {
+    console.log("More Info clicked", messageData);
+  },
+  respond: (messageData) => {
+    console.log("Respond clicked", messageData);
+  },
+};
+
+// Menús
+const defaultMenuChat = [
+  createMenu("filtrar comentarios - dividir", callbacks.splitFilterWords),
+  createMenu("filtrar comentario", callbacks.filterWordAdd),
+  createMenu("Bloquear usuario", callbacks.blockUser),
 ];
-const defaulteventsmenu = [
-  {
-    text: 'mas información',
-    callback: (messageData) => {
-      console.log('Responder clicked', messageData);
-      const { user, content } = messageData;
-      const { name, value } = user;
-      console.log('Responder clicked', user, content);
-      // create functio to block user example blockuser(name);
-    }
-  }
-]
-const giftmenu = [
-  {
-    text: 'Responder',
-    callback: (messageData) => {
-      console.log('Responder clicked', messageData);
-    }
-  }
-]
-const timenow = () => {
+
+const defaultEventsMenu = [
+  createMenu("mas información", callbacks.moreInfo),
+];
+
+const giftMenu = [
+  createMenu("Responder", callbacks.respond),
+];
+
+// Utilidades
+const timeNow = () => {
   const now = new Date();
-  const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  return timeString;
-}
-async function lastelement(){
-  const messagedata = JSON.parse(localStorage.getItem('lastChatMessage'));
-  let newwebcomponentchat = null;
-  if (messagedata) {
-    const newdata = await mapChatMessagetochat(messagedata);
-    HandleAccionEvent('chat',newdata)
-    console.log("mapChatMessagetochat",newdata)
-    newwebcomponentchat = webcomponentchat(newdata,defaultmenuchat,{type:"text",value:timenow(), class: "bottom-right-0"});
+  return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+};
+
+async function lastElement() {
+  console.log("lastelement");
+
+  const messageData = JSON.parse(localStorage.getItem("lastChatMessage"));
+  let newWebComponentChat = null;
+
+  if (messageData) {
+    const newData = await mapChatMessagetochat(messageData);
+    HandleAccionEvent("chat", newData);
+    console.log("mapChatMessagetochat", newData);
+
+    newWebComponentChat = webcomponentchat(newData, defaultMenuChat, {
+      type: "text",
+      value: timeNow(),
+      class: "bottom-right-0",
+    });
   }
-  const newmessage1 = webcomponenttemplate(newtextcontent);
-  const newmessage2 = webcomponenttemplate(newnumbercontent,giftmenu);
-  const newmessage3 = webcomponenttemplate(neweventcontent,giftmenu);
-  
-  if(newwebcomponentchat) appendmessage2(newwebcomponentchat,"chatcontainer");
-  appendmessage2(newmessage1,"chatcontainer");
-  appendmessage2(newmessage2,"giftcontainer");
-  appendmessage2(newmessage3,"eventscontainer");
 
-/* function returnchatelement(data) {
-  const elementwebcomponent = document.createElement('chat-message');
-  elementwebcomponent.setMessageData(data);
-  return elementwebcomponent;
-} */
-}
-lastelement();
+  const newMessage1 = webcomponenttemplate(newtextcontent);
+  const newMessage2 = webcomponenttemplate(newnumbercontent, giftMenu);
+  const newMessage3 = webcomponenttemplate(neweventcontent, giftMenu);
 
-function appendmessage2(data,container,autohide = false) {
-  const elementwebcomponent = document.getElementById(container);
-  elementwebcomponent.addMessage(data,autohide);
+  if (newWebComponentChat) appendMessage(newWebComponentChat, "chatcontainer");
+  appendMessage(newMessage1, "chatcontainer");
+  appendMessage(newMessage2, "giftcontainer");
+  appendMessage(newMessage3, "eventscontainer");
 }
+
+function appendMessage(data, container, autoHide = false) {
+  const elementWebComponent = document.getElementById(container);
+  console.log("appendMessage", data, container, autoHide);
+  elementWebComponent.addMessage(data, autoHide);
+}
+
+lastElement();
+
 const arrayevents = ["like", "gift", "chat"];
 
 // Funciones de manejo específicas
 const handlechat = async (data,aditionaldata = {type:"text",value:timenow(), class: "bottom-right-0"}) => {
-  const newhtml = webcomponentchat(data,defaultmenuchat,aditionaldata);
-  appendmessage2(newhtml,"chatcontainer");
+  const newhtml = webcomponentchat(data,defaultMenuChat,aditionaldata);
+  appendMessage(newhtml,"chatcontainer");
   console.log("chat",data)
 }
 const handlegift = async (data) => {
-  const newhtml = webcomponentgift(data,defaultmenuchat,{type:"text",value:timenow(), class: "bottom-right-0"});
-  appendmessage2(newhtml,"giftcontainer");
+  const newhtml = webcomponentgift(data,defaultMenuChat,{type:"text",value:timenow(), class: "bottom-right-0"});
+  appendMessage(newhtml,"giftcontainer");
 }
 function webcomponentchat(data,optionmenuchat = [],additionaldata = {}) {
   return {
@@ -650,7 +605,7 @@ function webcomponentevent(data,optionmenu = [],additionaldata={}){
     }
   }
 }
-function webcomponenttemplate(template = {}, optionmenuchat = defaultmenuchat, newdata = {},additionaldata={}){
+function webcomponenttemplate(template = {}, optionmenuchat = defaultMenuChat, newdata = {},additionaldata={}){
   if (template && template.user && template.content && template.content.length > 0) {
     return { ...template, menu: {options: optionmenuchat}};
   }
@@ -841,7 +796,6 @@ function mapdatatooverlay(data,duration,content) {
   HandleAccionEvent('chat',{giftId:5655, comment:"qweqweqwe",likeCount: 10,uniqueId: "123123",profilePictureUrl: "https://picsum.photos/200/200",Actions: [],id: undefined},"isEqual",true)
 }, 1000); */
 const preview = document.getElementById('iframeweb');
-preview.togglePreview(false);
 preview.setLink('http://localhost:9000/overlaya.html');
 preview.addEventListener('linkchanged', (e) => {
     console.log('linkchanged', e);

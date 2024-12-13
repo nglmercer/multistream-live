@@ -2227,7 +2227,7 @@ class CustomSelect extends HTMLElement {
   async setValue(value) {
       try {
           // Esperamos 1 segundo
-          await this.delay(1000);
+          await this.delay(100);
 
           // Esperamos a que la promesa de options se resuelva
           const options = await this.options;
@@ -6541,233 +6541,81 @@ class MessageContainer extends HTMLElement {
     this.messagesWrapper.scrollTop = this.messagesWrapper.scrollHeight;
   }
 }
+const globalMenuPortal = document.createElement('div');
+globalMenuPortal.className = 'menu-portal';
+Object.assign(globalMenuPortal.style, {
+  position: 'absolute',
+  zIndex: '10',
+  display: 'none',
+  pointerEvents: 'none',
+});
+globalMenuPortal.innerHTML = `
+  <style>
+    .menu-options {
+      position: absolute;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+    .menu-option {
+      padding: 8px 12px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+      color: #333;
+    }
+    .menu-option:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+  <div class="menu-options" role="menu"></div>
+`;
 
+document.body.appendChild(globalMenuPortal);
 class ChatMessage extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
     this._menuOptions = [];
-    this._createMenuPortal();
-
-    // Sistema de seguimiento de posición
-    this._positionTracker = {
-      scrollListeners: new Set(),
-      resizeObserver: null,
-      intersectionObserver: null,
-    };
+    this._menuPortal = globalMenuPortal; // Usar el menuPortal global
+    this._currentMessageData = null; // Almacena los datos del mensaje actual
   }
 
   connectedCallback() {
-    this._setupPositionTracking();
-    this._handleClickOutside = this._handleClickOutside.bind(this);
-    document.addEventListener('click', this._handleClickOutside);
-    const autoHideAttr = this.getAttribute('auto-hide');
-    if (autoHideAttr) {
-      this.setAutoHide(Number(autoHideAttr));
-    }
+    document.addEventListener('click', this._handleClickOutside.bind(this));
   }
 
   disconnectedCallback() {
-    this._cleanupPositionTracking();
     document.removeEventListener('click', this._handleClickOutside);
-    if (this._menuPortal && this._menuPortal.parentNode) {
-      this._menuPortal.parentNode.removeChild(this._menuPortal);
-    }
   }
-
-  _createMenuPortal() {
-    this._menuPortal = document.createElement('div');
-    this._menuPortal.className = 'menu-portal';
-    Object.assign(this._menuPortal.style, {
-      position: 'fixed',
-      zIndex: '1000',
-      display: 'none',
-      pointerEvents: 'none' // Importante: permite clicks a través del contenedor
-    });
-    
-    this._menuPortal.innerHTML = `
-      <style>
-        .menu-options {
-          position: absolute;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-          min-width: 120px;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          pointer-events: auto; /* Restaura interactividad solo para el menú */
-        }
-        .menu-option {
-          padding: 8px 12px;
-          cursor: pointer;
-          background: none;
-          border: none;
-          text-align: left;
-          width: 100%;
-          font-family: inherit;
-          font-size: 14px;
-          color: #333;
-        }
-        .menu-option:hover {
-          background-color: #f0f0f0;
-        }
-      </style>
-      <div class="menu-options" role="menu"></div>
-    `;
-    
-    document.body.appendChild(this._menuPortal);
-  }
-
-  _setupPositionTracking() {
-    // 1. Rastrear todos los contenedores con scroll
-    this._trackScrollContainers();
-    
-    // 2. Observar cambios en el tamaño
-    this._setupResizeObserver();
-    
-    // 3. Observar visibilidad
-    this._setupIntersectionObserver();
-  }
-
-  _trackScrollContainers() {
-    // Encontrar todos los contenedores con scroll hasta el root
-    let element = this.parentElement;
-    while (element && element !== document.body) {
-      if (this._hasScrollableOverflow(element)) {
-        element.addEventListener('scroll', () => this._updateMenuPosition());
-        this._positionTracker.scrollListeners.add(element);
-      }
-      element = element.parentElement;
-    }
-    
-    // También rastrear scroll del window
-    window.addEventListener('scroll', () => this._updateMenuPosition());
-    this._positionTracker.scrollListeners.add(window);
-  }
-
-  _hasScrollableOverflow(element) {
-    const style = window.getComputedStyle(element);
-    return ['auto', 'scroll'].includes(style.overflowY) || 
-           ['auto', 'scroll'].includes(style.overflow);
-  }
-
-  _setupResizeObserver() {
-    this._positionTracker.resizeObserver = new ResizeObserver(() => {
-      this._updateMenuPosition();
-    });
-    this._positionTracker.resizeObserver.observe(this);
-  }
-
-  _setupIntersectionObserver() {
-    this._positionTracker.intersectionObserver = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (!entry.isIntersecting && this._menuPortal.style.display !== 'none') {
-          this._hideMenu();
-        }
-      },
-      { threshold: 0 }
-    );
-    this._positionTracker.intersectionObserver.observe(this);
-  }
-
-  _cleanupPositionTracking() {
-    // Limpiar listeners de scroll
-    this._positionTracker.scrollListeners.forEach(element => {
-      if (element === window) {
-        window.removeEventListener('scroll', () => this._updateMenuPosition());
-      } else {
-        element.removeEventListener('scroll', () => this._updateMenuPosition());
-      }
-    });
-    this._positionTracker.scrollListeners.clear();
-    
-    // Desconectar observers
-    if (this._positionTracker.resizeObserver) {
-      this._positionTracker.resizeObserver.disconnect();
-    }
-    if (this._positionTracker.intersectionObserver) {
-      this._positionTracker.intersectionObserver.disconnect();
-    }
-  }
-
-  _updateMenuPosition() {
-    if (!this._menuPortal || this._menuPortal.style.display === 'none') return;
-
-    const buttonRect = this.shadowRoot.querySelector('.menu-button').getBoundingClientRect();
-    const menuOptions = this._menuPortal.querySelector('.menu-options');
-    
-    // Verificar si el botón está visible en la ventana
-    if (buttonRect.top < 0 || 
-        buttonRect.bottom > window.innerHeight ||
-        buttonRect.left < 0 || 
-        buttonRect.right > window.innerWidth) {
-      this._hideMenu();
-      return;
-    }
-
-    // Calcular la mejor posición para el menú
-    const viewportHeight = window.innerHeight;
-    const menuHeight = menuOptions.offsetHeight;
-    const spaceBelow = viewportHeight - buttonRect.bottom;
-    const showBelow = spaceBelow >= menuHeight || buttonRect.top < menuHeight;
-    // Posicionar el menú
-    Object.assign(this._menuPortal.style, {
-      top: showBelow ? `${buttonRect.bottom}px` : `${buttonRect.top - menuHeight}px`,
-      left: `${Math.min(buttonRect.right, window.innerWidth - menuOptions.offsetWidth)}px`
-    });
-  }
-
   _handleClickOutside(event) {
     if (!this._menuPortal.contains(event.target) && 
         !this.shadowRoot.querySelector('.menu-button').contains(event.target)) {
       this._hideMenu();
     }
   }
-    // Método para configurar el auto-ocultamiento
-  setAutoHide(timeout) {
-    if (typeof timeout === 'number' && timeout > 0) {
-      setTimeout(() => {
-        this._startFadeOut();
-      }, timeout);
-    }
-  }
-
-  _startFadeOut() {
-    // Agregar la clase de desvanecimiento
-    this.classList.add('fade-out');
-
-    // Esperar al final de la animación para ocultar completamente el elemento
-    const animationDuration = parseFloat(
-      getComputedStyle(this).getPropertyValue('--fade-duration') || '1'
-    ) * 1000;
-
-    setTimeout(() => {
-      this.style.display = 'none';
-    }, animationDuration);
-  }
-  static get observedAttributes() {
-    return ['auto-hide'];
-  }
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'auto-hide' && newValue) {
-      this.setAutoHide(Number(newValue));
-    }
-  }
   setMessageData(data) {
     const { user, content, menu } = data;
     this._data = { user, content };
-    this._menuOptions = (menu && Array.isArray(menu.options)) ? menu.options : [];
+    this._menuOptions = menu?.options || [];
     this.renderMessage(user, content);
     this.setupMenu();
   }
 
   renderMessage(user, content) {
-    const bgColor = user.photo ? '' : getRandomColor(user.name.charAt(0).toUpperCase());
+    const bgColor = user.photo ? '' : this.getRandomColor();
     const initial = user.photo ? '' : user.name.charAt(0).toUpperCase();
-  
-    this.shadowRoot.innerHTML = /*html*/`
+
+    this.shadowRoot.innerHTML = `
       <style>
         :host {
           display: flex;
@@ -6780,7 +6628,7 @@ class ChatMessage extends HTMLElement {
           height: auto;
           width: auto;
           display: block;
-          margin-bottom: 5px; /* Espaciado entre imagen y texto */
+          margin-bottom: 5px;
         }
         .avatar {
           width: 40px;
@@ -6796,20 +6644,14 @@ class ChatMessage extends HTMLElement {
         }
         .message-content {
           display: flex;
-          flex-direction: column; /* Elementos en columna */
+          flex-direction: column;
           flex-grow: 1;
           margin-right: 30px;
-          padding:0;
           gap: 0;
         }
         p {
           margin: 0;
           padding: 0;
-        }
-        .bottom-right-0 {
-          position: absolute;
-          bottom: 0;
-          right: 0;
         }
         .menu-button {
           position: absolute;
@@ -6831,7 +6673,7 @@ class ChatMessage extends HTMLElement {
       <div class="message-content"></div>
       <button class="menu-button" role="button" aria-haspopup="true" aria-expanded="false">⋮</button>
     `;
-  
+
     const avatar = this.shadowRoot.querySelector('.avatar');
     if (user.photo) {
       avatar.style.backgroundImage = `url(${user.photo})`;
@@ -6839,73 +6681,88 @@ class ChatMessage extends HTMLElement {
     } else {
       avatar.style.backgroundColor = bgColor;
     }
-  
+
     const messageContent = this.shadowRoot.querySelector('.message-content');
     content.forEach(item => {
       const messageItem = document.createElement('div');
-      const classNameitem = item.class ? item.class : 'message-item';
-      messageItem.className = `${classNameitem}`;
-  
+      const classNameItem = item.class || 'message-item';
+      messageItem.className = classNameItem;
+
       if (item.type === 'image') {
         const img = document.createElement('img');
         img.src = item.value;
-        img.alt = `message image`;
+        img.alt = 'message image';
         messageItem.appendChild(img);
       }
-  
+
       if (item.type === 'text') {
         const p = document.createElement('p');
         p.textContent = item.value;
-        p.className = `message-text ${classNameitem}`;
+        p.className = `message-text ${classNameItem}`;
         messageItem.appendChild(p);
       }
+
       if (item.type === 'url') {
-        const a = document.createElement('a')
+        const a = document.createElement('a');
         a.href = item.url;
         a.textContent = item.value;
-        a.className = `message-text ${classNameitem}`;
+        a.className = `message-text ${classNameItem}`;
         messageItem.appendChild(a);
       }
+
       messageContent.appendChild(messageItem);
     });
   }
-  
 
   setupMenu() {
     const menuButton = this.shadowRoot.querySelector('.menu-button');
     const menuOptions = this._menuPortal.querySelector('.menu-options');
 
-    // Limpiar opciones anteriores
-    menuOptions.innerHTML = '';
+    menuButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      this._currentMessageData = this.getMessageData();
+      this._updateMenuOptions();
+      const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+      isExpanded ? this._hideMenu() : this._showMenu();
+    });
+  }
 
-    // Agregar nuevas opciones
+  _updateMenuOptions() {
+    const menuOptions = this._menuPortal.querySelector('.menu-options');
+  
+    // Eliminar listeners de los elementos existentes
+    [...menuOptions.children].forEach(child => {
+      const oldListeners = child._listeners || [];
+      oldListeners.forEach(([event, handler]) => {
+        child.removeEventListener(event, handler);
+      });
+    });
+  
+    // Vaciar el contenedor
+    menuOptions.innerHTML = '';
+  
+    // Crear nuevos botones con sus eventos
     this._menuOptions.forEach(option => {
       if (typeof option.callback === 'function') {
         const button = document.createElement('button');
         button.textContent = option.text;
         button.classList.add('menu-option');
         button.setAttribute('role', 'menuitem');
-        button.addEventListener('click', (e) => {
+  
+        // Asociar el evento y guardar referencia
+        const clickHandler = (e) => {
           e.stopPropagation();
-          option.callback(this.getMessageData());
+          option.callback(this._currentMessageData);
           this._hideMenu();
-        });
+        };
+        button.addEventListener('click', clickHandler);
+        button._listeners = [['click', clickHandler]];
+  
         menuOptions.appendChild(button);
       }
     });
-
-    // Manejar clicks en el botón del menú
-    menuButton.addEventListener('click', (event) => {
-      event.stopPropagation();
-      const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
-      
-      if (!isExpanded) {
-        this._showMenu();
-      } else {
-        this._hideMenu();
-      }
-    });
   }
+  
 
   _showMenu() {
     const menuButton = this.shadowRoot.querySelector('.menu-button');
@@ -6920,6 +6777,14 @@ class ChatMessage extends HTMLElement {
     this._menuPortal.style.display = 'none';
   }
 
+  _updateMenuPosition() {
+    const buttonRect = this.shadowRoot.querySelector('.menu-button').getBoundingClientRect();
+    Object.assign(this._menuPortal.style, {
+      top: `${buttonRect.bottom}px`,
+      left: `${buttonRect.left}px`,
+    });
+  }
+
   getMessageData() {
     return this._data;
   }
@@ -6931,6 +6796,8 @@ class ChatMessage extends HTMLElement {
 }
 
 customElements.define('chat-message', ChatMessage);
+
+
 customElements.define('message-container', MessageContainer);
 
 class LocalStorageManager {
@@ -8648,7 +8515,7 @@ customElements.define('custom-dropdown', CustomDropdown);
            reject(new Error('Login failed'));
          }
        }
-     }, 1000);
+     }, 100);
    });
  }
  

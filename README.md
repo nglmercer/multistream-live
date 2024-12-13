@@ -53,3 +53,4 @@ este es un ejemplo de alerta que recibe para poder crear los elementos
     "src": [{"example": "el contenido sera ignorado"}]
 }
 ```
+´ CristhPlay´

@@ -106,14 +106,6 @@ export class TTS {
 
         console.log('utterance options', utterance);
         window.speechSynthesis.speak(utterance);
-
-        // try {
-        //     const audioUrl = await recordSpeechAndGetTTS(message, utterance);
-        //     console.log('audioUrl', audioUrl);
-        //     // Aquí puedes hacer algo con audioUrl, como reproducirlo o guardarlo
-        // } catch (error) {
-        //     console.error('Error recording speech:', error);
-        // }
     }
 }
 
@@ -249,7 +241,6 @@ function createFormWithFields(fields, name) {
     return myForm;
 }
 
-// Updated setupForm function
 function setupForm(form, name) {
     form.render()
         .setSubmitButton({
@@ -262,7 +253,6 @@ function setupForm(form, name) {
     // Add event listeners
     form.addEventListener('form-submit', (e) => {
         console.log('Datos modificados:', e.detail);
-        console.log('¿Hay cambios?', form.hasChanges());
         localStorage.setItem(name, JSON.stringify(e.detail));
     });
     
@@ -378,7 +368,5 @@ const configuredForm2 = setupForm(myForm2, 'commentsSettings');
 // Append forms to DOM
 document.getElementById('ttssettings').appendChild(configuredForm1);
 document.getElementById('ttssettings1').appendChild(configuredForm2);
-/* document.body.appendChild(myForm)
-document.body.appendChild(myForm2) */
 
 export { leerMensajes, handleleermensaje };

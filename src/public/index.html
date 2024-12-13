@@ -7,7 +7,6 @@
     <link rel="shortcut icon" href="./favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="./assets/styles.css">
     <link rel="stylesheet" href="./assets/modal.css">
-    <link rel="stylesheet" href="./assets/fields.css">
   </head>
   <script src="./server/tmi.min.js"></script>
   <script type="module" src="./components/webcomponents.js"></script>
@@ -142,9 +141,6 @@
     <custom-modal modal-type="form" id="windowModal">
       <div id="formmodal"></div>
   </custom-modal>
-  <script type="module">
-    //document.getElementById("windowModal").open();
-  </script>
   <custom-modal modal-type="form" id="eventformModal">
       <div id="eventformmodal"></div>
   </custom-modal>
@@ -166,23 +162,6 @@
       </custom-tabs>
   </custom-modal>
   <script type="module">
-    setTimeout(() => {
-/*          
-    document.querySelectorAll('flexible-modal-selector').forEach(selector => {
-        console.log("selector",selector);
-        // if selector id is overlaysrc
-        if (selector.id === 'overlay'){
-          console.log("selector overlay",selector);
-        } 
-    }); */
-      document.querySelectorAll('dynamic-form').forEach(modal => {
-        //console.log("modal123",modal);
-        const shadow = modal.shadowRoot;
-        //console.log("shadow",shadow);
-        const selectcomponent = shadow.querySelectorAll('flexible-modal-selector');
-        //console.log(selectcomponent)
-      });
-    }, 4444);
     document.querySelectorAll('login-button').forEach(login => {
       login.addEventListener('loginStateChange', (e) => {
         console.log("login",login,e.detail);

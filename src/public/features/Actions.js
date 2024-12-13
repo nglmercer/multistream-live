@@ -8,7 +8,7 @@ import { eventform } from './Events.js'
 import { mapedarrayobs, arrayobs,executebykeyasync } from './obcontroller.js'
 import { sendcommandmc } from './Minecraftconfig.js'
 import { Replacetextoread, addfilterword } from './speechconfig.js'
-import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
+//import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
 
 const ObserverActions = new DBObserver();
 const ActionsManager = new IndexedDBManager(databases.ActionsDB,ObserverActions);
