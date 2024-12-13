@@ -52,9 +52,7 @@ const databases = {
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
                 if (!db.objectStoreNames.contains(this.dbConfig.store)) {
-                    const objectStore = db.createObjectStore(this.dbConfig.store, { 
-                        keyPath: 'id'
-                    });
+                    const objectStore = db.createObjectStore(this.dbConfig.store, { keyPath: 'id' });
                     objectStore.createIndex('name', 'name', { unique: true });
                     objectStore.createIndex('type', 'type', { unique: false });
                     objectStore.createIndex('path', 'path', { unique: false });
@@ -69,6 +67,7 @@ const databases = {
             request.onerror = () => reject(request.error);
         });
     }
+    
 
     async executeTransaction(storeName, mode, callback) {
         const db = await this.openDatabase();
@@ -176,26 +175,92 @@ const databases = {
             });
         });
     }
+    static async getAllOrCreate(dbConfig, indexes = []) {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(dbConfig.name, dbConfig.version);
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(dbConfig.store)) {
+                    const objectStore = db.createObjectStore(dbConfig.store, { keyPath: 'id' });
+                    // Crear índices adicionales si se proporcionan
+                    indexes.forEach(index => {
+                        objectStore.createIndex(index.name, index.keyPath, { unique: index.unique });
+                    });
+                }
+            };
+
+            request.onsuccess = () => {
+                const db = request.result;
+
+                const transaction = db.transaction([dbConfig.store], 'readonly');
+                const store = transaction.objectStore(dbConfig.store);
+
+                const getAllRequest = store.getAll();
+
+                getAllRequest.onsuccess = () => {
+                    resolve(getAllRequest.result);
+                    db.close();
+                };
+
+                getAllRequest.onerror = () => {
+                    reject(getAllRequest.error);
+                    db.close();
+                };
+            };
+
+            request.onerror = () => {
+                reject(request.error);
+            };
+        });
+    }
 }
 async function getAllDataFromDatabase(databaseConfig) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const request = indexedDB.open(databaseConfig.name, databaseConfig.version);
+
+        request.onupgradeneeded = (event) => {
+            // Crear el almacén de objetos si no existe
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(databaseConfig.store)) {
+                db.createObjectStore(databaseConfig.store, { keyPath: 'id' });
+            }
+        };
 
         request.onsuccess = () => {
             const db = request.result;
+
+            // Verificar si el almacén de objetos existe
+            if (!db.objectStoreNames.contains(databaseConfig.store)) {
+                db.close();
+                resolve([]); // Retorna un array vacío si no existe el almacén
+                return;
+            }
+
+            // Si existe, realizar la transacción para obtener todos los datos
             const transaction = db.transaction([databaseConfig.store], 'readonly');
             const store = transaction.objectStore(databaseConfig.store);
 
             const getAllRequest = store.getAll();
-            getAllRequest.onsuccess = () => resolve(getAllRequest.result);
-            getAllRequest.onerror = () => reject(getAllRequest.error);
 
-            transaction.oncomplete = () => db.close();
+            getAllRequest.onsuccess = () => {
+                resolve(getAllRequest.result);
+                db.close();
+            };
+
+            getAllRequest.onerror = () => {
+                resolve([]); // Retorna un array vacío si ocurre un error al leer
+                db.close();
+            };
         };
 
-        request.onerror = () => reject(request.error);
+        request.onerror = () => {
+            resolve([]); // Retorna un array vacío si no se puede abrir la base de datos
+        };
     });
 }
+
+
 
 class DBObserver {
 constructor() {

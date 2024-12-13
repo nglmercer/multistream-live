@@ -7,7 +7,7 @@ const ObserverEvents = new DBObserver();
 const EventsManager = new IndexedDBManager(databases.eventsDB,ObserverEvents);
 async function EventsManagermap() {
   try {
-    const alldata = await getAllDataFromDatabase(databases.ActionsDB);
+    const alldata = await IndexedDBManager.getAllOrCreate(databases.ActionsDB, [{ name: 'name', keyPath: 'nombre', unique: true }]);
     return  alldata.map(data => ({
       value: data.id,
       label: data.nombre,
