@@ -1,14 +1,14 @@
 {
   "name": "multiztream-live",
-  "description": "react-declarative electron app bootstrap",
+  "description": "multiztream app is a multistream app for twitch, kick and tiktok",
   "type": "commonjs",
   "author": {
-    "name": "Petr Tripolsky",
-    "email": "tripolskypetr@gmail.com",
-    "url": "https://github.com/react-declarative/react-declarative"
+    "name": "melser",
+    "email": "nglmercer@gmail.com",
+    "url": "https://github.com/nglmercer/multiztream-live"
   },
   "main": "./main.js",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "devDependencies": {
     "electron": "31.4.0"
   },
