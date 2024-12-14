@@ -137,7 +137,7 @@ const databases = {
         }
 
         const newData = { ...data, id: targetId };
-        const saveorupdata = data.id || targetId > 0 ? 'save' : 'update';
+        const saveorupdata = data.id || targetId >= 0 ? 'update' : 'save';   
         console.log("saveorupdata",saveorupdata,data,targetId)
         return this.executeTransaction(this.dbConfig.store, 'readwrite', (store) => {
             return new Promise((resolve, reject) => {
