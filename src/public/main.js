@@ -187,7 +187,25 @@ const countershare = new Counter(0, 1000);
 const counterlike = new Counter(0, 1000);
 const counterfollow = new Counter(0, 1000);
 const countermember = new Counter(0, 1000);
+const wss = document.querySelector('ws-status');
 
+wss.addEventListener('ws-connected', () => {
+  console.log('ws conectado');
+});
+
+wss.addEventListener('ws-message', (event) => {
+  console.log('Mensaje recibido:', event);
+  let parsedData = JSON.parse(event.data); // Parse the JSON data
+  tiktokLiveEvents.forEach(event => {
+    tiktokhandlerdata(event,parsedData.data)
+  });
+});
+wss.addEventListener('ws-disconnected', () => {
+  console.log('ws desconectado');
+});
+wss.addEventListener('ws-error', (event) => {
+  console.log('Error de conexión:', event.detail);
+});
 events.forEach(event => {
     socket.on(event, async (data) => {
         Readtext(event, data);
@@ -215,61 +233,63 @@ events.forEach(event => {
 });
 tiktokLiveEvents.forEach(event => {
     socket.on(event, async (data) => {
-        console.log("event",event,data)
-        Readtext(event, data);
-        localStorage.setItem('last'+event, JSON.stringify(data));
-        //console.log("event",event,data)
-        switch (event) {
-          case 'chat':
-            HandleAccionEvent('chat',data);
-            handlechat(data);
-            break;
-          case 'gift':
-            handlegift(data);
-            HandleAccionEvent('gift',data);
-            console.log("gift",data)
-            break;
-          case 'member':
-            HandleAccionEvent('welcome',data)
-            const eventmember = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'member', class: "gold"});
-            appendMessage(eventmember,"eventscontainer",true);
-            console.log("member",data)
-            break;
-          case 'roomUser':
-            console.log("roomUser",data)
-            break;
-          case 'like':
-            HandleAccionEvent(event,data, 'isInRange')
-            const eventlike = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'like', class: "gold"});
-            appendMessage(eventlike,"eventscontainer",true);
-            console.log("like",data)
-            break;
-          case 'follow':
-            HandleAccionEvent('follow',data);
-            const eventfollow = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'follow', class: "gold"});
-            appendMessage(eventfollow,"eventscontainer",true);
-            console.log("follow",data)
-            break;
-          case 'share':
-            const eventshare = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'share', class: "gold"});
-            appendMessage(eventshare,"eventscontainer",true);
-            console.log("share",data)
-            break;
-          case 'connected':
-            if (data.roomInfo?.owner) localStorage.setItem('ownerdata',JSON.stringify(data.roomInfo.owner));
-            const lastownerdata = localStorage.getItem('ownerdata');
-            if (lastownerdata) userProfile2.setProfileImage(getAvatarUrl(JSON.parse(lastownerdata)));
-            console.log(event, data);
-            showAlert('success', `Connected`,3000,data)
-            break;
-          default:
-            HandleAccionEvent(event,data)
-            console.log("event",event,data)
-              break;
-        }
-/*         document.getElementById('lasteventParse').innerHTML = JSON.stringify(data);
- */  });
+      tiktokhandlerdata(event,data)
+ });
 });
+function tiktokhandlerdata(event,data) {
+  console.log("event",event,data)
+  Readtext(event, data);
+  localStorage.setItem('last'+event, JSON.stringify(data));
+  //console.log("event",event,data)
+  switch (event) {
+    case 'chat':
+      HandleAccionEvent('chat',data);
+      handlechat(data);
+      break;
+    case 'gift':
+      handlegift(data);
+      HandleAccionEvent('gift',data);
+      console.log("gift",data)
+      break;
+    case 'member':
+      HandleAccionEvent('welcome',data)
+      const eventmember = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'member', class: "gold"});
+      appendMessage(eventmember,"eventscontainer",true);
+      console.log("member",data)
+      break;
+    case 'roomUser':
+      console.log("roomUser",data)
+      break;
+    case 'like':
+      HandleAccionEvent(event,data, 'isInRange')
+      const eventlike = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'like', class: "gold"});
+      appendMessage(eventlike,"eventscontainer",true);
+      console.log("like",data)
+      break;
+    case 'follow':
+      HandleAccionEvent('follow',data);
+      const eventfollow = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'follow', class: "gold"});
+      appendMessage(eventfollow,"eventscontainer",true);
+      console.log("follow",data)
+      break;
+    case 'share':
+      const eventshare = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'share', class: "gold"});
+      appendMessage(eventshare,"eventscontainer",true);
+      console.log("share",data)
+      break;
+    case 'connected':
+      if (data.roomInfo?.owner) localStorage.setItem('ownerdata',JSON.stringify(data.roomInfo.owner));
+      const lastownerdata = localStorage.getItem('ownerdata');
+      if (lastownerdata) userProfile2.setProfileImage(getAvatarUrl(JSON.parse(lastownerdata)));
+      console.log(event, data);
+      showAlert('success', `Connected`,3000,data)
+      break;
+    default:
+      HandleAccionEvent(event,data)
+      console.log("event",event,data)
+        break;
+  }
+}
 eventstwitch.forEach(event => {
   client.on(event, (...args) => {
     const lastevent = "lastevent" + event;

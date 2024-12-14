@@ -8518,4 +8518,104 @@ customElements.define('custom-dropdown', CustomDropdown);
      }, 100);
    });
  }
- 
+ class wsStatus extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  connectedCallback() {
+    this.render();
+    this.initws();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: inline-block;
+          width: 200px;
+          font-family: Arial, sans-serif;
+        }
+        #status {
+          padding: 10px;
+          text-align: center;
+          color: white;
+          border-radius: 5px;
+        }
+        .connecting { background-color: orange; }
+        .connected { background-color: green; }
+        .disconnected { background-color: red; }
+      </style>
+      <div id="status" class="disconnected">Desconectado</div>
+    `;
+    this.statusElement = this.shadowRoot.getElementById('status');
+    this.statusElement.addEventListener('click', () => {
+      if (this.socket.readyState) {
+        new CustomEvent('ws-disconnect', { bubbles: true, composed: true, detail: this.statusElement });
+      } else {
+        this.reconnect();
+      }
+    });
+  }
+
+  initws() {
+    const url = this.getAttribute('url') || 'ws://localhost:8080';
+    
+    this.socket = new WebSocket(url);
+
+    this.socket.onopen = () => {
+      this.updateStatus('connected', 'Conectado');
+      this.dispatchCustomEvent('ws-connected');
+    };
+
+    this.socket.onclose = () => {
+      this.updateStatus('disconnected', 'Desconectado');
+      this.dispatchCustomEvent('ws-disconnected');
+    };
+
+    this.socket.onmessage = (event) => {
+      this.dispatchCustomEvent('ws-message', event.data);
+    };
+
+    this.socket.onerror = (error) => {
+      this.updateStatus('disconnected', 'Error de Conexión');
+      this.dispatchCustomEvent('ws-error', error);
+    };
+  }
+
+  updateStatus(statusClass, text) {
+    this.statusElement.className = statusClass;
+    this.statusElement.textContent = text;
+  }
+
+  dispatchCustomEvent(eventName, detail = null) {
+    const event = new CustomEvent(eventName, {
+      bubbles: true,
+      composed: true,
+      detail: detail
+    });
+    this.dispatchEvent(event);
+  }
+
+  send(message) {
+    if (this.socket && this.socket.readyState === ws.OPEN) {
+      this.socket.send(message);
+    }
+  }
+
+  disconnect() {
+    if (this.socket) {
+      this.socket.close();
+    }
+  }
+
+  // Método para reconectar
+  reconnect() {
+    this.updateStatus('connecting', 'Reconectando...');
+    this.initws();
+  }
+}
+
+// Registrar el componente personalizado
+customElements.define('ws-status', wsStatus);
