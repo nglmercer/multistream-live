@@ -7,13 +7,46 @@ import { filterworddefault } from '../assets/jsondata.js';
 console.log("filterworddefault",filterworddefault)
 const keys = [
     { key: 'chat', text: `uniqueId ${getTranslation('dice')} comment`, check: true },
-    { key: 'gift', text:  `uniqueId ${getTranslation('regalo')} repeatcount giftName`, check: true },
+    { key: 'gift', text: `uniqueId ${getTranslation('regalo')} repeatcount giftName`, check: true },
     { key: 'follow', text: `uniqueId ${getTranslation('te ah seguido')}`, check: true },
     { key: 'like', text: `uniqueId ${getTranslation('le ah dado like')}`, check: false },
     { key: 'share', text: `uniqueId ${getTranslation('ah compartido')}`, check: false },
     { key: 'subscribe', text: `uniqueId ${getTranslation('se ah suscrito')}`, check: true },
-    { key: 'welcome', text:  `uniqueId ${getTranslation('bienvenido')}`, check: false }
+    { key: 'welcome', text: `uniqueId ${getTranslation('bienvenido')}`, check: false }
 ];
+
+const voicechatconfig = document.createElement('dynamic-form');
+voicechatconfig.initialize();
+
+keys.forEach(({ key, check,text }) => {
+    voicechatconfig
+        .addField({
+            type: 'checkbox',
+            name: `voice${key}_check`,
+            label: `voice${key}`,
+            value: check,
+            checked: check,
+        })
+        .addField({
+            type: 'text',
+            name: `voice${key}_text`,
+            label: `voice${key}`,
+            value: `${text}`,
+            placeholder: `voice${key} text`,
+            showWhen: {
+                field: `voice${key}_check`,
+                value: true
+            }
+        });
+});
+
+voicechatconfig.render().toggleDarkMode(true);
+voicechatconfig.addEventListener('form-submit', (e) => {
+    console.log('Datos modificados:', e.detail);
+});
+voicechatconfig.addEventListener('form-change', (e) => {
+    console.log('Form values changed:', e.detail);
+});
 
 const createTTSConfig = (labelText,sumaryText='texto a leer') => ({
     type: 'object',
@@ -279,5 +312,5 @@ blueuifunctions.loadItems();
 return response;
 }
   //existwordinArray("tedesku")
-export { Replacetextoread, addfilterword,existuserinArray,adduserinArray, htmlvoice, htmlvoiceevents,uiElement,blueuiElement}
+export { Replacetextoread, addfilterword,existuserinArray,adduserinArray, htmlvoice, htmlvoiceevents,uiElement,blueuiElement,voicechatconfig}
 // asdasd como seria un metodo para hacer un string a json

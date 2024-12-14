@@ -1926,7 +1926,7 @@ class DynamicForm extends HTMLElement {
 
 
           // Si el campo está oculto, limpiamos su valor
-          if (!shouldShow) {
+/*           if (!shouldShow) {
             const input = fieldElement.querySelector('input, select, textarea');
             if (input) {
                 if (input.type === 'radio') {
@@ -1936,7 +1936,7 @@ class DynamicForm extends HTMLElement {
                     input.value = '';
                 }
             }
-        }
+        } */
       });
   }
   handleSubmit(e) {
