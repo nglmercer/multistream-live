@@ -195,7 +195,7 @@ const actionsconfig = {
         showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`,9999,modifiedData)
       } else {
         ActionModal.close();
-        ActionsManager.saveData(modifiedData)
+        ActionsManager.updateData(modifiedData)
         showAlert('success','Se ha guardado el evento',9888,modifiedData)
       }
     },
@@ -376,7 +376,7 @@ newactionform.addEventListener('form-submit', async (e) => {
         showAlert('success','Se ha guardado el evento',9999,modifiedData)
       }
     } else {
-      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`,9999,data)
+      showAlert('error',`Objeto coincidente, cambie el ${primeraKey(results.coincidentobjects)}:`,9999,modifiedData)
     }
   
 });
@@ -626,7 +626,7 @@ ObserverActions.subscribe(async (action, data) => {
     // dataupdate.forEach((data) => {
     //   table.addRow(data);
     // });
-    console.log("dataupdate",action,data)
+    console.log("save subscribe",action,data)
     eventform.updateFieldOptions('Actions',await EventsManagermap());
     table.addRow(data);
     const newbutton = addCustomButton(data);
@@ -637,7 +637,7 @@ ObserverActions.subscribe(async (action, data) => {
     dataupdate.forEach((data) => {
       table.addRow(data);
     }); */
-    console.log("dataupdate",action,data)
+    console.log("delete subscribe",action,data)
     eventform.updateFieldOptions('Actions',await EventsManagermap());
     showAlert ('info', "Actualizado", "1000",9999,data)
     //renderer.removeElement(data);

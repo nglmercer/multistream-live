@@ -137,12 +137,13 @@ const databases = {
         }
 
         const newData = { ...data, id: targetId };
-
+        const saveorupdata = data.id || targetId > 0 ? 'save' : 'update';
+        console.log("saveorupdata",saveorupdata,data,targetId)
         return this.executeTransaction(this.dbConfig.store, 'readwrite', (store) => {
             return new Promise((resolve, reject) => {
                 const request = store.put(newData);
                 request.onsuccess = () => {
-                    this.idbObserver?.notify('save', newData);
+                    this.idbObserver?.notify(saveorupdata, newData);
                     resolve(newData);
                 };
                 request.onerror = () => reject(request.error);

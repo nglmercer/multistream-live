@@ -820,3 +820,26 @@ preview.setLink('http://localhost:9000/overlaya.html');
 preview.addEventListener('linkchanged', (e) => {
     console.log('linkchanged', e);
 });
+// Webhook send data.event and data.data
+const sendWebhookData = async (url,action, data) => {
+  const payload = { event: action, payload: data };
+
+  try {
+      const response = await fetch(url || '', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+          throw new Error(`Error en la respuesta: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Resultado:', result);
+  } catch (error) {
+      console.error('Error:', error);
+  }
+};
