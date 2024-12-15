@@ -1,5 +1,5 @@
 import DynamicTable, { EditModal } from '../components/renderfields.js';
-import {replaceVariables, logger, ArrayStorageManager, ArrayManagerUI,showAlert} from '../utils/utils.js';
+import {replaceVariables, logger, ArrayStorageManager, ArrayManagerUI,showAlert, unflattenObject, flattenObject} from '../utils/utils.js';
 import { leerMensajes, handleleermensaje } from '../audio/tts.js';
 import { voicelistmap } from '../audio/voiceoptions.js';
 import { getTranslation, translations } from '../translations.js';
@@ -14,40 +14,34 @@ const keys = [
     { key: 'subscribe', text: `uniqueId ${getTranslation('se ah suscrito')}`, check: true },
     { key: 'welcome', text: `uniqueId ${getTranslation('bienvenido')}`, check: false }
 ];
-
 const voicechatconfig = document.createElement('dynamic-form');
-voicechatconfig.initialize();
+voicechatconfig.initialize(flattenObject(getTTSdatastore()));
 
 keys.forEach(({ key, check,text }) => {
+    const ischecked = typeof getTTSdatastore()[key]?.check === 'boolean' 
+    ? getTTSdatastore()[key]?.check 
+    : check;
+
     voicechatconfig
         .addField({
             type: 'checkbox',
-            name: `voice${key}_check`,
-            label: `voice${key}`,
-            value: check,
-            checked: check,
-        })
+            name: `${key}_check`,
+            label: `${key}`,
+            value: ischecked,
+            checked: ischecked,
+        },{rowGroup:`voice${key}`})
         .addField({
             type: 'text',
-            name: `voice${key}_text`,
-            label: `voice${key}`,
+            name: `${key}_text`,
+            label: `${key}`,
             value: `${text}`,
-            placeholder: `voice${key} text`,
+            placeholder: `${key} text`,
             showWhen: {
-                field: `voice${key}_check`,
+                field: `${key}_check`,
                 value: true
             }
-        });
+        },{rowGroup:`voice${key}`});
 });
-
-voicechatconfig.render().toggleDarkMode(true);
-voicechatconfig.addEventListener('form-submit', (e) => {
-    console.log('Datos modificados:', e.detail);
-});
-voicechatconfig.addEventListener('form-change', (e) => {
-    console.log('Form values changed:', e.detail);
-});
-
 const createTTSConfig = (labelText,sumaryText='texto a leer') => ({
     type: 'object',
     class: 'input-default',
@@ -72,27 +66,27 @@ const { ttsconfig, ttsdata } = keys.reduce((acc, { key, text, check }) => {
     return acc;
 }, { ttsconfig: {}, ttsdata: {} });
 
-console.log(ttsconfig);
-console.log(ttsdata);
+console.log("ttsconfig",ttsconfig);
+console.log("ttsdata",getTTSdatastore(),flattenObject(getTTSdatastore()));
+voicechatconfig.render().toggleDarkMode(true);
+voicechatconfig.setSubmitButton({ 
+    label: getTranslation('savechanges'), 
+});
+voicechatconfig.addEventListener('form-submit', (e) => {
+    const data = unflattenObject(e.detail);
+    console.log('Datos modificados:', e.detail, data);
+    localStorage.setItem('ttsdatastore', JSON.stringify(data));
+});
+voicechatconfig.addEventListener('form-change', (e) => {
+    const data = unflattenObject(e.detail);
+    console.log('Form values changed:', e.detail, data);
 
+});
 function getTTSdatastore() {
     const ttsdatastore = localStorage.getItem('ttsdatastore');
     if (!ttsdatastore) localStorage.setItem('ttsdatastore', JSON.stringify(ttsdata));
     return ttsdatastore ? JSON.parse(ttsdatastore) : ttsdata;
 }
-const callbackconfig = { 
-    type: 'button',
-    label: getTranslation('savechanges'),
-    class: 'default-button',
-    callback: async (data,modifiedData) => {
-    console.log("editcallback", data,modifiedData);
-    localStorage.setItem('ttsdatastore', JSON.stringify(modifiedData));
-  }
- };
-const configelement = new EditModal({...ttsconfig,savebutton:callbackconfig});
-const newElement = document.createElement('div');
-newElement.textContent = 'Nuevo contenido';
-const htmlvoiceevents = configelement.ReturnHtml(getTTSdatastore());
 
 let voicesList = [];
 
@@ -220,10 +214,6 @@ if (typeof speechSynthesis !== "undefined" && speechSynthesis.onvoiceschanged !=
     speechSynthesis.onvoiceschanged = mapVoiceList;
     setTimeout(mapVoiceList, 1000);
 }
-
-const voiceCheckInterval = setInterval(checkVoices, 100);
-
-const voiceelement = new EditModal(selectvoiceconfig);
 const defaultvoicedata = JSON.parse(localStorage.getItem('voicedatastore')) || {
     selectvoiceoption: 'selectvoice1', 
     voice1: {
@@ -232,19 +222,146 @@ const defaultvoicedata = JSON.parse(localStorage.getItem('voicedatastore')) || {
     },
     voice2: {
       selectvoice: 'es_ES',
-      Randomvoice: false,
-      randomspeed: false,
-      randompitch: false,
+      Randomvoice: true,
+      randomspeed: true,
+      randompitch: true,
       defaultspeed: 1,
       defaultpitch: 1,
       volume: 1,
     },
 };
+const voiceCheckInterval = setInterval(checkVoices, 100);
+const voiceapiconfig = document.createElement('dynamic-form');
+console.log("defaultvoicedata",defaultvoicedata,flattenObject(defaultvoicedata));
+
+voiceapiconfig.initialize(flattenObject(defaultvoicedata));
+voiceapiconfig.addField({
+    type: 'radio',
+    name: 'selectvoiceoption',
+    label: 'select voice',
+    value: 'selectvoice1',
+    placeholder: 'voice option',
+    options: [{ value: 'selectvoice1', label: 'voice streamelements' }, { value: 'selectvoice2', label: 'voice webapi' }],
+})
+.addField({
+    type: 'flexible-modal-selector',
+    name: 'voice1_selectvoice',
+    label: 'voice',
+    mode: 'single',
+    options: voicelistmap,
+    value: 'Conchita',
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice1'
+    }
+}, { rowGroup: 'voice1' })
+.addField({
+    type: 'checkbox',
+    name: 'voice1_audioQueue',
+    label: 'cola de audio',
+    value: true,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice1'
+    }
+}, { rowGroup: 'voice1' })
+.addField({
+    type: 'flexible-modal-selector',
+    name: 'voice2_selectvoice2',
+    label: 'voice select',
+    value: 'es_ES',
+    options: voicesList,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice2'
+    }
+}, { rowGroup: 'voice2' })
+.addField({
+    type: 'checkbox',
+    name: 'voice2_Randomvoice',
+    label: 'random voice',
+    checked: true,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice2'
+    }
+}, { rowGroup: 'voice2' })
+.addField({
+    type: 'checkbox',
+    name: 'voice2_randomspeed',
+    label: 'random speed',
+    checked: true,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice2'
+    }
+}, { rowGroup: 'voice2' })
+.addField({
+    type: 'checkbox',
+    name: 'voice2_randompitch',
+    label: 'random pitch',
+    checked: true,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice2'
+    }
+}, { rowGroup: 'voice2' })
+.addField({
+    type: 'range',
+    name: 'voice2_defaultspeed',
+    label: 'default speed',
+    min: 0.1,
+    max: 2,
+    step: 0.1,
+    value: 2,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice2'
+    }
+}, { rowGroup: 'voice2' })
+.addField({
+    type: 'range',
+    name: 'voice2_defaultpitch',
+    label: 'default pitch',
+    min: 0.1,
+    max: 2,
+    step: 0.1,
+    value: 2,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice2'
+    }
+}, { rowGroup: 'voice2' })
+.addField({
+    type: 'range',
+    name: 'voice2_volume',
+    label: 'speech volume',
+    value: 50,
+    showWhen: {
+        field: 'selectvoiceoption',
+        value: 'selectvoice2'
+    }
+}, { rowGroup: 'voice2' })
+voiceapiconfig.render().toggleDarkMode(true);
+voiceapiconfig.addEventListener('form-submit', (e) => {
+    const data = unflattenObject(e.detail);
+    console.log('Datos modificados:', e.detail, data);
+    localStorage.setItem('voicedatastore', JSON.stringify(data));
+});
+voiceapiconfig.addEventListener('form-change', (e) => {
+    const data = unflattenObject(e.detail);
+    console.log('Form values changed:', e.detail, data);
+    localStorage.setItem('voicedatastore', JSON.stringify(data));
+});
+
+const voiceelement = new EditModal(selectvoiceconfig);
+
 if (!localStorage.getItem('voicedatastore')) localStorage.setItem('voicedatastore', JSON.stringify(defaultvoicedata));
 const htmlvoice = voiceelement.ReturnHtml(defaultvoicedata);
 
 setTimeout(() => {
   if (mapVoiceList().length > 0) {
+    console.log("mapVoiceList",mapVoiceList());
     voiceelement.updateData(defaultvoicedata);
   }
 }, 500);
@@ -312,5 +429,5 @@ blueuifunctions.loadItems();
 return response;
 }
   //existwordinArray("tedesku")
-export { Replacetextoread, addfilterword,existuserinArray,adduserinArray, htmlvoice, htmlvoiceevents,uiElement,blueuiElement,voicechatconfig}
+export { Replacetextoread, addfilterword,existuserinArray,adduserinArray, htmlvoice,uiElement,blueuiElement,voicechatconfig,voiceapiconfig}
 // asdasd como seria un metodo para hacer un string a json

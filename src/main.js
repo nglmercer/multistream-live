@@ -383,6 +383,7 @@ function getLivesInfo(livesMap) {
 
 // Ejemplo de uso:
 // Conexión con Socket.IO
+let lastromdata = {};
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id, "disponible connections",Livescreated);
     socket.emit('allConnections', getAllConnectionsInfo());
@@ -392,7 +393,9 @@ io.on('connection', (socket) => {
         if (!Object.values(PlatformType).includes(platform)) {
           throw new Error('Invalid platform specified');
         }
-   
+        if (lastromdata.platform === platform && lastromdata.uniqueId === uniqueId) return;
+        lastromdata = { platform, uniqueId };
+        setTimeout(() => {lastromdata = {}}, 5000);
         const connection = await getOrCreatePlatformConnection(platform, uniqueId, socket);
         
         // Modify the event handlers to check for unique platform and user combination

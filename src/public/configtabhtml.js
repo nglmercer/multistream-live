@@ -1,4 +1,4 @@
-import { htmlvoice, htmlvoiceevents, uiElement,blueuiElement, voicechatconfig} from './features/speechconfig.js';
+import { htmlvoice, uiElement,blueuiElement, voicechatconfig,voiceapiconfig} from './features/speechconfig.js';
 import { htmlminecraft } from './features/Minecraftconfig.js';
 //import { htmlobselement } from './features/obcontroller.js';
 import { getTranslation, translations } from './translations.js';
@@ -156,7 +156,7 @@ function addfilesitems(GridContainer) {
 }
 tabs.addContent(0, voicechatconfig); // Agrega al primer tab
 tabs.setTabTitle(0,`${getTranslation('chat')}`);
-tabs.addContent(1,htmlvoice); // Agrega al segundo tab
+tabs.addContent(1,voiceapiconfig); // Agrega al segundo tab
 tabs.setTabTitle(1,`${getTranslation('voicesettings')}`);
 tabs.addContent(2,htmlminecraft); // Agrega al tercer tab
 tabs.setTabTitle(2,`${getTranslation('minecraft')}`);

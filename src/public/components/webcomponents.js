@@ -1090,14 +1090,14 @@ class DynamicForm extends HTMLElement {
                   width: 100%;
               }
                 .form-row {                 
-                    border: 0.2rem solid transparent;
+                    border: 0.15rem solid transparent;
                     transition: all 0.5s ease;
                 }
                 .form-row:hover {
-                    border-color: #d1d5db;
+                    border-color:rgba(244, 244, 244, 0.6);
                     border-radius: 0.375rem;
-                    margin: 0.25rem;
-                    padding: 0.25rem             
+                    margin: 0.1rem;
+                    padding: 0.1rem             
                 }
               .form-default {
                   max-height: 90dvh;
@@ -1296,7 +1296,15 @@ class DynamicForm extends HTMLElement {
   }
   reRender(initialData = null) {
     // If initial data is provided, update the initial state
-    if (initialData) {
+
+    this.filldata(initialData);
+    // Clear existing form and re-render
+    this.render();
+
+    return this;
+  }
+  filldata(initialData) {
+      if (initialData) {
         this.initialState = this._deepClone(initialData);
         console.log("initialState", this.initialState, initialData, this._deepClone(initialData));
         
@@ -1308,7 +1316,9 @@ class DynamicForm extends HTMLElement {
                 switch (field.type) {
                     case 'checkbox':
                         // Explicitly set checked state for checkboxes
-                        field.checked = !!this.initialState[field.name];
+                        field.checked = typeof this.initialState[field.name] === 'boolean' 
+                        ? this.initialState[field.name] 
+                        : !!this.initialState[field.name];
                         break;
                     case 'radio':
                         // For radio buttons, set the value
@@ -1323,11 +1333,6 @@ class DynamicForm extends HTMLElement {
             }
         });
     }
-
-    // Clear existing form and re-render
-    this.render();
-
-    return this;
   }
   updateFieldOptions(fieldName, newOptions) {
       // Buscar el campo en la configuración de campos
@@ -1465,7 +1470,7 @@ class DynamicForm extends HTMLElement {
       
       return this;
   }
-  initialize(config = {}, initialData = null) {
+  initialize(initialData = null,config = {}) {
       // Limpiar estado previo
       this.fields = [];
       this.formConfig = {
@@ -1474,12 +1479,7 @@ class DynamicForm extends HTMLElement {
           validateOnSubmit: true,
           ...config
       };
-
-      // Si hay datos iniciales, guardarlos como estado inicial
-      if (initialData) {
-          this.initialState = this._deepClone(initialData);
-      }
-
+      this.filldata(initialData);
       // Remover el formulario anterior y crear uno nuevo
       const oldForm = this.shadowRoot.querySelector('form');
       if (oldForm) {
@@ -1687,7 +1687,19 @@ class DynamicForm extends HTMLElement {
               if(field.placeholder) input.placeholder = field.placeholder;
               if(field.required) input.required = true;
               if(field.value) input.value = field.value;
-              if(field.checked) input.checked = field.checked;
+              if ('checked' in input) {
+                  // Check if field.value is boolean
+                  if (typeof field.value === 'boolean') {
+                      input.checked = field.value;
+                      field.checked = field.value;
+                      input.value = field.value.toString();
+                  } 
+                  // Check if field.checked is boolean
+                  if (typeof field.checked === 'boolean') {
+                      input.checked = field.checked;
+                      input.value = field.checked.toString();
+                  }
+              }
               if(field.hidden) input.classList.add('hidden');
               if(field.readonly) input.readOnly = true;
               if(field.disabled) input.disabled = true;
@@ -1927,16 +1939,17 @@ class DynamicForm extends HTMLElement {
 
           // Si el campo está oculto, limpiamos su valor
 /*           if (!shouldShow) {
-            const input = fieldElement.querySelector('input, select, textarea');
-            if (input) {
-                if (input.type === 'radio') {
-                    const radios = fieldElement.querySelectorAll('input[type="radio"]');
-                    radios.forEach(radio => radio.checked = false);
-                } else {
-                    input.value = '';
-                }
-            }
-        } */
+                    const input = fieldElement.querySelector('input, select, textarea');
+                    if (input) {
+                      if (input.type === 'radio') {
+                          const radios = fieldElement.querySelectorAll('input[type="radio"]');
+                          radios.forEach(radio => radio.checked = false);
+                      }
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    }
+              }
+        }  */
       });
   }
   handleSubmit(e) {
