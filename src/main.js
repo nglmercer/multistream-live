@@ -492,7 +492,7 @@ console.log('Rutas de archivos:', filePaths);
 return filePaths;
 });
 function handleKeyPress2(socket, key) {
-  try{
+  try {
   console.log("keypressed2", key);
   keynut.keyboardController.handleKeyPress(key)
   } catch (error) {

@@ -1,10 +1,11 @@
-import DynamicTable, { EditModal } from '../components/renderfields.js';
 import {replaceVariables, logger, ArrayStorageManager, ArrayManagerUI,showAlert, unflattenObject, flattenObject} from '../utils/utils.js';
 import { leerMensajes, handleleermensaje } from '../audio/tts.js';
 import { voicelistmap } from '../audio/voiceoptions.js';
 import { getTranslation, translations } from '../translations.js';
 import { filterworddefault } from '../assets/jsondata.js';
 console.log("filterworddefault",filterworddefault)
+const voicechatconfig = document.createElement('dynamic-form');
+
 const keys = [
     { key: 'chat', text: `uniqueId ${getTranslation('dice')} comment`, check: true },
     { key: 'gift', text: `uniqueId ${getTranslation('regalo')} repeatcount giftName`, check: true },
@@ -66,11 +67,7 @@ class ChatMessageProcessor {
         this.currentTimeWindow = this.initialTimeWindow; // Resetear el tiempo dinámico
     }
 }
-
-
-const voicechatconfig = document.createElement('dynamic-form');
-voicechatconfig.initialize(flattenObject(getTTSdatastore()));
-
+let ttsdata = {}; // Inicialización predeterminada para evitar errores de referencia
 keys.forEach(({ key, check,text }) => {
     const ischecked = typeof getTTSdatastore()[key]?.check === 'boolean' 
     ? getTTSdatastore()[key]?.check 
@@ -114,13 +111,13 @@ const createTTSConfig = (labelText,sumaryText='texto a leer') => ({
     },
 });
 
-const { ttsconfig, ttsdata } = keys.reduce((acc, { key, text, check }) => {
-    acc.ttsconfig[key] = createTTSConfig(getTranslation('texttoread'),`${getTranslation('config')} ${getTranslation(key)}`);
+const { ttsconfig, ttsdata: newTtsData } = keys.reduce((acc, { key, text, check }) => {
+    acc.ttsconfig[key] = createTTSConfig(getTranslation('texttoread'), `${getTranslation('config')} ${getTranslation(key)}`);
     acc.ttsdata[key] = { text, check };
     return acc;
-}, { ttsconfig: {}, ttsdata: {} });
+}, { ttsconfig: {}, ttsdata: {} }); 
 
-console.log("ttsconfig",ttsconfig);
+console.log("ttsconfig",ttsconfig, ttsdata);
 console.log("ttsdata",getTTSdatastore(),flattenObject(getTTSdatastore()));
 voicechatconfig.render().toggleDarkMode(true);
 voicechatconfig.setSubmitButton({ 
@@ -137,11 +134,10 @@ voicechatconfig.addEventListener('form-change', (e) => {
 
 });
 function getTTSdatastore() {
-    const ttsdatastore = localStorage.getItem('ttsdatastore');
+    let ttsdatastore = localStorage.getItem('ttsdatastore');
     if (!ttsdatastore) localStorage.setItem('ttsdatastore', JSON.stringify(ttsdata));
     return ttsdatastore ? JSON.parse(ttsdatastore) : ttsdata;
 }
-
 let voicesList = [];
 
 // Función para mapear las voces
@@ -408,15 +404,12 @@ voiceapiconfig.addEventListener('form-change', (e) => {
     localStorage.setItem('voicedatastore', JSON.stringify(data));
 });
 
-const voiceelement = new EditModal(selectvoiceconfig);
 
 if (!localStorage.getItem('voicedatastore')) localStorage.setItem('voicedatastore', JSON.stringify(defaultvoicedata));
-const htmlvoice = voiceelement.ReturnHtml(defaultvoicedata);
 
 setTimeout(() => {
   if (mapVoiceList().length > 0) {
     console.log("mapVoiceList",mapVoiceList());
-    voiceelement.updateData(defaultvoicedata);
   }
 }, 500);
 const testdata = {
@@ -491,5 +484,5 @@ blueuifunctions.loadItems();
 return response;
 }
   //existwordinArray("tedesku")
-export { Replacetextoread, addfilterword,existuserinArray,adduserinArray, htmlvoice,uiElement,blueuiElement,voicechatconfig,voiceapiconfig}
+export { Replacetextoread, addfilterword,existuserinArray,adduserinArray,uiElement,blueuiElement,voicechatconfig,voiceapiconfig}
 // asdasd como seria un metodo para hacer un string a json

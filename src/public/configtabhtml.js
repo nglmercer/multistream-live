@@ -1,4 +1,4 @@
-import { htmlvoice, uiElement,blueuiElement, voicechatconfig,voiceapiconfig} from './features/speechconfig.js';
+import { uiElement,blueuiElement, voicechatconfig,voiceapiconfig} from './features/speechconfig.js';
 import { htmlminecraft } from './features/Minecraftconfig.js';
 //import { htmlobselement } from './features/obcontroller.js';
 import { getTranslation, translations } from './translations.js';

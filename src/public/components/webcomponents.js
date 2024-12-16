@@ -1889,13 +1889,17 @@ class DynamicForm extends HTMLElement {
   }
   toggleDarkMode(enabled = !this.formConfig.darkMode) {
       this.formConfig.darkMode = enabled;
-      const formContainer = this.shadowRoot.querySelector('.form-default');
-      
-      if (enabled) {
-          formContainer.classList.add('dark-mode');
-      } else {
-          formContainer.classList.remove('dark-mode');
-      }
+        const formContainer = this.shadowRoot.querySelector('form');
+        if (!formContainer) {
+          console.log("darkmode",this.shadowRoot)
+          return;
+        };
+        if (enabled) {
+            formContainer.classList.add('dark-mode');
+        } else {
+            formContainer.classList.remove('dark-mode');
+        }
+      return this;
   }
   emitchanges(){
     this.dispatchEvent(new CustomEvent('form-change', {
