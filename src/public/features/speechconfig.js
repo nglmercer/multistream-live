@@ -14,6 +14,60 @@ const keys = [
     { key: 'subscribe', text: `uniqueId ${getTranslation('se ah suscrito')}`, check: true },
     { key: 'welcome', text: `uniqueId ${getTranslation('bienvenido')}`, check: false }
 ];
+class ChatMessageProcessor {
+    constructor(initialTimeWindow = 1000, maxTimeWindow = 5000, sendCallback = console.log) {
+        this.initialTimeWindow = initialTimeWindow; // Tiempo inicial en milisegundos
+        this.maxTimeWindow = maxTimeWindow; // Máximo tiempo en milisegundos
+        this.currentTimeWindow = initialTimeWindow; // Tiempo actual dinámico
+        this.messageQueue = new Map(); // Almacena mensajes y sus contadores
+        this.sendCallback = sendCallback; // Función para enviar mensajes
+        this.timeout = null; // Manejador del timeout para enviar mensajes agrupados
+    }
+
+    addMessage(message) {
+        const currentTime = Date.now();
+
+        // Si el mensaje ya existe, actualizamos su contador
+        if (this.messageQueue.has(message)) {
+            const messageData = this.messageQueue.get(message);
+            messageData.count++;
+            messageData.lastUpdated = currentTime;
+            // Aumentar dinámicamente el tiempo de espera, hasta el máximo
+            this.currentTimeWindow = Math.min(
+                this.currentTimeWindow + this.initialTimeWindow,
+                this.maxTimeWindow
+            );
+        } else {
+            // Si es un mensaje nuevo, lo añadimos con un contador inicial de 1
+            this.messageQueue.set(message, { count: 1, lastUpdated: currentTime });
+        }
+
+        // Programar el envío de mensajes si no hay un timeout activo
+        if (!this.timeout) {
+            this.timeout = setTimeout(() => this.flushMessages(), this.currentTimeWindow);
+        }
+    }
+
+    flushMessages() {
+        // Enviar todos los mensajes agrupados
+        for (const [message, data] of this.messageQueue) {
+            const messageText =
+                data.count > 1
+                    ? `${message} x${data.count}`
+                    : message;
+
+            this.sendCallback(messageText);
+        }
+
+        // Limpiar la cola y reiniciar el timeout y la ventana de tiempo
+        this.messageQueue.clear();
+        clearTimeout(this.timeout);
+        this.timeout = null;
+        this.currentTimeWindow = this.initialTimeWindow; // Resetear el tiempo dinámico
+    }
+}
+
+
 const voicechatconfig = document.createElement('dynamic-form');
 voicechatconfig.initialize(flattenObject(getTTSdatastore()));
 
@@ -377,6 +431,13 @@ const testdata = {
     teamMemberLevel: 0,
     subMonth: 0,
 }
+const chatProcessor = new ChatMessageProcessor(
+    1000, // Tiempo inicial de espera
+    2000, // Máximo tiempo de espera
+    (msg) => {
+        handleleermensaje(msg,true);
+    }
+);
 function Replacetextoread(eventType = 'chat',data) {
     const configtts = getTTSdatastore();
     if (!configtts[eventType] || !configtts[eventType].check) return;
@@ -384,8 +445,9 @@ function Replacetextoread(eventType = 'chat',data) {
     logger.log('speechchat',configtts,textoread,configtts[eventType].text)
     if (existwordinArray(textoread)) { showAlert('info',`${getTranslation('filterword')} ${textoread} `); return; }
     if (data.uniqueId && existuserinArray(data.uniqueId)) { showAlert('info',`${getTranslation('blacklistuser')} ${data.uniqueId} `); return; }
-    handleleermensaje(textoread);
+    chatProcessor.addMessage(textoread);
 }
+
 /* setTimeout(() => {
   Replacetextoread('chat',{comment: "hola angelo con 8lo"})
   Replacetextoread('chat',{comment: "este si se lee"})

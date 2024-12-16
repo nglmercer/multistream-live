@@ -121,7 +121,7 @@ function setRandomSpeed() {
 function setRandomPitch() {
     return (Math.random() * (1.5 - 0.5) + 0.5).toFixed(1);
 }
-async function handleleermensaje(text) {
+async function handleleermensaje(text,forceTrue = false) {
     const selectedvoicedata = getTTSconfig();
     console.log("newselectedVoice",selectedvoicedata);
     const selectedCommentType = document.querySelector('input[name="comment-type"]:checked')?.value || getTTSconfig('commentsSettings').type_comments;
@@ -151,7 +151,7 @@ async function handleleermensaje(text) {
             shouldRead = true;
             break;
     }
-
+    if (forceTrue) shouldRead = true;
     if (selectedvoicedata.selectvoiceoption === 'selectvoice2') {
         new TTS(text);
     } else {

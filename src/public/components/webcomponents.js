@@ -6806,6 +6806,21 @@ class ChatMessage extends HTMLElement {
     const colors = ['#4CAF50', '#2196F3', '#9C27B0', '#F44336', '#FF9800'];
     return colors[Math.floor(Math.random() * colors.length)];
   }
+  hide() {
+    this.style.display = 'none';
+  }
+  
+  // Method to remove the message from the DOM
+  remove() {
+    this.parentNode.removeChild(this);
+  }
+  setAutoHide(timeout) {
+    // tiempo de espera antes de que se borre este elemento
+    this._autoHideTimeout = timeout;
+    setTimeout(() => {
+      this.remove();
+    }, timeout);
+  }
 }
 
 customElements.define('chat-message', ChatMessage);

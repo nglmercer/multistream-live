@@ -326,7 +326,7 @@ async function getOrCreatePlatformConnection(platform, uniqueId, socket) {
   const normalizedId = platform === PlatformType.TIKTOK ? 
       (uniqueId.startsWith('@') ? uniqueId : '@' + uniqueId) : 
       uniqueId.trim();
-  console.log(`getOrCreatePlatformConnection: ${platform} ${normalizedId}`);
+  console.log(`getOrCreatePlatformConnection: ${platform} ${normalizedId}`, connections);
   // Verificar conexión existente
   let connection = connections.get(normalizedId);
   if (connection) {
@@ -339,6 +339,7 @@ async function getOrCreatePlatformConnection(platform, uniqueId, socket) {
       }
       if (socket && connection.isConnected) {
           socket.emit('connected', connection.getState());
+          connection.initializeEventHandlers(socket, platform, uniqueId);
       }
       return connection;
   }
@@ -395,11 +396,8 @@ io.on('connection', (socket) => {
         }
         if (lastromdata.platform === platform && lastromdata.uniqueId === uniqueId) return;
         lastromdata = { platform, uniqueId };
-        setTimeout(() => {lastromdata = {}}, 5000);
+        setTimeout(() => {lastromdata = {}}, 500);
         const connection = await getOrCreatePlatformConnection(platform, uniqueId, socket);
-        
-        // Modify the event handlers to check for unique platform and user combination
-        //connection.initializeEventHandlers(socket, platform, uniqueId);
         
         socket.join(connection.uniqueId);
         console.log(`User ${socket.id} joined ${platform} room: ${connection.uniqueId}`);

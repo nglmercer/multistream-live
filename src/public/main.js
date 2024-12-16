@@ -560,13 +560,13 @@ lastElement();
 const arrayevents = ["like", "gift", "chat"];
 
 // Funciones de manejo específicas
-const handlechat = async (data,aditionaldata = {type:"text",value:timenow(), class: "bottom-right-0"}) => {
+const handlechat = async (data,aditionaldata = {type:"text",value:timeNow(), class: "bottom-right-0"}) => {
   const newhtml = webcomponentchat(data,defaultMenuChat,aditionaldata);
   appendMessage(newhtml,"chatcontainer");
   console.log("chat",data)
 }
 const handlegift = async (data) => {
-  const newhtml = webcomponentgift(data,defaultMenuChat,{type:"text",value:timenow(), class: "bottom-right-0"});
+  const newhtml = webcomponentgift(data,defaultMenuChat,{type:"text",value:timeNow(), class: "bottom-right-0"});
   appendMessage(newhtml,"giftcontainer");
 }
 function webcomponentchat(data,optionmenuchat = [],additionaldata = {}) {
@@ -644,6 +644,7 @@ function webcomponenttemplate(template = {}, optionmenuchat = defaultMenuChat, n
 let lastcomment = ''
 function Readtext(eventType = 'chat',data) {
   // especial case if roomuser is welcome
+  if (!data) return;
   if (data.uniqueId && existuserinArray(data.uniqueId)) { showAlert('info',`${getTranslation('blacklistuser')} ${data.uniqueId} `); return; }
   if (eventType === 'member') eventType = 'welcome';
   if (eventType === 'chat') {
