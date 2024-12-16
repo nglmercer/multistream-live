@@ -28,56 +28,72 @@ const keys = [
 ];
 class ChatMessageProcessor {
     constructor(initialTimeWindow = 1000, maxTimeWindow = 5000, sendCallback = console.log) {
-        this.initialTimeWindow = initialTimeWindow; // Tiempo inicial en milisegundos
-        this.maxTimeWindow = maxTimeWindow; // Máximo tiempo en milisegundos
-        this.currentTimeWindow = initialTimeWindow; // Tiempo actual dinámico
-        this.messageQueue = new Map(); // Almacena mensajes y sus contadores
-        this.sendCallback = sendCallback; // Función para enviar mensajes
-        this.timeout = null; // Manejador del timeout para enviar mensajes agrupados
+      this.initialTimeWindow = initialTimeWindow; // Tiempo inicial en milisegundos
+      this.maxTimeWindow = maxTimeWindow;         // Máximo tiempo en milisegundos
+      this.currentTimeWindow = initialTimeWindow; // Tiempo actual dinámico
+      this.messageQueue = new Map();              // Almacena mensajes y sus contadores
+      this.sendCallback = sendCallback;           // Función para enviar mensajes
+      this.timeout = null;                        // Manejador del timeout para enviar mensajes agrupados
     }
-
+  
     addMessage(message) {
-        const currentTime = Date.now();
-
-        // Si el mensaje ya existe, actualizamos su contador
-        if (this.messageQueue.has(message)) {
-            const messageData = this.messageQueue.get(message);
-            messageData.count++;
-            messageData.lastUpdated = currentTime;
-            // Aumentar dinámicamente el tiempo de espera, hasta el máximo
-            this.currentTimeWindow = Math.min(
-                this.currentTimeWindow + this.initialTimeWindow,
-                this.maxTimeWindow
-            );
-        } else {
-            // Si es un mensaje nuevo, lo añadimos con un contador inicial de 1
-            this.messageQueue.set(message, { count: 1, lastUpdated: currentTime });
+      const currentTime = Date.now();
+  
+      // Si el mensaje ya existe, actualizamos su contador
+      if (this.messageQueue.has(message)) {
+        const messageData = this.messageQueue.get(message);
+        messageData.count++;
+        messageData.lastUpdated = currentTime;
+  
+        // Extender el tiempo dinámico hasta el máximo permitido
+        if (this.currentTimeWindow < this.maxTimeWindow) {
+          this.currentTimeWindow = Math.min(
+            this.currentTimeWindow + this.initialTimeWindow,
+            this.maxTimeWindow
+          );
+  
+          // Reiniciar el timeout para reflejar el nuevo tiempo de espera
+          clearTimeout(this.timeout);
+          this.timeout = setTimeout(() => this.flushMessages(), this.currentTimeWindow);
         }
-
+      } else {
+        // Si es un mensaje nuevo, lo añadimos con un contador inicial de 1
+        this.messageQueue.set(message, { count: 1, lastUpdated: currentTime });
+  
         // Programar el envío de mensajes si no hay un timeout activo
         if (!this.timeout) {
-            this.timeout = setTimeout(() => this.flushMessages(), this.currentTimeWindow);
+          this.timeout = setTimeout(() => this.flushMessages(), this.currentTimeWindow);
         }
+      }
     }
-
+  
     flushMessages() {
-        // Enviar todos los mensajes agrupados
-        for (const [message, data] of this.messageQueue) {
-            const messageText =
-                data.count > 1
-                    ? `${message} x${data.count}`
-                    : message;
-
-            this.sendCallback(messageText);
-        }
-
-        // Limpiar la cola y reiniciar el timeout y la ventana de tiempo
-        this.messageQueue.clear();
-        clearTimeout(this.timeout);
-        this.timeout = null;
-        this.currentTimeWindow = this.initialTimeWindow; // Resetear el tiempo dinámico
+      // Enviar todos los mensajes agrupados
+      for (const [message, data] of this.messageQueue) {
+        const messageText = data.count > 1 ? `${message} x${data.count}` : message;
+        this.sendCallback(messageText);
+      }
+  
+      // Limpiar la cola y reiniciar el timeout y la ventana de tiempo
+      this.messageQueue.clear();
+      clearTimeout(this.timeout);
+      this.timeout = null;
+      this.currentTimeWindow = this.initialTimeWindow; // Resetear el tiempo dinámico
     }
-}
+  
+    // Método para actualizar el initialTimeWindow con el valor de maxTimeWindow
+    updateInitialTimeWindow(inittime,maxtime) {
+    if (inittime) this.initialTimeWindow = inittime;
+    if (maxtime) this.maxTimeWindow = maxtime;
+    if (this.currentTimeWindow > this.maxTimeWindow) {
+        this.initialTimeWindow = this.maxTimeWindow;
+        this.currentTimeWindow = this.maxTimeWindow; // También actualizamos el tiempo actual
+        }
+    }
+  }
+  
+  
+  
 keys.forEach(({ name, check,text }) => {
     const ischecked = typeof getTTSdatastore()[name]?.check === 'boolean' 
     ? getTTSdatastore()[name]?.check 
@@ -399,10 +415,13 @@ setTimeout(() => {
     console.log("mapVoiceList",mapVoiceList());
   }
 }, 500);
-const chatProcessor = new ChatMessageProcessor(
-    1000, // Tiempo inicial de espera
-    2000, // Máximo tiempo de espera
-    (msg) => {
+const chatProcessor = new ChatMessageProcessor(500, 3000, (msg) => {
+        console.log("chatProcessor",msg)
+        handleleermensaje(msg,true);
+    }
+);
+const otherProcessor = new ChatMessageProcessor(3000, 9000, (msg) => {
+        console.log("otherProcessor",msg)
         handleleermensaje(msg,true);
     }
 );
@@ -413,13 +432,17 @@ function Replacetextoread(eventType = 'chat',data) {
     logger.log('speechchat',configtts,textoread,configtts[eventType].text)
     if (existwordinArray(textoread)) { showAlert('info',`${getTranslation('filterword')} ${textoread} `); return; }
     if (data.uniqueId && existuserinArray(data.uniqueId)) { showAlert('info',`${getTranslation('blacklistuser')} ${data.uniqueId} `); return; }
-    chatProcessor.addMessage(textoread);
-}
+    if (eventType === 'chat') {
+        chatProcessor.addMessage(textoread);
+    } else {
+        otherProcessor.addMessage(textoread);
+    }
+}   
 
-/* setTimeout(() => {
-  Replacetextoread('chat',{comment: "hola angelo con 8lo"})
+/* setInterval(() => {
+  Replacetextoread('gift',{giftId: "hola angelo con 8lo"})
   Replacetextoread('chat',{comment: "este si se lee"})
-},3000) */
+},2222)  */
 
   
   // Clase para manejar la UI

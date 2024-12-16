@@ -7,7 +7,7 @@ let audioKeys = [];
 // let audio = document.getElementById('audio');
 function getTTSconfig(storename = 'voicedatastore') {
     const ttsconfig = JSON.parse(localStorage.getItem(storename));
-    console.log("ttsconfig",ttsconfig);
+    //console.log("ttsconfig",ttsconfig);
     return ttsconfig;
 }
 
@@ -52,7 +52,7 @@ speakbutton.addEventListener('click', () => {
     leerMensajes(speaktext.value);
 });
 function leerMensajes(text) {
-    console.log('leerMensajes', text);
+    //console.log('leerMensajes', text);
     if (text) {
         fetchAudio(text).then(audioUrl => {
           if (getTTSconfig().voice1.audioQueue) {
@@ -123,7 +123,7 @@ function setRandomPitch() {
 }
 async function handleleermensaje(text,forceTrue = false) {
     const selectedvoicedata = getTTSconfig();
-    console.log("newselectedVoice",selectedvoicedata);
+    //console.log("newselectedVoice",selectedvoicedata);
     const selectedCommentType = document.querySelector('input[name="comment-type"]:checked')?.value || getTTSconfig('commentsSettings').type_comments;
     let shouldRead = false;
 

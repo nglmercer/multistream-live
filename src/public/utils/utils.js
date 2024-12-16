@@ -735,7 +735,7 @@ logger.addCategory('EventAction', true);
 logger.addCategory('renderhtml', true);
 logger.toggleCategory('renderhtml', false);
 logger.toggleCategory('debug', true);
-logger.toggleCategory('speechchat', true);
+logger.toggleCategory('speechchat', false);
 console.log(logger.listCategories());
 // // Logs en diferentes categorías
 // logger.log('datos', 'Este es un mensaje de la categoría datos', {

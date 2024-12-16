@@ -28,8 +28,7 @@ const essapp = express();
 essapp.use(cors());
 const uri = path.join(__dirname, 'public');
 
-console.log(uri)
-;console.log(uri);
+console.log(uri);
 const httpServer = http.createServer(essapp);
 const io = new Server(httpServer, {
     cors: {
@@ -394,9 +393,11 @@ io.on('connection', (socket) => {
         if (!Object.values(PlatformType).includes(platform)) {
           throw new Error('Invalid platform specified');
         }
-        if (lastromdata.platform === platform && lastromdata.uniqueId === uniqueId) return;
+        if (lastromdata.platform === platform && lastromdata.uniqueId === uniqueId) {
+          setTimeout(() => {lastromdata = {}}, 1000);
+          return;
+        }
         lastromdata = { platform, uniqueId };
-        setTimeout(() => {lastromdata = {}}, 500);
         const connection = await getOrCreatePlatformConnection(platform, uniqueId, socket);
         
         socket.join(connection.uniqueId);

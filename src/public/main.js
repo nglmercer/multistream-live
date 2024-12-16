@@ -43,7 +43,7 @@ loginelements2.forEach(element => {
       console.log('Usuario conectado:', e.detail.username);
       element.setConnectionStatus('away');
       //joinRoom(e.detail.username, e.detail.platform);
-      //socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "tiktok" });
+      socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "tiktok" });
     });
     element.addEventListener('userDisconnected', (e) => {
       console.log('Usuario desconectado' ,e);
@@ -237,7 +237,7 @@ tiktokLiveEvents.forEach(event => {
  });
 });
 function tiktokhandlerdata(event,data) {
-  console.log("event",event,data)
+  //console.log("event",event,data)
   Readtext(event, data);
   localStorage.setItem('last'+event, JSON.stringify(data));
   //console.log("event",event,data)
@@ -249,44 +249,44 @@ function tiktokhandlerdata(event,data) {
     case 'gift':
       handlegift(data);
       HandleAccionEvent('gift',data);
-      console.log("gift",data)
+      //console.log("gift",data)
       break;
     case 'member':
       HandleAccionEvent('welcome',data)
       const eventmember = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'member', class: "gold"});
       appendMessage(eventmember,"eventscontainer",true);
-      console.log("member",data)
+      //console.log("member",data)
       break;
     case 'roomUser':
-      console.log("roomUser",data)
+      //console.log("roomUser",data)
       break;
     case 'like':
       HandleAccionEvent(event,data, 'isInRange')
       const eventlike = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'like', class: "gold"});
       appendMessage(eventlike,"eventscontainer",true);
-      console.log("like",data)
+      //console.log("like",data)
       break;
     case 'follow':
       HandleAccionEvent('follow',data);
       const eventfollow = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'follow', class: "gold"});
       appendMessage(eventfollow,"eventscontainer",true);
-      console.log("follow",data)
+      //console.log("follow",data)
       break;
     case 'share':
       const eventshare = webcomponentevent(data,defaultEventsMenu,{type:"text",value:'share', class: "gold"});
       appendMessage(eventshare,"eventscontainer",true);
-      console.log("share",data)
+      //console.log("share",data)
       break;
     case 'connected':
       if (data.roomInfo?.owner) localStorage.setItem('ownerdata',JSON.stringify(data.roomInfo.owner));
       const lastownerdata = localStorage.getItem('ownerdata');
       if (lastownerdata) userProfile2.setProfileImage(getAvatarUrl(JSON.parse(lastownerdata)));
-      console.log(event, data);
+      //console.log(event, data);
       showAlert('success', `Connected`,3000,data)
       break;
     default:
       HandleAccionEvent(event,data)
-      console.log("event",event,data)
+      //console.log("event",event,data)
         break;
   }
 }
@@ -551,7 +551,7 @@ async function lastElement() {
 
 function appendMessage(data, container, autoHide = false) {
   const elementWebComponent = document.getElementById(container);
-  console.log("appendMessage", data, container, autoHide);
+  //console.log("appendMessage", data, container, autoHide);
   elementWebComponent.addMessage(data, autoHide);
 }
 
@@ -642,6 +642,7 @@ function webcomponenttemplate(template = {}, optionmenuchat = defaultMenuChat, n
   };
 }
 let lastcomment = ''
+
 function Readtext(eventType = 'chat',data) {
   // especial case if roomuser is welcome
   if (!data) return;
@@ -652,8 +653,8 @@ function Readtext(eventType = 'chat',data) {
       return text.replace(/(?:^|\s)https?:\/\/\S+/gi, ' link').trim();
   };  
     data.comment = removeHttpLinksRegex(data.comment);
-    console.log("data.comment",data.comment,removeHttpLinksRegex(data.comment));
     if(data.comment === lastcomment) {
+      console.log("data.comment",data.comment,removeHttpLinksRegex(data.comment));
       return;
     } 
     lastcomment = data.comment;
@@ -664,7 +665,7 @@ function Readtext(eventType = 'chat',data) {
 const generateobject = (eventType,comparison ) => {
   const comparisonstring = comparison === true ? "isEqual" : comparison
   const keysToCheck = arrayevents.includes(eventType)  ? [{ key: eventType, compare: comparisonstring },{ key: 'eventType', compare: 'isEqual' }] : [{ key: 'eventType', compare: 'isEqual' }]
-  console.log("generateobject",eventType,comparisonstring,keysToCheck)
+  //console.log("generateobject",eventType,comparisonstring,keysToCheck)
   return keysToCheck
 };
 async function HandleAccionEvent(eventType,data,comparison = 'isEqual',includetrue = false) {
@@ -679,7 +680,7 @@ async function HandleAccionEvent(eventType,data,comparison = 'isEqual',includetr
     eventType: eventType,
   }
   const results = compareObjects(eventslist, await EventsManager.getAllData(), keysToCheck, callbackFunction,includetrue);
-  console.log('debug',"results HandleAccionEvent",results)
+  //logger.log('debug',"results HandleAccionEvent",results)
   if (results.validResults.length >= 1 ) {
     results.validResults.forEach(result => {
       processAction(result,data)
