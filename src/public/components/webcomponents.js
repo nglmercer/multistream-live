@@ -6505,7 +6505,10 @@ class MessageContainer extends HTMLElement {
         :host {
           display: block;
           width: 100%;
+          height: 100%;
           position: relative;
+          resize: both;
+          overflow: hidden;
         }
         .messages-wrapper {
           position: relative;

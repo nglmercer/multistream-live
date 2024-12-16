@@ -223,13 +223,6 @@ class TiktokConnection extends PlatformConnection {
   }
 
   initializeEventHandlers(socket, platform, uniqueId) {
-    // Only initialize if not already initialized or if platform/uniqueId combination is new
-    const handlerKey = `${platform}_${uniqueId}`;
-    if (this.eventHandlersInitialized && this.lastHandlerKey === handlerKey) return;
-
-    this.lastHandlerKey = handlerKey;
-    this.eventHandlersInitialized = false;  // Reset to allow re-initialization
-
     tiktokLiveEvents.forEach(event => {
       // Remove previous listeners
       this.tiktokLiveConnection.removeAllListeners(event);
@@ -278,12 +271,6 @@ class KickConnection extends PlatformConnection {
   }
 
   initializeEventHandlers(socket, platform, uniqueId) {
-    // Only initialize if not already initialized or if platform/uniqueId combination is new
-    const handlerKey = `${platform}_${uniqueId}`;
-    if (this.eventHandlersInitialized && this.lastHandlerKey === handlerKey) return;
-
-    this.lastHandlerKey = handlerKey;
-    
     // Unbind previous event listeners if they exist
     LiveEvents.forEach(event => {
       // Use standard event unbinding if possible
@@ -291,9 +278,6 @@ class KickConnection extends PlatformConnection {
         this.kickliveconnector.off(event);
       }
     });
-
-    this.eventHandlersInitialized = false;
-
     LiveEvents.forEach(event => {
       this.kickliveconnector.on(event, (data) => {
         socket.emit(event, data);  // Emit directly to the socket
@@ -303,8 +287,6 @@ class KickConnection extends PlatformConnection {
         }
       });
     });
-
-    this.eventHandlersInitialized = true;
   }
   disconnect() {
       if (this.kickliveconnector) {
