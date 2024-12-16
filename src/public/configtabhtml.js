@@ -1,9 +1,11 @@
-import { uiElement,blueuiElement, voicechatconfig,voiceapiconfig} from './features/speechconfig.js';
+import { voicechatconfig,voiceapiconfig} from './features/speechconfig.js';
 import { htmlminecraft } from './features/Minecraftconfig.js';
 //import { htmlobselement } from './features/obcontroller.js';
 import { getTranslation, translations } from './translations.js';
 import socketManager , { socketurl } from "./server/socketManager.js";
 import { LocalStorageManager,getallfilesmap } from './utils/utils.js';
+import { filterworddefault } from './assets/jsondata.js';
+
 const filescontent = new LocalStorageManager('filePaths');
 const tabs = document.querySelector('custom-tabs');
 socketManager.emitMessage("join-room", "sala1");
@@ -148,15 +150,24 @@ function addfilesitems(GridContainer) {
   });
   }, 250);
 }
+const filterwordhtml = document.createElement('array-manager');
+filterwordhtml.setDefaultElements(filterworddefault);
+filterwordhtml.setAttribute('theme', 'dark');
+filterwordhtml.setAttribute('key', 'filterword');
+const filteruserdefault = [ "nightbot", "kickbot", "streamelements",  "kickbot", "streamelementsbot"];
+const filteruserhtml = document.createElement('array-manager');
+filteruserhtml.setDefaultElements(filteruserdefault);
+filteruserhtml.setAttribute('theme', 'dark');
+filteruserhtml.setAttribute('key', 'blacklistusers');
 tabs.addContent(0, voicechatconfig); // Agrega al primer tab
 tabs.setTabTitle(0,`${getTranslation('chat')}`);
 tabs.addContent(1,voiceapiconfig); // Agrega al segundo tab
 tabs.setTabTitle(1,`${getTranslation('voicesettings')}`);
 tabs.addContent(2,htmlminecraft); // Agrega al tercer tab
 tabs.setTabTitle(2,`${getTranslation('minecraft')}`);
-tabs.addContent(3,uiElement); // Agrega al tercer tab
+tabs.addContent(3,filterwordhtml); // Agrega al tercer tab
 tabs.setTabTitle(3,`${getTranslation('filterwords')}`);
-tabs.addContent(4,blueuiElement); // Agrega al tercer tab
+tabs.addContent(4,filteruserhtml); // Agrega al tercer tab
 tabs.setTabTitle(4,`${getTranslation('blacklist')}`);
 tabs.addContent(5,generatedropelement()); // Agrega al tercer tab
 tabs.setTabTitle(5,`${getTranslation('filemanager')}`);

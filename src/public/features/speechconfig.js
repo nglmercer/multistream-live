@@ -445,42 +445,22 @@ function Replacetextoread(eventType = 'chat',data) {
 },2222)  */
 
   
-  // Clase para manejar la UI
-
-// Inicialización
-const manager = new ArrayStorageManager('filterwords');
-const ui = new ArrayManagerUI(manager,filterworddefault);
-
-// Uso del método getHTML para añadir el componente al DOM
-const uiElement = ui.getHTML();
-// appContainer.appendChild(uiElement);
-const uifunctions = ui.initializeEventListeners(uiElement);
-
+const manager = new ArrayStorageManager('filterword');
 const bluemanager = new ArrayStorageManager('blacklistusers');
-const blueui = new ArrayManagerUI(bluemanager,["kickbot","nightbot","examplebot"]);    
-const blueuiElement = blueui.getHTML();
-const blueuifunctions = blueui.initializeEventListeners(blueuiElement);
-//{ loadItems, addItem: handleAddItem, addDefault: handleAddDefault }
 function addfilterword(word) {
 manager.add(word);
-uifunctions.loadItems();
 }
 function existwordinArray(word) {
 const response = manager.containword(word);
-//console.log("existwordinArray",response,word)
 return response;
 }
 function existuserinArray(word) {
 const response = bluemanager.containword(word);
-//console.log("existwordinArray",response,word)
 return response;
 }
 function adduserinArray(word) {
 const response = bluemanager.add(word);
-blueuifunctions.loadItems();
-//console.log("existwordinArray",response,word)
 return response;
 }
-  //existwordinArray("tedesku")
-export { Replacetextoread, addfilterword,existuserinArray,adduserinArray,uiElement,blueuiElement,voicechatconfig,voiceapiconfig}
+export { Replacetextoread, addfilterword,existuserinArray,adduserinArray,voicechatconfig,voiceapiconfig}
 // asdasd como seria un metodo para hacer un string a json

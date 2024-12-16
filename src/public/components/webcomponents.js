@@ -4438,7 +4438,8 @@ class ResponsiveNavSidebar extends HTMLElement {
                     padding: 1rem;
                     border-radius: 8px;
                     position: relative;
-                    min-width: 300px;
+                    min-width: 360px;
+                    min-height: 360px;
                     max-height: 95dvh;
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     opacity: 0;
@@ -5378,6 +5379,7 @@ class ZoneRenderer extends HTMLElement {
                 display: none;
                 padding: 20px;
                 background-color: #2d2d2d;
+                min-height: 240px;
                 height: 100%;
                 max-height: 75dvh;
                 overflow: auto;
@@ -8347,6 +8349,259 @@ class AlertComponent extends HTMLElement {
 
 // Define the custom element
 customElements.define('app-alert', AlertComponent);
+
+class ArrayManagerComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.defaultElements = (this.getAttribute('default-elements') || '').split(',');
+    this.theme = 'light';
+    this.storageKey = 'defaultKey';
+    this.items = [];
+  }
+  
+  connectedCallback() {
+    // Asigna los atributos después de que el componente se conecta al DOM
+    this.storageKey = this.getAttribute('key') || 'defaultKey';
+    this.theme = this.getAttribute('theme') || 'light';
+    this.items = this.getAllItems();
+    
+    this.render();
+    this.initializeEventListeners();
+    this.toggleDarkMode();
+  }
+  
+  static get observedAttributes() {
+      return ['key', 'default-elements', 'theme'];
+  }
+  attributeChangedCallback(name, oldValue, newValue) {
+      if (oldValue !== newValue) {
+          if (name === 'key') {
+              this.storageKey = newValue;
+          }
+          this.render();
+      }
+  }
+
+  // Obtiene los elementos almacenados en localStorage
+  getAllItems() {
+    const stored = localStorage.getItem(this.storageKey);
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  // Guarda los elementos en localStorage
+  saveToStorage() {
+    localStorage.setItem(this.storageKey, JSON.stringify(this.items));
+  }
+
+  // Valida la entrada
+  validateInput(item) {
+    return typeof item === 'string' && item.trim().length > 1;
+  }
+
+  // Verifica si el elemento ya existe en el array
+  existsInItems(text) {
+    const normalizedText = text.toLowerCase();
+    return this.items.some(item => item.toLowerCase() === normalizedText);
+  }
+
+  // Añade un elemento al array
+  addItem(item) {
+    if (this.validateInput(item) && !this.existsInItems(item)) {
+      this.items.push(item);
+      this.saveToStorage();
+      this.renderItems();
+      return true;
+    }
+    return false;
+  }
+
+  // Elimina un elemento del array
+  removeItem(item) {
+    this.items = this.items.filter(existingItem => existingItem.toLowerCase() !== item.toLowerCase());
+    this.saveToStorage();
+    this.renderItems();
+  }
+
+  // Filtra los elementos por una búsqueda
+  filterItems(query) {
+    const filteredItems = this.items.filter(item => item.toLowerCase().includes(query.toLowerCase()));
+    this.renderItems(filteredItems);
+  }
+
+  // Renderiza el componente
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        .array-manager-container {
+          font-family: Arial, sans-serif;
+          border-radius: 5px;
+          width: 100%;
+          max-width: auto;
+          background-color: var(--bg-color, #fff);
+          color: var(--text-color, #000);
+          display: grid;
+        }
+          input {
+          background-color: #2d3748;
+          color: #f9fafb;
+          border-color: #4a5568;
+          border-radius: 5px;
+          padding: 0.5rem 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s, color 0.3s;
+        }
+          button {
+            background-color: #2d3748;
+            color: #f9fafb;
+            border-color: #4a5568;
+            border-radius: 5px;
+            padding: 0.5em 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+          }
+            button:hover {
+              background-color: var(--hover-bg, #f5f5f5);
+              color: var(--hover-color, #fff);
+            }
+          .tittle {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+          }
+        .input-container {
+          display: flex;
+          gap: 0.5em;
+          margin-bottom: 1em;
+                        justify-content: space-between;
+              margin-inline: 0.5rem;
+        }
+        .input-container input {
+          flex: 1;
+          padding: 0.5em;
+        }
+        .input-container button {
+          padding: 0.5em 1em;
+          cursor: pointer;
+        }
+        .items-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1rem;
+        }
+        .items-container .item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.5em;
+        }
+        .items-container .item:hover {
+          border-bottom: 1px solid #ddd;
+        }
+        .items-container .item .delete-btn {
+          background: red;
+          color: white;
+          border: none;
+          padding: 0.3em 0.5em;
+          cursor: pointer;
+          border-radius: 3px;
+        }
+        .error-message {
+          color: red;
+          display: none;
+          margin-bottom: 1em;
+        }
+        .filter-input {
+          margin-inline: 1em;
+          width: auto;
+          padding: 0.5em;
+        }
+        :host([theme="dark"]) {
+          --bg-color: #333;
+          --text-color: #fff;
+          --border-color: #555;
+        }
+      </style>
+
+      <div class="array-manager-container">
+        <h2 class="tittle">${this.storageKey}</h2>
+        <div class="input-container">
+          <input type="text" placeholder="Añadir elemento" class="array-manager-input">
+          <button class="array-manager-add">Añadir</button>
+          <button class="array-manager-default">Añadir por Defecto</button>
+        </div>
+        <input type="text" placeholder="Filtrar elementos" class="filter-input">
+        <div class="error-message">El texto debe tener al menos 2 caracteres</div>
+        <div class="items-container"></div>
+      </div>
+    `;
+
+    this.renderItems();
+  }
+
+  // Renderiza los elementos almacenados o filtrados
+  renderItems(filteredItems = null) {
+    const itemsContainer = this.shadowRoot.querySelector('.items-container');
+    itemsContainer.innerHTML = '';
+    const itemsToRender = filteredItems || this.items;
+    itemsToRender.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'item';
+      itemDiv.innerHTML = `
+        <span>${item}</span>
+        <button class="delete-btn">×</button>
+      `;
+      itemDiv.querySelector('.delete-btn').addEventListener('click', () => this.removeItem(item));
+      itemsContainer.appendChild(itemDiv);
+    });
+  }
+
+  // Inicializa los event listeners
+  initializeEventListeners() {
+    const input = this.shadowRoot.querySelector('.array-manager-input');
+    const addButton = this.shadowRoot.querySelector('.array-manager-add');
+    const defaultButton = this.shadowRoot.querySelector('.array-manager-default');
+    const errorMessage = this.shadowRoot.querySelector('.error-message');
+    const filterInput = this.shadowRoot.querySelector('.filter-input');
+
+    const handleAddItem = () => {
+      const text = input.value.trim();
+      errorMessage.style.display = 'none';
+      if (this.addItem(text)) {
+        input.value = '';
+      } else {
+        errorMessage.style.display = 'block';
+      }
+    };
+
+    const handleAddDefault = () => {
+      console.log("handleaddfeault",this.defaultElements);
+      this.defaultElements.forEach(item => this.addItem(item.trim()));
+    };
+
+    addButton.addEventListener('click', handleAddItem);
+    defaultButton.addEventListener('click', handleAddDefault);
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleAddItem();
+    });
+    filterInput.addEventListener('input', (e) => {
+      this.filterItems(e.target.value);
+    });
+  }
+  setDefaultElements(defaultElements) {
+    if (!Array.isArray(defaultElements)) return;
+    this.defaultElements = defaultElements;
+  }
+  // Aplica modo oscuro si el atributo theme="dark" está presente
+  toggleDarkMode() {
+    if (this.theme === 'dark') {
+      this.setAttribute('theme', 'dark');
+    }
+  }
+}
+
+// Define el nuevo elemento personalizado
+customElements.define('array-manager', ArrayManagerComponent);
 
 
 class CustomDropdown extends HTMLElement {
