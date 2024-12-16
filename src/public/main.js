@@ -29,8 +29,8 @@ loginelements.forEach(element => {
   element.addEventListener('userConnected', (e) => {
       console.log('Usuario conectado:', e.detail.username);
       element.setConnectionStatus('away');
-      //joinRoom(e.detail.username, e.detail.platform);
-      //socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "kick" });
+      //joinRoom(e.detail.username, 'kick');
+      socket.emit('joinRoom', { uniqueId: e.detail.username, platform: "kick" });
     });
     element.addEventListener('userDisconnected', (e) => {
       console.log('Usuario desconectado' ,e);

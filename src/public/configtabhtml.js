@@ -35,14 +35,8 @@ function generatehtmlQRCode(qrCode, urlToQR) {
     `;
     return htmlQRCode;
 } */
-const filemanagerhtml = `
-    <drag-and-drop></drag-and-drop>
-    <grid-container id="myGrid"></grid-container>
 
-    <div id="galeria-elementos"></div>
-`
 const windows = new Map();
-const windowsList = document.getElementById('windowsList');
 
 function generatedropelement() {
     const div = document.createElement('div');
@@ -221,7 +215,7 @@ const config = {
   socketManager.emitMessage('create-window', config);
 });
 modalwindow.addEventListener('form-change', (e) => {
-  console.log('Form values changed:', e.detail);
+  //console.log('Form values changed:', e.detail);
 });
 modalwindow.setSubmitButton({ 
     label: 'create window', 

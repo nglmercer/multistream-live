@@ -61,9 +61,12 @@ input {
   box-sizing: content-box;
   max-width: auto;
   max-height: auto;
+  max-width: 20rem;
 }
 button {
   border: none;
+  max-width: 19rem;
+
 }
 .default-button {
   background-color: var(--dark-accent);
@@ -220,17 +223,37 @@ button {
   .hidden {
     display: none;
   }
-.LiveContainer {
+  .LiveContainer {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    /* grid-template-rows: repeat(6, 1fr); */
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 28rem)); /* Las columnas se ajustan automáticamente */
+    grid-template-rows: auto; /* Las filas se ajustan automáticamente */
     grid-column-gap: 0px;
     grid-row-gap: 0px;
+    width: 100%;
+    height: auto;
 }
+
 
 .chat1 { grid-area: 1 / 1 / 5 / 4;  }
 .gift2 { grid-area: 1 / 4 / 5 / 7; }
 .events3 { grid-area: 5 / 1 / 7 / 7; }
+@media (max-width: 680px) {
+  .LiveContainer {
+      grid-template-columns: 1fr; /* Cambia a una sola columna */
+  }
+
+  .chat1 {
+      grid-area: 1 / 1 / 2 / 2; /* Ocupa toda la fila */
+  }
+
+  .gift2 {
+      grid-area: 2 / 1 / 3 / 2;
+  }
+
+  .events3 {
+      grid-area: 3 / 1 / 4 / 2;
+  }
+}
 /* Variables para el tema oscuro */
 :root {
   --dark-bg: #1a1a1a;

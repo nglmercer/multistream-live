@@ -1,13 +1,13 @@
 import { Counter, TypeofData,ComboTracker, replaceVariables,showAlert, compareObjects,UserInteractionTracker, unflattenObject, flattenObject } from '../utils/utils.js'
 import { filterworddefault,keyboard, valueboard, optionskeyboard, optionsvalueboard } from "../assets/jsondata.js"
 import { databases, IndexedDBManager, DBObserver, getAllDataFromDatabase } from '../database/indexdb.js'
-import DynamicTable, { EditModal } from '../components/renderfields.js';
+import DynamicTable from '../components/renderfields.js';
 import { getTranslation, translations } from '../translations.js';
 import socketManager from '../server/socketManager.js';
 import { eventform } from './Events.js'
-import { mapedarrayobs, arrayobs,executebykeyasync } from './obcontroller.js'
+/* import { mapedarrayobs, arrayobs,executebykeyasync } from './obcontroller.js'
 import { sendcommandmc } from './Minecraftconfig.js'
-import { Replacetextoread, addfilterword } from './speechconfig.js'
+import { Replacetextoread, addfilterword } from './speechconfig.js' */
 //import {mapsvgoutline, mapsvgsolid} from "../assets/svg.js"
 
 const ObserverActions = new DBObserver();
@@ -488,10 +488,6 @@ const testdata = {
   },
   id: undefined,
 }
-/* const Aformelement = new EditModal(actionsconfig,testdata);
-const HtmlAformelement = Aformelement.ReturnHtml(testdata);
-document.querySelector('#ActionModalContainer').appendChild(HtmlAformelement); */
-
 
 /*tabla de Actions para modificar y renderizar todos los datos*/
 
@@ -510,7 +506,7 @@ const tableconfigcallback = {
   },
 }
 //const renderer = document.getElementById('zone-renderer');
-async function execobsaction(data) {
+/* async function execobsaction(data) {
   if (data.obs && data.obs?.check) {
     const valueobsaction = arrayobs[data.obs.action];
     console.log("valueobsaction getValueByKey", valueobsaction);
@@ -538,7 +534,7 @@ async function execobsaction(data) {
       }
     }
   }
-}
+} */
 async function executekeys(data) {
   if (data.keypress && data.keypress.check) {
     const values = data.keypress.key;

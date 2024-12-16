@@ -295,6 +295,7 @@ const translations = {
   function getTranslation(key,lang=localStorage.getItem('selectedLanguage')) {
     // if (key.includes(' ')) key = key.replace(' ','_');
     // lo anterior solo reemplaza el primero espacio por _ y no todos para que reemplaze todos seria:
+    if (!key) return key;
     if (key.includes(' ')) key = key.replace(/ /g,'_');
     return translations[lang]?.[key] || key;
   }

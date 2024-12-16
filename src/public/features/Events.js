@@ -1,5 +1,5 @@
 import { Giftsparsed, mapselectgift } from '../assets/gifts.js';
-import DynamicTable, { EditModal } from '../components/renderfields.js';
+import DynamicTable from '../components/renderfields.js';
 import { databases, IndexedDBManager, DBObserver, getAllDataFromDatabase } from '../database/indexdb.js'
 import { Counter,showAlert, flattenObject, TypeofData,ComboTracker, replaceVariables, compareObjects, unflattenObject } from '../utils/utils.js'
 import { getTranslation, translations } from '../translations.js';
@@ -149,20 +149,13 @@ function idexist(id,allresults) {
   return exists;
 }
 eventform.addEventListener('form-change', (e) => {
-  console.log('Form values changed:', e.detail);
+  //console.log('Form values changed:', e.detail);
 });
 newmodalevent.appendChild(eventform);
 /* setTimeout(() => {
   eventform.reRender(testdata);
 }, 1000);
 newmodalevent.open(); */
-
-
-/* const EventsModal = document.getElementById('EventsModal');
- */
-
-/* const Formelement = new EditModal(await getEventconfig(), testdata);
-const Eventsformelement = Formelement.ReturnHtml(testdata);  */
 
 
 /*tabla de Eventos para modificar y renderizar todos los datos*/

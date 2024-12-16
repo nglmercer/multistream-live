@@ -3,17 +3,28 @@ import { leerMensajes, handleleermensaje } from '../audio/tts.js';
 import { voicelistmap } from '../audio/voiceoptions.js';
 import { getTranslation, translations } from '../translations.js';
 import { filterworddefault } from '../assets/jsondata.js';
-console.log("filterworddefault",filterworddefault)
+const ttsdata = localStorage.getItem('ttsdatastore') ? JSON.parse(localStorage.getItem('ttsdatastore')) : {
+    chat: { check: true, text: `uniqueId ${getTranslation('dice')} comment` },
+    gift: { check: true, text: `uniqueId ${getTranslation('regalo')} repeatcount giftName` },
+    follow: { check: true, text: `uniqueId ${getTranslation('te ah seguido')}` },
+    like: { check: false, text: `uniqueId ${getTranslation('le ah dado like')}` },
+    share: { check: false, text: `uniqueId ${getTranslation('ah compartido')}` },
+    subscribe: { check: true, text: `uniqueId ${getTranslation('se ah suscrito')}` },
+    welcome: { check: false, text: `uniqueId ${getTranslation('bienvenido')}` }
+};
+//console.log("ttsdata",ttsdata, flattenObject(ttsdata),unflattenObject(flattenObject(ttsdata)));
 const voicechatconfig = document.createElement('dynamic-form');
+voicechatconfig.initialize(flattenObject(ttsdata));
 
+if (!localStorage.getItem('ttsdatastore')) localStorage.setItem('ttsdatastore', JSON.stringify(ttsdata));
 const keys = [
-    { key: 'chat', text: `uniqueId ${getTranslation('dice')} comment`, check: true },
-    { key: 'gift', text: `uniqueId ${getTranslation('regalo')} repeatcount giftName`, check: true },
-    { key: 'follow', text: `uniqueId ${getTranslation('te ah seguido')}`, check: true },
-    { key: 'like', text: `uniqueId ${getTranslation('le ah dado like')}`, check: false },
-    { key: 'share', text: `uniqueId ${getTranslation('ah compartido')}`, check: false },
-    { key: 'subscribe', text: `uniqueId ${getTranslation('se ah suscrito')}`, check: true },
-    { key: 'welcome', text: `uniqueId ${getTranslation('bienvenido')}`, check: false }
+    { name: 'chat', text: `uniqueId ${getTranslation('dice')} comment`, check: true },
+    { name: 'gift', text: `uniqueId ${getTranslation('regalo')} repeatcount giftName`, check: true },
+    { name: 'follow', text: `uniqueId ${getTranslation('te ah seguido')}`, check: true },
+    { name: 'like', text: `uniqueId ${getTranslation('le ah dado like')}`, check: false },
+    { name: 'share', text: `uniqueId ${getTranslation('ah compartido')}`, check: false },
+    { name: 'subscribe', text: `uniqueId ${getTranslation('se ah suscrito')}`, check: true },
+    { name: 'welcome', text: `uniqueId ${getTranslation('bienvenido')}`, check: false }
 ];
 class ChatMessageProcessor {
     constructor(initialTimeWindow = 1000, maxTimeWindow = 5000, sendCallback = console.log) {
@@ -67,57 +78,33 @@ class ChatMessageProcessor {
         this.currentTimeWindow = this.initialTimeWindow; // Resetear el tiempo dinámico
     }
 }
-let ttsdata = {}; // Inicialización predeterminada para evitar errores de referencia
-keys.forEach(({ key, check,text }) => {
-    const ischecked = typeof getTTSdatastore()[key]?.check === 'boolean' 
-    ? getTTSdatastore()[key]?.check 
+keys.forEach(({ name, check,text }) => {
+    const ischecked = typeof getTTSdatastore()[name]?.check === 'boolean' 
+    ? getTTSdatastore()[name]?.check 
     : check;
-
     voicechatconfig
         .addField({
             type: 'checkbox',
-            name: `${key}_check`,
-            label: `${key}`,
+            name: `${name}_check`,
+            label: `${name}`,
             value: ischecked,
             checked: ischecked,
-        },{rowGroup:`voice${key}`})
+        },{rowGroup:`voice${name}`})
         .addField({
-            type: 'text',
-            name: `${key}_text`,
-            label: `${key}`,
-            value: `${text}`,
-            placeholder: `${key} text`,
+            type: 'text',   
+            name: `${name}_text`,
+            label: `${name}`,
+            value: text,
+            placeholder: `${name} text`,
             showWhen: {
-                field: `${key}_check`,
+                field: `${name}_check`,
                 value: true
             }
-        },{rowGroup:`voice${key}`});
-});
-const createTTSConfig = (labelText,sumaryText='texto a leer') => ({
-    type: 'object',
-    class: 'input-default',
-    label: sumaryText,
-    check: {
-        class: 'filled-in flex-reverse-column',
-        label: getTranslation('activate'),
-        type: 'checkbox',
-        returnType: 'boolean',
-    },
-    text: {
-        class: 'input-default',
-        label: labelText,
-        type: 'text',
-        returnType: 'string',
-    },
+        },{rowGroup:`voice${name}`});
 });
 
-const { ttsconfig, ttsdata: newTtsData } = keys.reduce((acc, { key, text, check }) => {
-    acc.ttsconfig[key] = createTTSConfig(getTranslation('texttoread'), `${getTranslation('config')} ${getTranslation(key)}`);
-    acc.ttsdata[key] = { text, check };
-    return acc;
-}, { ttsconfig: {}, ttsdata: {} }); 
 
-console.log("ttsconfig",ttsconfig, ttsdata);
+
 console.log("ttsdata",getTTSdatastore(),flattenObject(getTTSdatastore()));
 voicechatconfig.render().toggleDarkMode(true);
 voicechatconfig.setSubmitButton({ 
@@ -125,13 +112,13 @@ voicechatconfig.setSubmitButton({
 });
 voicechatconfig.addEventListener('form-submit', (e) => {
     const data = unflattenObject(e.detail);
-    console.log('Datos modificados:', e.detail, data);
+    //console.log('Datos modificados:', e.detail, data);
     localStorage.setItem('ttsdatastore', JSON.stringify(data));
 });
 voicechatconfig.addEventListener('form-change', (e) => {
     const data = unflattenObject(e.detail);
-    console.log('Form values changed:', e.detail, data);
-
+    //console.log('Form values changed:', e.detail, data);
+    localStorage.setItem('ttsdatastore', JSON.stringify(data));
 });
 function getTTSdatastore() {
     let ttsdatastore = localStorage.getItem('ttsdatastore');
@@ -395,12 +382,12 @@ voiceapiconfig.addField({
 voiceapiconfig.render().toggleDarkMode(true);
 voiceapiconfig.addEventListener('form-submit', (e) => {
     const data = unflattenObject(e.detail);
-    console.log('Datos modificados:', e.detail, data);
+    //console.log('Datos modificados:', e.detail, data);
     localStorage.setItem('voicedatastore', JSON.stringify(data));
 });
 voiceapiconfig.addEventListener('form-change', (e) => {
     const data = unflattenObject(e.detail);
-    console.log('Form values changed:', e.detail, data);
+    //console.log('Form values changed:', e.detail, data);
     localStorage.setItem('voicedatastore', JSON.stringify(data));
 });
 
@@ -412,18 +399,6 @@ setTimeout(() => {
     console.log("mapVoiceList",mapVoiceList());
   }
 }, 500);
-const testdata = {
-    uniqueId: 'testUser',
-    comment: 'testComment',
-    likeCount: 50,
-    repeatCount: 123,
-    giftName: 'testgiftName',
-    diamondCount: 50,
-    followRole: 0,
-    userId: 1235646,
-    teamMemberLevel: 0,
-    subMonth: 0,
-}
 const chatProcessor = new ChatMessageProcessor(
     1000, // Tiempo inicial de espera
     2000, // Máximo tiempo de espera

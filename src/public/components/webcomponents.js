@@ -1889,17 +1889,16 @@ class DynamicForm extends HTMLElement {
   }
   toggleDarkMode(enabled = !this.formConfig.darkMode) {
       this.formConfig.darkMode = enabled;
-        const formContainer = this.shadowRoot.querySelector('form');
-        if (!formContainer) {
-          console.log("darkmode",this.shadowRoot)
-          return;
-        };
-        if (enabled) {
-            formContainer.classList.add('dark-mode');
-        } else {
-            formContainer.classList.remove('dark-mode');
-        }
-      return this;
+      const formContainer = this.shadowRoot.querySelector('form');
+      if (!this.shadowRoot.querySelector('.form-default')) {
+        formContainer.classList.add('form-default');
+      };
+
+      if (enabled) {
+          formContainer.classList.add('dark-mode');
+      } else {
+          formContainer.classList.remove('dark-mode');
+      }
   }
   emitchanges(){
     this.dispatchEvent(new CustomEvent('form-change', {
@@ -6226,10 +6225,12 @@ class AudioPlayer extends HTMLElement {
       <style>
         .audio-player {
           display: flex;
+          flex-wrap: wrap;
+
           align-items: center;
           justify-content: center;
-          gap: 1rem;
-          padding: 1rem;
+          gap: 0.5rem;
+          padding: 0.5rem;
         }
         .audio-player button {
           background-color: #4CAF50;
@@ -7045,14 +7046,22 @@ function generateMediaElement(file) {
 }
 class GridContainer extends HTMLElement {
   constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-      this.items = new Map(); // Usamos Map para mantener un registro de elementos con ID
-      this.nextId = 0; // Counter para generar IDs únicos
-      this.render();
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.items = new Map();
+    this.lazyItems = [];
+    this.nextId = 0;
+    this.render();
+
+    // Configuración de Intersection Observer
+    this.observer = new IntersectionObserver(this._onIntersect.bind(this), {
+      root: this.shadowRoot.querySelector('.container'),
+      rootMargin: '100px', // Margen para cargar antes de que entren en el viewport
+      threshold: 0.1, // Detectar cuando el 10% del elemento es visible
+    });
   }
 
-    render() {
+  render() {
       this.shadowRoot.innerHTML = /*html */`
           <style>
               :host {
@@ -7166,87 +7175,56 @@ class GridContainer extends HTMLElement {
   }
 
   filterItems(searchText) {
+    const searchLower = searchText.toLowerCase();
+
+    // Filtrar elementos ya renderizados
     this.items.forEach((itemData, id) => {
-        const input = itemData.element.querySelector('.content');
-        const text = input ? input.value.toLowerCase() : '';
-        const searchLower = searchText.toLowerCase();
-        
+        const text = itemData.content.toLowerCase();
         if (text.includes(searchLower)) {
             itemData.element.classList.remove('hidden');
         } else {
             itemData.element.classList.add('hidden');
         }
     });
-}
 
-  // Método para añadir un nuevo elemento
+    // Filtrar elementos no renderizados (lazyItems)
+    this.lazyItems.forEach((item) => {
+        const text = item.content.toLowerCase();
+        const matches = text.includes(searchLower);
+
+        if (matches) {
+            // Asegurarse de que el placeholder es visible si coincide
+            item.placeholder.classList.remove('hidden');
+        } else {
+            // Ocultar el placeholder si no coincide
+            item.placeholder.classList.add('hidden');
+        }
+    });
+  } 
+
+
   addItem(content, mediaUrl = '', mediaType = '', additionalData = {}) {
     const id = this._generateId();
-    const item = document.createElement('div');
-    item.className = 'grid-item';
-    item.dataset.id = id;
-    
-    let mediaElement = '';
-    if (mediaUrl) {
-      const sanitizedurl = mediaUrl.startsWith('http') ? mediaUrl : `/media/${mediaUrl}`;
-        if (mediaType.includes('video')) {
-            mediaElement = `<video src="${sanitizedurl}" controls></video>`;
-        } else {
-            mediaElement = `<img src="${sanitizedurl}" alt="${content || 'Item media'}">`;
-        }
-    }
 
-    item.innerHTML = `
-        <div class="item-content">
-            ${mediaElement}
-            <input class="content" type="text" value="${content}" readonly>
-            <button class="delete-btn hidden">🗑️</button>
-        </div>
-    `;
+    // Crear placeholder para el elemento
+    const placeholder = document.createElement('div');
+    placeholder.className = 'grid-item';
+    placeholder.dataset.id = id;
+    this.container.appendChild(placeholder);
 
-    // Añadir eventos de hover para mostrar/ocultar botón de eliminar
-    item.addEventListener('mouseenter', () => {
-        const deleteBtn = item.querySelector('.delete-btn');
-        deleteBtn.classList.remove('hidden');
+    // Almacenar datos del item en la lista de elementos pendientes
+    this.lazyItems.push({
+      id,
+      content,
+      mediaUrl,
+      mediaType,
+      additionalData,
+      placeholder,
     });
 
-    item.addEventListener('mouseleave', () => {
-        const deleteBtn = item.querySelector('.delete-btn');
-        deleteBtn.classList.add('hidden');
-    });
+    // Observar el placeholder para detectar cuándo debe renderizarse
+    this.observer.observe(placeholder);
 
-    // Evento para eliminar el elemento
-    const deleteBtn = item.querySelector('.delete-btn');
-    deleteBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evitar que se dispare el evento de click del item
-        this.removeItem(id);
-    });
-
-    item.addEventListener('click', () => {
-        const detail = {
-            id,
-            content,
-            mediaUrl,
-            mediaType,
-            additionalData,
-        };
-        
-        const event = new CustomEvent('itemClick', {
-            detail,
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
-    });
-
-    this.container.appendChild(item);
-    this.items.set(id, {
-        element: item,
-        content,
-        mediaUrl,
-        mediaType
-    });
-    this._emitchanges();
     return id;
   }
   _emitchanges() {
@@ -7256,13 +7234,67 @@ class GridContainer extends HTMLElement {
                     composed: true
                 }));
   }
-  // Método para limpiar todos los elementos
-  clearAll() {
-      this.container.innerHTML = '';
-      this.items.clear();
-      this.nextId = 0;
-  }
+  _onIntersect(entries) {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const placeholder = entry.target;
+        const id = placeholder.dataset.id;
+        const itemData = this.lazyItems.find((item) => item.id === id);
 
+        if (itemData) {
+          this._renderItem(itemData);
+          this.observer.unobserve(placeholder); // Dejar de observar el elemento una vez renderizado
+        }
+      }
+    });
+  }
+    // Método para renderizar un elemento completo
+  _renderItem({ id, content, mediaUrl, mediaType, additionalData, placeholder }) {
+    let mediaElement = '';
+    if (mediaUrl) {
+      const sanitizedUrl = mediaUrl.startsWith('http') ? mediaUrl : `/media/${mediaUrl}`;
+      if (mediaType.includes('video')) {
+        mediaElement = `<video src="${sanitizedUrl}" controls></video>`;
+      } else {
+        mediaElement = `<img src="${sanitizedUrl}" alt="${content || 'Item media'}">`;
+      }
+    }
+
+    const item = document.createElement('div');
+    item.className = 'grid-item visible';
+    item.dataset.id = id;
+
+    item.innerHTML = `
+      ${mediaElement}
+      <div>${content}</div>
+    `;
+
+    // Reemplazar placeholder por el item renderizado
+    placeholder.replaceWith(item);
+    // Emitir evento onclick
+    item.addEventListener('click', () => {
+      const event = new CustomEvent('itemClick', {
+        detail: {
+          id,
+          content,
+          mediaUrl,
+          mediaType,
+          additionalData,
+        },
+        bubbles: true,
+        composed: true,
+      });
+      this.dispatchEvent(event);
+    });
+    // Guardar en el Map
+    this.items.set(id, {
+      element: item,
+      content,
+      mediaUrl,
+      mediaType,
+      additionalData,
+    });
+  }
   // Método para modificar un elemento específico
   updateItem(id, newContent, newMediaUrl = '', newMediaType = '') {
       const itemData = this.items.get(id);
@@ -7325,7 +7357,16 @@ class GridContainer extends HTMLElement {
 
   // Método privado para generar IDs únicos
   _generateId() {
-      return `item-${this.nextId++}`;
+    return `item-${this.nextId++}`;
+  }
+
+  // Limpieza de todos los elementos y observadores
+  clearAll() {
+    this.observer.disconnect();
+    this.container.innerHTML = '';
+    this.items.clear();
+    this.lazyItems = [];
+    this.nextId = 0;
   }
 }
 
