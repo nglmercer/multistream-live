@@ -12,6 +12,8 @@ const __dirname = dirname(__filename);
 import WindowManager from './features/window-manager.js'; */
 const WindowManager = require('./features/window-manager.js');
 const keynut = require("./features/keycontroll.js");
+const Store = require('./features/store.js');
+const store = new Store();
 
 const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
 const  { createClient } = require('@retconned/kick-js'); 
@@ -369,7 +371,7 @@ let lastromdata = {};
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id, "disponible connections",Livescreated);
     socket.emit('allConnections', getAllConnectionsInfo());
-
+        
     socket.on('joinRoom', async ({ platform, uniqueId }) => {
       try {
         if (!Object.values(PlatformType).includes(platform)) {
@@ -427,6 +429,7 @@ io.on('connection', (socket) => {
       Array.from(windowManager.getWindows().entries())
         .map(([id, config]) => ({ id, ...config }))
     );
+    socket.on("storemanager", (data) => handleStoreManager(socket, data));
     socket.on("presskey", (key) => handleKeyPress(socket, key));
     socket.on("pressKey2", (key) => handleKeyPress2(socket, key));
     socket.on('disconnect', () => {
@@ -442,6 +445,10 @@ io.on('connection', (socket) => {
       }
     });
 });
+function handleStoreManager(socket, data) {
+  console.log("handleStoreManager", data, socket.id);
+
+}
 windowManager.on('window-created', (data) => {
   io.emit('window-created', data);
 });
