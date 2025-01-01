@@ -6,7 +6,7 @@
  *
  * https://www.electronjs.org/docs/latest/tutorial/sandbox
  */
-const { contextBridge, webUtils } = require('electron');
+const { contextBridge, webUtils,ipcRenderer } = require('electron');
 //import { contextBridge, webUtils } from 'electron';
 console.log("preload.js")
 contextBridge.exposeInMainWorld('electron', {
@@ -17,4 +17,8 @@ contextBridge.exposeInMainWorld('electron', {
     //alert(`Uploaded file path was: ${path}`);
     return path
   },  
+});
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    onShortcutTriggered: (callback) => ipcRenderer.on('shortcut-triggered', (event, data) => callback(data)),
 });

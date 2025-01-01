@@ -45,6 +45,13 @@
       
     </div>
   </side-bar>
+  <script>
+    // Asegúrate de que esto se ejecuta después de que el DOM esté listo
+window.electronAPI.onShortcutTriggered((data) => {
+    console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`);
+});
+
+  </script>
     <main-content>
       <div slot="1-content" class="bg-slate-800 text-white">
           <section class="section" id="users">

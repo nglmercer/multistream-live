@@ -136,15 +136,15 @@ essapp.get('/media/*', (req, res) => {
     });
   });
 let mainWindow;
-  function createWindow () {
-    mainWindow = new BrowserWindow({
-      webPreferences: {
-        preload: path.join(__dirname, 'preload.js'), // Ruta absoluta al archivo preload        sandbox: false,
-      },
-    });
-    const url = `http://localhost:${port}`
-    mainWindow.loadURL(url)
-  }
+function createWindow () {
+  mainWindow = new BrowserWindow({
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'), // Ruta absoluta al archivo preload        sandbox: false,
+    },
+  });
+  const url = `http://localhost:${port}`
+  mainWindow.loadURL(url)
+}
   // essapp.get('/', (req, res) => {
     //     res.sendFile(__dirname + '/public/index.html');
     // });
@@ -471,8 +471,9 @@ app.whenReady().then(() => {
 createWindow()
 app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
-      registerAllShortcuts();
 })
+registerAllShortcuts();
+
 })
 
 app.on('window-all-closed', function () {
@@ -510,6 +511,7 @@ function registerAllShortcuts() {
     Object.entries(shortcuts).forEach(([name, shortcut]) => {
         registerShortcut(name, shortcut);
     });
+    console.log("registerAllShortcuts", shortcuts);
 }
 
 function unregisterAllShortcuts() {
@@ -517,24 +519,36 @@ function unregisterAllShortcuts() {
     registeredShortcuts = {};
 }
 function registerShortcut(name, shortcut) {
-    if (!shortcut || !shortcut.replace) {
+  if (!shortcut || !Array.isArray(shortcut) || shortcut.length === 0) {
       console.log(`No shortcut found for ${name}`, shortcut);
-
       return;
-    }
-    const accelerator = shortcut.replace(/\bCtrl\b/g, 'CommandOrControl')
-                               .replace(/\bAlt\b/g, 'Alt')
-                               .replace(/\bShift\b/g, 'Shift')
-                               .replace(/\bMeta\b/g, 'Super');
-                               
-    try {
+  }
+
+  // Convert the array of keys into a properly formatted accelerator string
+  const accelerator = shortcut
+      .map((key) =>
+          key.replace(/\bCtrl\b/i, 'CommandOrControl')
+             .replace(/\bAlt\b/i, 'Alt')
+             .replace(/\bShift\b/i, 'Shift')
+             .replace(/\bMeta\b/i, 'Super')
+      )
+      .join('+');
+
+  try {
+      if (globalShortcut.isRegistered(accelerator)) {
+          console.log(`Shortcut already registered: ${name}`, shortcut);
+          return;
+      }
+
       globalShortcut.register(accelerator, () => {
-        mainWindow.webContents.send('shortcut-triggered', { name, shortcut });
+          mainWindow.webContents.send('shortcut-triggered', { name, shortcut });
+          console.log(`Shortcut triggered: Name = ${name}, Shortcut = ${shortcut}`);
       });
+
       registeredShortcuts[name] = accelerator;
-    } catch (error) {
-      console.error(`Failed to register shortcut: ${name}`, error);
-    }
+  } catch (error) {
+      console.error(`Failed to register shortcut for ${name}:`, shortcut, error);
+  }
 }
 function toggleShortcuts(enabled) {
     shortcutsEnabled = enabled;
