@@ -6,8 +6,31 @@ import { ActionsManager } from './features/Actions.js';
 import { EventsManager } from './features/Events.js';
 import { sendcommandmc } from './features/Minecraftconfig.js';
 import  socketManager  from './server/socketManager.js';
-//import { text } from 'express';
 let client = tmi.client();
+
+socketManager.onMessage("shortcuts", (shortcuts) => {
+  /* shortcuts object
+  @param {string} name - The name of the shortcut
+  value {array} shortcut - The shortcut itself
+  */
+ const mapdshortcuts = Object.entries(shortcuts).map(([name, shortcut]) => ({
+    name,
+    shortcut,
+    id: name
+  }));
+  console.log("shortcuts", shortcuts, mapdshortcuts);
+  const shortcutContainer = document.getElementById('shortcutContainer');
+  mapdshortcuts.forEach((shortcut) => {
+    const shortcutElement = document.createElement('shortcut-form');
+    shortcutElement.setShortcut(shortcut);
+    shortcutContainer.appendChild(shortcutElement);
+    shortcutElement.addEventListener('save-shortcut', (e) => {
+      console.log('Saved shortcut:', name, e.detail);
+      // Aquí puedes agregar la lógica para guardar el atajo
+    });
+  });
+});
+//import { text } from 'express';
 const overlayfilesmanager = new LocalStorageManager('filePaths');
 const socket = io();
 const userProfile = document.querySelector('#kicklogin');

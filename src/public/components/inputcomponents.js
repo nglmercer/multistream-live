@@ -143,161 +143,151 @@ class toggleComponent extends HTMLElement {
 customElements.define('toggle-element', toggleComponent);
 
 
-  class ShortcutForm extends HTMLElement {
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-      this.shadowRoot.innerHTML = `
-        <style>
-    :host {
-      display: block;
-      background-color: #121212;
-      color: white;
-      padding: 16px;
-      border-radius: 8px;
-      width: 300px;
+class ShortcutForm extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          background-color: #121212;
+          color: white;
+          padding: 16px;
+          border-radius: 8px;
+          width: 300px;
+        }
+
+        h2 {
+          text-align: center;
+        }
+
+        .shortcut-input {
+          padding: 8px;
+          margin: 8px 0;
+          background-color: #333;
+          color: white;
+          border: 1px solid #555;
+          border-radius: 4px;
+        }
+
+        .shortcut-input:focus {
+          outline: none;
+          border-color: #fff;
+        }
+
+        button {
+          width: 48%;
+          padding: 8px;
+          margin: 8px 1%;
+          background-color: #4CAF50;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+
+        button:hover {
+          background-color: #45a049;
+        }
+
+        #cancelBtn {
+          background-color: #f44336;
+        }
+
+        #cancelBtn:hover {
+          background-color: #e53935;
+        }
+      </style>
+
+      <div class="shortcut-form">
+        <h2>Add New Shortcut</h2>
+        <input type="text" id="shortcutName" placeholder="Shortcut Name" class="shortcut-input"><br>
+        <input type="text" id="shortcutKeys" placeholder="Click to record shortcut" readonly class="shortcut-input"><br>
+        <button id="saveBtn">Save Shortcut</button>
+        <button id="cancelBtn" style="display:none;">Cancel</button>
+      </div>
+    `;
+
+    this.shortcutName = this.shadowRoot.getElementById('shortcutName');
+    this.shortcutInput = this.shadowRoot.getElementById('shortcutKeys');
+    this.saveBtn = this.shadowRoot.getElementById('saveBtn');
+    this.cancelBtn = this.shadowRoot.getElementById('cancelBtn');
+
+    this.activeKeys = new Set();
+    this.currentShortcut = [];
+    this.editingShortcutId = null;
+
+    this.shortcutInput.addEventListener('focus', () => this.activeKeys.clear());
+    this.shortcutInput.addEventListener('keydown', (e) => this.onKeyDown(e));
+    this.shortcutInput.addEventListener('keyup', (e) => this.onKeyUp(e));
+
+    this.saveBtn.addEventListener('click', () => this.saveShortcut());
+    this.cancelBtn.addEventListener('click', () => this.resetForm());
+  }
+
+  onKeyDown(e) {
+    e.preventDefault();
+    const key = e.key === ' ' ? 'Space' : e.key;
+    if (!this.activeKeys.has(key)) {
+      this.activeKeys.add(key);
+    } else {
+      this.activeKeys.delete(key);
     }
+    this.updateShortcutDisplay();
+  }
 
-    h2 {
-      text-align: center;
-    }
-
-    .shortcut-input {
-      padding: 8px;
-      margin: 8px 0;
-      background-color: #333;
-      color: white;
-      border: 1px solid #555;
-      border-radius: 4px;
-    }
-
-    .shortcut-input:focus {
-      outline: none;
-      border-color: #fff;
-    }
-
-    button {
-      width: 48%;
-      padding: 8px;
-      margin: 8px 1%;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #45a049;
-    }
-
-    #cancelBtn {
-      background-color: #f44336;
-    }
-
-    #cancelBtn:hover {
-      background-color: #e53935;
-    }
-  </style>
-
-  <div class="shortcut-form">
-    <h2>Add New Shortcut</h2>
-    <input type="text" id="shortcutName" placeholder="Shortcut Name" class="shortcut-input"><br>
-    <input type="text" id="shortcutKeys" placeholder="Click to record shortcut" readonly class="shortcut-input"><br>
-    <button id="saveBtn">Save Shortcut</button>
-    <button id="cancelBtn" style="display:none;">Cancel</button>
-  </div>
-  `;
-
-      this.shortcutName = this.shadowRoot.getElementById('shortcutName');
-      this.shortcutInput = this.shadowRoot.getElementById('shortcutKeys');
-      this.saveBtn = this.shadowRoot.getElementById('saveBtn');
-      this.cancelBtn = this.shadowRoot.getElementById('cancelBtn');
-
-      this.activeKeys = new Set();
-      this.currentShortcut = [];
-      this.editingShortcutId = null;
-
-      this.shortcutInput.addEventListener('focus', () => this.activeKeys.clear());
-      this.shortcutInput.addEventListener('keydown', (e) => this.onKeyDown(e));
-      this.shortcutInput.addEventListener('keyup', (e) => this.onKeyUp(e));
-
-      this.saveBtn.addEventListener('click', () => this.saveShortcut());
-      this.cancelBtn.addEventListener('click', () => this.resetForm());
-    }
-
-    onKeyDown(e) {
-      e.preventDefault();
-      const key = e.key === ' ' ? 'Space' : e.key;
-      if (!this.activeKeys.has(key)) {
-        this.activeKeys.add(key);
-      } else {
-        this.activeKeys.delete(key);
-      }
-      this.updateShortcutDisplay();
-    }
-
-    onKeyUp(e) {
-      e.preventDefault();
-      if (this.activeKeys.size === 0) {
-        this.registerCurrentGroup();
-      }
-    }
-
-    updateShortcutDisplay() {
-      const activeGroup = Array.from(this.activeKeys).join(' + ');
-      this.shortcutInput.value = [...this.currentShortcut, activeGroup].filter(Boolean).join(' , ');
-    }
-
-    registerCurrentGroup() {
-      const activeGroup = Array.from(this.activeKeys).sort().join(' + ');
-      if (activeGroup) {
-        this.currentShortcut.push(activeGroup);
-      }
-      this.updateShortcutDisplay();
-    }
-
-    saveShortcut() {
-      if (this.shortcutInput.value) {
-        // Emitir el evento con el array de teclas
-        this.dispatchEvent(new CustomEvent('save-shortcut', {
-          detail: {
-            name: this.shortcutName.value || this.shortcutInput.value,
-            shortcut: Array.from(this.activeKeys), // Emitir como array de teclas
-            oldName: this.editingShortcutId
-          }
-        }));
-        this.resetForm();
-      }
-    }
-
-    resetForm() {
-      this.shortcutName.value = '';
-      this.shortcutInput.value = '';
-      this.currentShortcut = [];
-      this.activeKeys.clear();
-      this.editingShortcutId = null;
-      this.saveBtn.textContent = 'Save Shortcut';
-      this.cancelBtn.style.display = 'none';
-    }
-
-    editShortcut(name, shortcut) {
-      this.editingShortcutId = name;
-      this.shortcutName.value = name;
-      this.shortcutInput.value = shortcut;
-      this.currentShortcut = shortcut.split(' + ');
-      this.saveBtn.textContent = 'Update Shortcut';
-      this.cancelBtn.style.display = 'inline-block';
-    }
-
-    deleteShortcut(name) {
-      if (confirm(`Are you sure you want to delete the shortcut "${name}"?`)) {
-        // Emitir un evento para eliminar el atajo
-        this.dispatchEvent(new CustomEvent('delete-shortcut', {
-          detail: { name }
-        }));
-      }
+  onKeyUp(e) {
+    e.preventDefault();
+    if (this.activeKeys.size === 0) {
+      this.registerCurrentGroup();
     }
   }
 
-  customElements.define('shortcut-form', ShortcutForm);
+  updateShortcutDisplay() {
+    const activeGroup = Array.from(this.activeKeys).join(' + ');
+    this.shortcutInput.value = [...this.currentShortcut, activeGroup].filter(Boolean).join(' , ');
+  }
+
+  registerCurrentGroup() {
+    const activeGroup = Array.from(this.activeKeys).sort().join(' + ');
+    if (activeGroup) {
+      this.currentShortcut.push(activeGroup);
+    }
+    this.updateShortcutDisplay();
+  }
+
+  saveShortcut() {
+    if (this.shortcutInput.value) {
+      this.dispatchEvent(new CustomEvent('save-shortcut', {
+        detail: {
+          name: this.shortcutName.value || this.shortcutInput.value,
+          shortcut: Array.from(this.activeKeys),
+          oldName: this.editingShortcutId
+        }
+      }));
+      this.resetForm();
+    }
+  }
+
+  resetForm() {
+    this.shortcutName.value = '';
+    this.shortcutInput.value = '';
+    this.currentShortcut = [];
+    this.activeKeys.clear();
+    this.editingShortcutId = null;
+    this.saveBtn.textContent = 'Save Shortcut';
+    this.cancelBtn.style.display = 'none';
+  }
+
+  setShortcut({ name, shortcut, id }) {
+    this.shortcutName.value = name || '';
+    this.currentShortcut = shortcut || [];
+    this.editingShortcutId = id || null;
+    this.shortcutInput.value = this.currentShortcut.join(' , ');
+    this.saveBtn.textContent = id ? 'Update Shortcut' : 'Save Shortcut';
+    this.cancelBtn.style.display = id ? 'inline-block' : 'none';
+  }
+}
+
+customElements.define('shortcut-form', ShortcutForm);

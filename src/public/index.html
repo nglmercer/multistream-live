@@ -45,13 +45,7 @@
       
     </div>
   </side-bar>
-  <script>
-    // Asegúrate de que esto se ejecuta después de que el DOM esté listo
-window.electronAPI.onShortcutTriggered((data) => {
-    console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`);
-});
 
-  </script>
     <main-content>
       <div slot="1-content" class="bg-slate-800 text-white">
           <section class="section" id="users">
@@ -138,6 +132,7 @@ window.electronAPI.onShortcutTriggered((data) => {
           <section class="section" id="shorcuts">
             <h1 class="text-3xl font-bold mb-6">Shorcuts</h1>
             <toggle-element checked="true" label="Shorcuts" id="toggleShortcuts"></toggle-element>
+
             <script>
               const toggleShortcuts = document.getElementById('toggleShortcuts');
               toggleShortcuts.addEventListener('toggle-switch-change', (e) => {
@@ -146,6 +141,11 @@ window.electronAPI.onShortcutTriggered((data) => {
               setTimeout(() => {
                 toggleShortcuts.setChecked( false);
               }, 1000);
+                  // Asegúrate de que esto se ejecuta después de que el DOM esté listo
+              window.electronAPI.onShortcutTriggered((data) => {
+                  console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`);
+              });
+
             </script>
             <button class="open-modal-btn" onclick="document.getElementById('shortcutFormContainer').open()">Add Shortcut</button>
             <custom-modal modal-type="form" id="shortcutFormContainer">
@@ -153,6 +153,9 @@ window.electronAPI.onShortcutTriggered((data) => {
                 <shortcut-form id="shortcutForm"></shortcut-form>
               </div>
             </custom-modal>
+            <div class="flex flex-wrap" id="shortcutContainer">
+
+            </div>
           </section>
 
       </div>

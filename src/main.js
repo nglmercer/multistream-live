@@ -372,7 +372,7 @@ let lastromdata = {};
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id, "disponible connections",Livescreated);
     socket.emit('allConnections', getAllConnectionsInfo());
-        
+    socket.emit('shortcuts', getshortcuts());
     socket.on('joinRoom', async ({ platform, uniqueId }) => {
       try {
         if (!Object.values(PlatformType).includes(platform)) {
