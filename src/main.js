@@ -431,6 +431,7 @@ io.on('connection', (socket) => {
         .map(([id, config]) => ({ id, ...config }))
     );
     socket.on("storemanager", (data) => handleStoreManager(socket, data));
+    socket.on("toggle-shortcuts", (enabled) => toggleShortcuts(enabled));
     socket.on("presskey", (key) => handleKeyPress(socket, key));
     socket.on("pressKey2", (key) => handleKeyPress2(socket, key));
     socket.on('disconnect', () => {
