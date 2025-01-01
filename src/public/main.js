@@ -845,3 +845,11 @@ const sendWebhookData = async (url,action, data) => {
       console.error('Error:', error);
   }
 };
+const shortcutForm = document.getElementById('shortcutForm');
+
+shortcutForm.addEventListener('save-shortcut', (e) => {
+  const { name, shortcut } = e.detail;
+  console.log('Saved shortcut:', name, e.detail);
+  socketManager.emitMessage('storemanager', { name, shortcut,action: 'save' });
+  // Aquí puedes agregar la lógica para guardar el atajo
+});

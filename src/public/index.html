@@ -12,6 +12,7 @@
   </head>
   <script src="./server/tmi.min.js"></script>
   <script type="module" src="./components/webcomponents.js"></script>
+  <script type="module" src="./components/inputcomponents.js"></script>
   <script type="module" src="./components/navwebcomponent.js"></script>
   <script type="module" src="./main.js"></script>
   <script type="module" src="./audio/tts.js"></script>
@@ -127,6 +128,25 @@
             <preview-webcomponent id="iframeweb" link="http://localhost:9000/overlaya.html" showpreview="false" theme="dark"></preview-webcomponent>
           
           </section>
+          <section class="section" id="shorcuts">
+            <h1 class="text-3xl font-bold mb-6">Shorcuts</h1>
+            <toggle-element checked="true" label="Shorcuts" id="toggleShortcuts"></toggle-element>
+            <script>
+              const toggleShortcuts = document.getElementById('toggleShortcuts');
+              toggleShortcuts.addEventListener('toggle-switch-change', (e) => {
+                console.log('Shorcuts toggled:', e.detail.checked);
+              });
+              setTimeout(() => {
+                toggleShortcuts.setChecked( false);
+              }, 1000);
+            </script>
+            <button class="open-modal-btn" onclick="document.getElementById('shortcutFormContainer').open()">Add Shortcut</button>
+            <custom-modal modal-type="form" id="shortcutFormContainer">
+              <div id="shortcutFormContent">
+                <shortcut-form id="shortcutForm"></shortcut-form>
+              </div>
+            </custom-modal>
+          </section>
 
       </div>
       <div slot="5-content" class="flex justify-center w-full">
@@ -194,15 +214,16 @@
         }, 500);
     }
     function setActivePage(pageName) {
+      const pagename = pageName.replaceAll(' ','');
         // Dispatch a custom event to trigger page change
         const pageChangeEvent = new CustomEvent('page-changed', {
-          detail: pageName,
+          detail: pagename,
           bubbles: true,
           composed: true
         });
         document.dispatchEvent(pageChangeEvent);
 
-        console.log(`Active page changed to: ${pageName}`);
+        console.log(`Active page changed to: ${pagename}`);
       }
   </script>
   <script>

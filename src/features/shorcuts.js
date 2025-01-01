@@ -1,8 +1,9 @@
 const { globalShortcut } = require('electron');
 let shortcutsEnabled = true;
 let registeredShortcuts = {};
+let laststore = null;
 function registerAllShortcuts(store) {
-    const shortcuts = store.get('shortcuts') || {};
+    const shortcuts = getshortcuts(store);
     Object.entries(shortcuts).forEach(([name, shortcut]) => {
         registerShortcut(name, shortcut);
     });
@@ -13,6 +14,11 @@ function unregisterAllShortcuts() {
     registeredShortcuts = {};
 }
 function registerShortcut(name, shortcut) {
+    if (!shortcut || !shortcut.replace) {
+      console.log(`No shortcut found for ${name}`, shortcut);
+
+      return;
+    }
     const accelerator = shortcut.replace(/\bCtrl\b/g, 'CommandOrControl')
                                .replace(/\bAlt\b/g, 'Alt')
                                .replace(/\bShift\b/g, 'Shift')
@@ -38,8 +44,8 @@ function toggleShortcuts(enabled) {
     return shortcutsEnabled;
 }
 function saveshortcuts(data, store) {
-    const shortcuts = store.get('shortcuts') || {};
-  
+  const shortcuts = getshortcuts(store);
+  console.log("saveshortcuts",data,store, shortcuts)  
     if (data.oldName && data.oldName !== data.name) {
       delete shortcuts[data.oldName];
     }
@@ -49,7 +55,7 @@ function saveshortcuts(data, store) {
     
     if (shortcutsEnabled) {
       unregisterAllShortcuts();
-      registerAllShortcuts();
+      registerAllShortcuts(store);
     }
     return shortcuts;
 }
@@ -60,11 +66,16 @@ function deleteshortcuts(name, store) {
     
     if (shortcutsEnabled) {
       unregisterAllShortcuts();
-      registerAllShortcuts();
+      registerAllShortcuts(store);
     }
     return shortcuts;
 }
 function getshortcuts(store) {
+  try {
     return store.get('shortcuts') || {};
+    } catch (error) {
+        console.error('Error getting shortcuts:', error);
+        return {};
+    }
 }
 module.exports = { toggleShortcuts, saveshortcuts, deleteshortcuts, getshortcuts };
