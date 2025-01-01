@@ -505,7 +505,7 @@ function handleKeyPress(socket, key) {
   }
 }
 let shortcutsEnabled = true;
-let registeredShortcuts = {};
+let registeredShortcuts = new Set();
 function registerAllShortcuts() {
     const shortcuts = getshortcuts(store);
     Object.entries(shortcuts).forEach(([name, shortcut]) => {
@@ -515,10 +515,11 @@ function registerAllShortcuts() {
 }
 
 function unregisterAllShortcuts() {
+    registeredShortcuts.clear();
     globalShortcut.unregisterAll();
-    registeredShortcuts = {};
 }
 function registerShortcut(name, shortcut) {
+  globalShortcut.unregisterAll();
   if (!shortcut || !Array.isArray(shortcut) || shortcut.length === 0) {
       console.log(`No shortcut found for ${name}`, shortcut);
       return;
@@ -539,13 +540,15 @@ function registerShortcut(name, shortcut) {
           console.log(`Shortcut already registered: ${name}`, shortcut);
           return;
       }
-
+//aaa
       globalShortcut.register(accelerator, () => {
           mainWindow.webContents.send('shortcut-triggered', { name, shortcut });
-          console.log(`Shortcut triggered: Name = ${name}, Shortcut = ${shortcut}`);
+          console.log(`Shortcut triggered: Name = ${name}, Shortcut = ${shortcut}`,accelerator);
+          if (!registeredShortcuts.has(accelerator)) {
+            registeredShortcuts.add(accelerator);
+          }
       });
 
-      registeredShortcuts[name] = accelerator;
   } catch (error) {
       console.error(`Failed to register shortcut for ${name}:`, shortcut, error);
   }
@@ -594,4 +597,12 @@ function getshortcuts() {
         console.error('Error getting shortcuts:', error);
         return {};
     }
+}
+function unregisterGlobalShortcut(accelerator) {
+  if (registeredShortcuts.has(accelerator)) {
+    globalShortcut.unregister(accelerator);
+    registeredShortcuts.delete(accelerator);
+    return true;
+  }
+  return false;
 }

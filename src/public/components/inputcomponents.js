@@ -291,3 +291,202 @@ class ShortcutForm extends HTMLElement {
 }
 
 customElements.define('shortcut-form', ShortcutForm);
+class SearchTable extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.data = [];
+    this.actions = []; // Array para almacenar las acciones/botones
+  }
+
+  connectedCallback() {
+    this.render();
+    this.setupEventListeners();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: block;
+          font-family: Arial, sans-serif;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        th, td {
+          border: 1px solid #ddd;
+          padding: 8px;
+          text-align: left;
+        }
+        th {
+          background-color: #111;
+        }
+        input {
+          width: 100%;
+          padding: 8px;
+          margin-bottom: 10px;
+        }
+        button {
+          background-color: #4CAF50;
+          border: none;
+          color: white;
+          padding: 5px 10px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 12px;
+          margin: 2px 2px;
+          cursor: pointer;
+        }
+        .hidden {
+          display: none;
+        }
+      </style>
+      <input type="text" id="searchInput" placeholder="Buscar...">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Detalles</th>
+            <th class="actions-header hidden">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    `;
+  }
+
+  // Método para configurar las acciones
+  setActions(actions) {
+    this.actions = actions;
+    const actionsHeader = this.shadowRoot.querySelector('.actions-header');
+    actionsHeader.classList.toggle('hidden', this.actions.length === 0);
+    this.renderTable();
+  }
+
+  setupEventListeners() {
+    const searchInput = this.shadowRoot.getElementById('searchInput');
+    searchInput.addEventListener('input', () => this.filterTable(searchInput.value));
+  }
+
+  setData(data) {
+    this.data = data;
+    this.renderTable();
+  }
+
+  renderTable() {
+    const tableBody = this.shadowRoot.getElementById('tableBody');
+    tableBody.innerHTML = '';
+    
+    this.data.forEach(item => {
+      const row = document.createElement('tr');
+      
+      let html = `
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td>${this.renderDetails(item)}</td>
+      `;
+
+      // Solo añadir la celda de acciones si hay botones configurados
+      if (this.actions.length > 0) {
+        html += '<td class="actions-cell">' + 
+          this.actions.map(action => `
+            <button data-action="${action.name}">${action.label}</button>
+          `).join('') + 
+        '</td>';
+      }
+
+      row.innerHTML = html;
+      
+      // Configurar los event listeners para cada botón
+      if (this.actions.length > 0) {
+        const buttons = row.querySelectorAll('button');
+        buttons.forEach(button => {
+          button.addEventListener('click', () => {
+            const actionName = button.dataset.action;
+            const action = this.actions.find(a => a.name === actionName);
+            if (action) {
+              this.emitActionEvent(actionName, item);
+            }
+          });
+        });
+      }
+
+      tableBody.appendChild(row);
+    });
+  }
+
+  renderDetails(item) {
+    const details = Object.entries(item)
+      .filter(([key]) => !['id', 'name'].includes(key))
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ');
+    return details;
+  }
+
+  filterTable(searchTerm) {
+    const filteredData = this.data.filter(item => 
+      Object.values(item).some(value => 
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    this.renderFilteredTable(filteredData);
+  }
+
+  renderFilteredTable(filteredData) {
+    const tableBody = this.shadowRoot.getElementById('tableBody');
+    tableBody.innerHTML = '';
+    
+    filteredData.forEach(item => {
+      const row = document.createElement('tr');
+      
+      let html = `
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td>${this.renderDetails(item)}</td>
+      `;
+
+      if (this.actions.length > 0) {
+        html += '<td class="actions-cell">' + 
+          this.actions.map(action => `
+            <button data-action="${action.name}">${action.label}</button>
+          `).join('') + 
+        '</td>';
+      }
+
+      row.innerHTML = html;
+      
+      if (this.actions.length > 0) {
+        const buttons = row.querySelectorAll('button');
+        buttons.forEach(button => {
+          button.addEventListener('click', () => {
+            const actionName = button.dataset.action;
+            const action = this.actions.find(a => a.name === actionName);
+            if (action && action.handler) {
+              this.emitActionEvent(actionName, item);
+            }
+          });
+        });
+      }
+
+      tableBody.appendChild(row);
+    });
+  }
+
+  emitActionEvent(actionName, item) {
+    const event = new CustomEvent('action-triggered', {
+      detail: {
+        action: actionName,
+        item: item
+      },
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
+  }
+}
+
+customElements.define('search-table', SearchTable);

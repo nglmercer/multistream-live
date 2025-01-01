@@ -20,7 +20,7 @@ socketManager.onMessage("shortcuts", (shortcuts) => {
   }));
   console.log("shortcuts", shortcuts, mapdshortcuts);
   const shortcutContainer = document.getElementById('shortcutContainer');
-  mapdshortcuts.forEach((shortcut) => {
+/*   mapdshortcuts.forEach((shortcut) => {
     const shortcutElement = document.createElement('shortcut-form');
     shortcutElement.setShortcut(shortcut);
     shortcutContainer.appendChild(shortcutElement);
@@ -28,6 +28,22 @@ socketManager.onMessage("shortcuts", (shortcuts) => {
       console.log('Saved shortcut:', name, e.detail);
       // Aquí puedes agregar la lógica para guardar el atajo
     });
+  }); */
+  const shortcutTable = document.getElementById('shortcutTable');
+  shortcutTable.setData(mapdshortcuts);
+  shortcutTable.setActions([
+    { 
+      name: 'edit', 
+      label: 'Editar'
+    },
+    { 
+      name: 'delete', 
+      label: 'Eliminar'
+    }
+  ]);
+  shortcutTable.addEventListener('action-triggered', (event) => {
+    const { action, item } = event.detail;
+    console.log(`Acción ${action} ejecutada para el item:`, item);
   });
 });
 //import { text } from 'express';
