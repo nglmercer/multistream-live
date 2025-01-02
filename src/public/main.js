@@ -7,28 +7,29 @@ import { EventsManager } from './features/Events.js';
 import { sendcommandmc } from './features/Minecraftconfig.js';
 import  socketManager  from './server/socketManager.js';
 let client = tmi.client();
-
+if (localStorage.getItem('shortcuts_array'))  {
+  const shortcuts = JSON.parse(localStorage.getItem('shortcuts_array'));
+  console.log("shortcuts", shortcuts);
+  createShortcuttable(shortcuts);
+}
 socketManager.onMessage("shortcuts-event", (shortcuts) => {
   /* shortcuts object
   @param {string} name - The name of the shortcut
   value {array} shortcut - The shortcut itself
   */
- const mapdshortcuts = Object.entries(shortcuts).map(([name, shortcut]) => ({
+ const mapdshortcuts = mapobjtoarray(shortcuts);
+ console.log("shortcuts", shortcuts, mapdshortcuts);
+ createShortcuttable(mapdshortcuts);
+});
+function mapobjtoarray(shortcuts) {
+  const mapdshortcuts = Object.entries(shortcuts).map(([name, shortcut]) => ({
     name,
     shortcut,
     id: name
   }));
-  console.log("shortcuts", shortcuts, mapdshortcuts);
-  const shortcutContainer = document.getElementById('shortcutContainer');
-/*   mapdshortcuts.forEach((shortcut) => {
-    const shortcutElement = document.createElement('shortcut-form');
-    shortcutElement.setShortcut(shortcut);
-    shortcutContainer.appendChild(shortcutElement);
-    shortcutElement.addEventListener('save-shortcut', (e) => {
-      console.log('Saved shortcut:', name, e.detail);
-      // Aquí puedes agregar la lógica para guardar el atajo
-    });
-  }); */
+  return mapdshortcuts;
+}
+function createShortcuttable(mapdshortcuts) {
   const shortcutTable = document.getElementById('shortcutTable');
   shortcutTable.setData(mapdshortcuts);
   localStorage.setItem('shortcuts_array', JSON.stringify(mapdshortcuts));
@@ -54,7 +55,7 @@ socketManager.onMessage("shortcuts-event", (shortcuts) => {
       console.log(`Acción ${action} ejecutada para el item:`, item);
     }
   });
-});
+}
 function openmodalshortcut(data) {
   console.log("openmodalshortcut",data);
   const modal = document.getElementById('shortcutModal');
@@ -917,6 +918,31 @@ setTimeout(() => {
   toggleShortcuts.setChecked( false);
 }, 1000);
     // Asegúrate de que esto se ejecuta después de que el DOM esté listo
-window.electronAPI.onShortcutTriggered((data) => {
-    console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`);
+const shorcutssaved = new LocalStorageManager('shortcuts_array');
+window.electronAPI.onShortcutTriggered(async (data) => {
+    console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`,data);
+    const exists = await existsshortcuts(data);
+    console.log("shorcutssaved",exists);
 });
+async function existsshortcuts(shortcuts) {
+  try {
+    const alldatashortcuts = await shorcutssaved.getAll();
+    console.log("alldatashortcuts",alldatashortcuts);
+    let exists = false;
+    let result = {};
+    for (let i = 0; i < alldatashortcuts.length; i++) {
+      const shortcut = alldatashortcuts[i];
+      console.log("shortcut",shortcut);
+      if (shortcut.name === shortcuts.name) {
+        console.log("shortcut",shortcut);
+        exists = true;
+        result = shortcut;
+        break;
+      }
+    }
+    return result
+  } catch (error) {
+    console.error('Error getting all shortcuts:', error);
+    return false;
+  }
+}

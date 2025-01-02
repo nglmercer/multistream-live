@@ -362,6 +362,16 @@ class SearchTable extends HTMLElement {
           margin: 2px 2px;
           cursor: pointer;
         }
+          .edit-button {
+            background-color: #4CAF50;
+
+          }
+            .delete-button {
+              background-color: #f44336;
+            }
+              .cancel-button {
+                background-color: #f44336;
+              }
         .hidden {
           display: none;
         }
