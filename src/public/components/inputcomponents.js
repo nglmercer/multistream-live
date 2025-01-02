@@ -217,7 +217,7 @@ class ShortcutForm extends HTMLElement {
     this.activeKeys = new Set();
     this.currentShortcut = [];
     this.editingShortcutId = null;
-
+    this.lastkey = null;
     this.shortcutInput.addEventListener('focus', () => this.activeKeys.clear());
     this.shortcutInput.addEventListener('keydown', (e) => this.onKeyDown(e));
     this.shortcutInput.addEventListener('keyup', (e) => this.onKeyUp(e));
@@ -229,13 +229,30 @@ class ShortcutForm extends HTMLElement {
   onKeyDown(e) {
     e.preventDefault();
     const key = e.key === ' ' ? 'Space' : e.key;
-    if (!this.activeKeys.has(key)) {
-      this.activeKeys.add(key);
+    const specialKeys = ['Alt', 'Control', 'Shift', 'Meta'];
+
+    // Si la tecla es un modificador, se añade o elimina del conjunto de activas
+    if (specialKeys.includes(key)) {
+      if (!this.activeKeys.has(key)) {
+        this.activeKeys.add(key);
+      } else {
+        this.activeKeys.delete(key);
+      }
     } else {
-      this.activeKeys.delete(key);
+      // Si no es un modificador, se reemplaza cualquier combinación actual
+      this.activeKeys.clear();
+      this.activeKeys.add(key);
+    }
+    if (this.lastkey === key && this.activeKeys.has(this.lastkey)) {
+      this.activeKeys.delete(this.lastkey);
+      this.lastkey = null;
+    }else {
+      this.lastkey = key;
     }
     this.updateShortcutDisplay();
+    
   }
+  
 
   onKeyUp(e) {
     e.preventDefault();
