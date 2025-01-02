@@ -892,3 +892,15 @@ shortcutForm.addEventListener('save-shortcut', (e) => {
   socketManager.emitMessage('storemanager', { name, shortcut,action: 'save' });
   // Aquí puedes agregar la lógica para guardar el atajo
 });
+const toggleShortcuts = document.getElementById('toggleShortcuts');
+toggleShortcuts.addEventListener('toggle-switch-change', (e) => {
+  console.log('Shorcuts toggled:', e.detail.checked);
+  socketManager.emitMessage('toggle-shortcuts', e.detail.checked);
+});
+setTimeout(() => {
+  toggleShortcuts.setChecked( false);
+}, 1000);
+    // Asegúrate de que esto se ejecuta después de que el DOM esté listo
+window.electronAPI.onShortcutTriggered((data) => {
+    console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`);
+});

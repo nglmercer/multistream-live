@@ -232,19 +232,15 @@ class ShortcutForm extends HTMLElement {
     const specialKeys = ['Alt', 'Control', 'Shift', 'Meta'];
 
     // Si la tecla es un modificador, se añade o elimina del conjunto de activas
-    if (specialKeys.includes(key)) {
-      if (!this.activeKeys.has(key)) {
+    if (specialKeys.includes(key) || this.specialKeys(this.activeKeys)) {
         this.activeKeys.add(key);
-      } else {
-        this.activeKeys.delete(key);
-      }
+        console.log("specialKeys",this.specialKeys(this.activeKeys),this.activeKeys);
     } else {
-      // Si no es un modificador, se reemplaza cualquier combinación actual
       this.activeKeys.clear();
       this.activeKeys.add(key);
     }
-    if (this.lastkey === key && this.activeKeys.has(this.lastkey)) {
-      this.activeKeys.delete(this.lastkey);
+    if (this.lastkey === key || this.activeKeys.has(this.lastkey)) {
+      this.activeKeys.delete(key);
       this.lastkey = null;
     }else {
       this.lastkey = key;
@@ -252,7 +248,18 @@ class ShortcutForm extends HTMLElement {
     this.updateShortcutDisplay();
     
   }
-  
+  specialKeys(set)  {
+    // verific si el elemento existe en set
+    const specialKeys = ['Alt', 'Control', 'Shift', 'Meta'];
+    let exists = false;
+    for (const key of specialKeys) {
+      if (set.has(key)) {
+        exists = true;
+        break;
+      }
+    }
+    return exists;
+  }
 
   onKeyUp(e) {
     e.preventDefault();

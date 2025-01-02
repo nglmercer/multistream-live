@@ -133,20 +133,6 @@
             <h1 class="text-3xl font-bold mb-6">Shorcuts</h1>
             <toggle-element checked="true" label="Shorcuts" id="toggleShortcuts"></toggle-element>
 
-            <script>
-              const toggleShortcuts = document.getElementById('toggleShortcuts');
-              toggleShortcuts.addEventListener('toggle-switch-change', (e) => {
-                console.log('Shorcuts toggled:', e.detail.checked);
-              });
-              setTimeout(() => {
-                toggleShortcuts.setChecked( false);
-              }, 1000);
-                  // Asegúrate de que esto se ejecuta después de que el DOM esté listo
-              window.electronAPI.onShortcutTriggered((data) => {
-                  console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`);
-              });
-
-            </script>
             <button class="open-modal-btn" onclick="document.getElementById('shortcutFormContainer').open()">Add Shortcut</button>
             <custom-modal modal-type="form" id="shortcutFormContainer">
               <div id="shortcutFormContent">
