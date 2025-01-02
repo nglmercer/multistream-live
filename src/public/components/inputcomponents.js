@@ -231,34 +231,26 @@ class ShortcutForm extends HTMLElement {
     const key = e.key === ' ' ? 'Space' : e.key;
     const specialKeys = ['Alt', 'Control', 'Shift', 'Meta'];
 
-    // Si la tecla es un modificador, se añade o elimina del conjunto de activas
     if (specialKeys.includes(key) || this.specialKeys(this.activeKeys)) {
-        this.activeKeys.add(key);
-        console.log("specialKeys",this.specialKeys(this.activeKeys),this.activeKeys);
+      this.activeKeys.add(key);
     } else {
       this.activeKeys.clear();
       this.activeKeys.add(key);
     }
+
     if (this.lastkey === key || this.activeKeys.has(this.lastkey)) {
       this.activeKeys.delete(key);
       this.lastkey = null;
-    }else {
+    } else {
       this.lastkey = key;
     }
-    this.updateShortcutDisplay();
     
+    this.updateShortcutDisplay();
   }
-  specialKeys(set)  {
-    // verific si el elemento existe en set
+
+  specialKeys(set) {
     const specialKeys = ['Alt', 'Control', 'Shift', 'Meta'];
-    let exists = false;
-    for (const key of specialKeys) {
-      if (set.has(key)) {
-        exists = true;
-        break;
-      }
-    }
-    return exists;
+    return specialKeys.some(key => set.has(key));
   }
 
   onKeyUp(e) {
@@ -271,11 +263,12 @@ class ShortcutForm extends HTMLElement {
   updateShortcutDisplay() {
     const activeGroup = Array.from(this.activeKeys).join(' + ');
     this.shortcutInput.value = [...this.currentShortcut, activeGroup].filter(Boolean).join(' , ');
+    console.log("updateShortcutDisplay",this.shortcutInput.value, this.currentShortcut, this.activeKeys);
   }
 
   registerCurrentGroup() {
     const activeGroup = Array.from(this.activeKeys).sort().join(' + ');
-    if (activeGroup) {
+    if (activeGroup && !this.currentShortcut.includes(activeGroup)) {
       this.currentShortcut.push(activeGroup);
     }
     this.updateShortcutDisplay();
@@ -283,10 +276,12 @@ class ShortcutForm extends HTMLElement {
 
   saveShortcut() {
     if (this.shortcutInput.value) {
+      const shortcutCombinations =  Array.from(this.activeKeys);
       this.dispatchEvent(new CustomEvent('save-shortcut', {
         detail: {
+          id: this.editingShortcutId,
           name: this.shortcutName.value || this.shortcutInput.value,
-          shortcut: Array.from(this.activeKeys),
+          shortcut: shortcutCombinations,
           oldName: this.editingShortcutId
         }
       }));
@@ -300,13 +295,15 @@ class ShortcutForm extends HTMLElement {
     this.currentShortcut = [];
     this.activeKeys.clear();
     this.editingShortcutId = null;
+    this.lastkey = null;
     this.saveBtn.textContent = 'Save Shortcut';
     this.cancelBtn.style.display = 'none';
   }
 
   setShortcut({ name, shortcut, id }) {
     this.shortcutName.value = name || '';
-    this.currentShortcut = shortcut || [];
+    // Ensure shortcut is properly formatted as an array of combinations
+    this.currentShortcut = Array.isArray(shortcut) ? shortcut : [shortcut].filter(Boolean);
     this.editingShortcutId = id || null;
     this.shortcutInput.value = this.currentShortcut.join(' , ');
     this.saveBtn.textContent = id ? 'Update Shortcut' : 'Save Shortcut';
@@ -315,6 +312,7 @@ class ShortcutForm extends HTMLElement {
 }
 
 customElements.define('shortcut-form', ShortcutForm);
+
 class SearchTable extends HTMLElement {
   constructor() {
     super();

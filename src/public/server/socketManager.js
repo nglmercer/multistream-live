@@ -16,9 +16,6 @@ class SocketManager {
     onMessage(eventName, callback) {
         this.socket.on(eventName, callback);
     }
-    on(eventName, callback) {
-        this.onMessage(eventName, callback);
-    }
     // Desconectar el socket
     async disconnectSocket() {
         this.socket.emit("disconnect");

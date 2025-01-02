@@ -8,7 +8,7 @@ import { sendcommandmc } from './features/Minecraftconfig.js';
 import  socketManager  from './server/socketManager.js';
 let client = tmi.client();
 
-socketManager.onMessage("shortcuts", (shortcuts) => {
+socketManager.onMessage("shortcuts-event", (shortcuts) => {
   /* shortcuts object
   @param {string} name - The name of the shortcut
   value {array} shortcut - The shortcut itself
@@ -31,6 +31,7 @@ socketManager.onMessage("shortcuts", (shortcuts) => {
   }); */
   const shortcutTable = document.getElementById('shortcutTable');
   shortcutTable.setData(mapdshortcuts);
+  localStorage.setItem('shortcuts_array', JSON.stringify(mapdshortcuts));
   shortcutTable.setActions([
     { 
       name: 'edit', 
@@ -43,10 +44,25 @@ socketManager.onMessage("shortcuts", (shortcuts) => {
   ]);
   shortcutTable.addEventListener('action-triggered', (event) => {
     const { action, item } = event.detail;
-    console.log(`Acción ${action} ejecutada para el item:`, item);
+    if (action === 'edit') {
+      console.log("editar",item);
+      openmodalshortcut(item);
+    } else if (action === 'delete') {
+      console.log("eliminar",item);
+      socketManager.emitMessage('storemanager', { name: item.name, action: 'delete', data: item });
+    } else {
+      console.log(`Acción ${action} ejecutada para el item:`, item);
+    }
   });
 });
-//import { text } from 'express';
+function openmodalshortcut(data) {
+  console.log("openmodalshortcut",data);
+  const modal = document.getElementById('shortcutModal');
+  modal.open();
+  const shortcutForm = document.getElementById('shortcutForm');
+  shortcutForm.setShortcut(data);
+
+}
 const overlayfilesmanager = new LocalStorageManager('filePaths');
 const socket = io();
 const userProfile = document.querySelector('#kicklogin');

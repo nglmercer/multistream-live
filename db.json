@@ -1,12 +1,12 @@
 {
   "shortcuts": {
-    "Alt + a": [
-      "Alt",
-      "a"
-    ],
     "Alt + q": [
       "Alt",
       "q"
+    ],
+    "Alt + w": [
+      "Alt",
+      "w"
     ]
   }
 }

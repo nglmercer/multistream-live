@@ -9,7 +9,7 @@ import { filterworddefault } from './assets/jsondata.js';
 const filescontent = new LocalStorageManager('filePaths');
 const tabs = document.querySelector('custom-tabs');
 socketManager.emitMessage("join-room", "sala1");
-/* socketManager.onMessage("QRCode", (data) => {
+/* socketManager.onMessageMessage("QRCode", (data) => {
     console.log("QRCode", data,socketurl.constructSocketUrl(8090));
     const localip = socketurl.constructSocketUrl(8090);
     console.log("localip",localip);
@@ -232,7 +232,7 @@ modalwindow.setSubmitButton({
     label: 'create window', 
     disabled: undefined,
 });
-socketManager.on('window-list', (windowList) => {
+socketManager.onMessage('window-list', (windowList) => {
     windowList.forEach(({ id, ...config }) => {
       console.log("window-list",id, config);
       windows.set(id, config);
@@ -241,13 +241,13 @@ socketManager.on('window-list', (windowList) => {
       windowsList.appendChild(card); */
     });
   });
-socketManager.on('window-created', ({ id, config }) => {
+socketManager.onMessage('window-created', ({ id, config }) => {
     windows.set(id, config);
     const card = createWindowCard(id, config);
 /*     card.setAttribute('data-window-id', id);
     windowsList.appendChild(card); */
   });
-socketManager.on('window-closed', (id) => {
+socketManager.onMessage('window-closed', (id) => {
   windowManager.deleteWindow(id);
 /*     windows.delete(id);
     const card = document.querySelector(`[data-window-id="${id}"]`);
@@ -255,7 +255,7 @@ socketManager.on('window-closed', (id) => {
       card.remove();
     } */
   });
-socketManager.on('window-updated', (data) => {
+socketManager.onMessage('window-updated', (data) => {
   console.log('window-updated', data);
 });
 function createWindowCard(id, config) {

@@ -99,14 +99,14 @@ function socketemitkey(key="getVersion",...args) {
     socketManager.emitMessage(key,...args);
 }
 const mapedarrayobs = Object.entries(arrayobs).map(([key, value]) => ({ value:key, label: key, requiredparams: value.requiredparams }));
-socketManager.on("responseobs",(response,key) => {
+socketManager.onMessage("responseobs",(response,key) => {
     console.log("responseobs",response,key);
     localStorage.setItem(key,JSON.stringify(response));
     if (key === "getInputList") renderavaibleinputs(response);
 });
 mapedarrayobs.forEach((value,key) => {
     //logger.log("debug",key,value,value.value);
-    socketManager.on(value.value, async (...args) => {
+    socketManager.onMessage(value.value, async (...args) => {
       console.log("socketemitkey",key,value.value,...args);
       localStorage.setItem(value.value,JSON.stringify(args));
       //socketManager.emitMessage(key,...args);

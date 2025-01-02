@@ -25,6 +25,7 @@ const express = require('express');
 const { Server } = require('socket.io');
 const http = require('http');
 const cors = require('cors');
+const { get } = require('node:http');
 const windowManager = new WindowManager();
 const essapp = express();
 essapp.use(cors());
@@ -372,7 +373,7 @@ let lastromdata = {};
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id, "disponible connections",Livescreated);
     socket.emit('allConnections', getAllConnectionsInfo());
-    socket.emit('shortcuts', getshortcuts());
+    socket.emit('shortcuts-event', getshortcuts());
     socket.on('joinRoom', async ({ platform, uniqueId }) => {
       try {
         if (!Object.values(PlatformType).includes(platform)) {
@@ -451,6 +452,9 @@ function handleStoreManager(socket, data) {
   console.log("handleStoreManager", data, socket.id);
   if (data.action === 'save') {
     saveshortcuts(data, store);
+  } else if (data.action === 'delete') {
+    deleteshortcuts(data, store);
+    return;
   }
 }
 windowManager.on('window-created', (data) => {
@@ -580,20 +584,29 @@ function saveshortcuts(data) {
     }
     return shortcuts;
 }
-function deleteshortcuts(name) {
-    const shortcuts = store.get('shortcuts') || {};
-    delete shortcuts[name];
+function deleteshortcuts(data) {
+  const shortcuts = getshortcuts();
+  console.log("deleteshortcuts", data, shortcuts);
+
+  // Busca el atajo en el objeto shortcuts
+  const keystore = Object.entries(shortcuts).find(([key, value]) => key === data.name);
+  console.log("keystore", keystore);
+
+  // Si se encuentra el atajo, elimínalo
+  if (keystore) {
+    const shortcutKey = keystore[0]; // La clave del atajo
+    delete shortcuts[shortcutKey]; // Elimina el atajo del objeto
+
+    // Actualiza la base de datos con el objeto shortcuts modificado
     store.set('shortcuts', shortcuts);
-    
-    if (shortcutsEnabled) {
-      unregisterAllShortcuts();
-      registerAllShortcuts(store);
-    }
-    return shortcuts;
+  }
 }
+
 function getshortcuts() {
   try {
-    return store.get('shortcuts') || {};
+    const shortcuts = store.get('shortcuts') || {};
+    console.log("getshortcuts",shortcuts);
+    return shortcuts;
     } catch (error) {
         console.error('Error getting shortcuts:', error);
         return {};
