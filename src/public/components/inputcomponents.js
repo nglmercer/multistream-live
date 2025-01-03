@@ -319,15 +319,20 @@ class SearchTable extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.data = [];
     this.actions = [];
-    this.hiddenColumns = []; // Array to store hidden column names
+    this.hiddenColumns = []; 
+    this.hiddensearch = false;
   }
-
+  static get observedAttributes() {
+    return ['hidden-columns', 'hiddensearch'];
+  }
   connectedCallback() {
     this.render();
     this.setupEventListeners();
   }
 
   render() {
+    const hiddenColumns = this.getAttribute('hidden-columns');
+    const hiddensearch = this.getAttribute('hiddensearch');
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -386,7 +391,7 @@ class SearchTable extends HTMLElement {
           display: none;
         }
       </style>
-      <input type="text" id="searchInput" placeholder="Buscar...">
+      <input class="${hiddensearch ? 'hidden' : ''}" type="text" id="searchInput" placeholder="Buscar...">
       <table>
         <thead>
           <tr>
@@ -405,7 +410,9 @@ class SearchTable extends HTMLElement {
     this.hiddenColumns = columns;
     this.updateColumnVisibility();
   }
-
+  sethiddensearch(value) {
+    this.hiddensearch = value;
+  }
   updateColumnVisibility() {
     const headers = this.shadowRoot.querySelectorAll('th');
     const rows = this.shadowRoot.querySelectorAll('tbody tr');

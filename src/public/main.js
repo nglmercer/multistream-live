@@ -33,6 +33,7 @@ function createShortcuttable(mapdshortcuts) {
   const shortcutTable = document.getElementById('shortcutTable');
   shortcutTable.setData(mapdshortcuts);
   shortcutTable.setHiddenColumns(['id']);
+  //shortcutTable.setAttribute('hiddensearch', true);
   localStorage.setItem('shortcuts_array', JSON.stringify(mapdshortcuts));
   shortcutTable.setActions([
     { 
