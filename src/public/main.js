@@ -32,6 +32,7 @@ function mapobjtoarray(shortcuts) {
 function createShortcuttable(mapdshortcuts) {
   const shortcutTable = document.getElementById('shortcutTable');
   shortcutTable.setData(mapdshortcuts);
+  shortcutTable.setHiddenColumns(['id']);
   localStorage.setItem('shortcuts_array', JSON.stringify(mapdshortcuts));
   shortcutTable.setActions([
     { 

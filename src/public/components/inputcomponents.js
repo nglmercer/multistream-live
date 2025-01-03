@@ -318,7 +318,8 @@ class SearchTable extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.data = [];
-    this.actions = []; // Array para almacenar las acciones/botones
+    this.actions = [];
+    this.hiddenColumns = []; // Array to store hidden column names
   }
 
   connectedCallback() {
@@ -336,9 +337,10 @@ class SearchTable extends HTMLElement {
         table {
           width: 100%;
           border-collapse: collapse;
+                    border: 1px solid #ddd;
+
         }
         th, td {
-          border: 1px solid #ddd;
           padding: 8px;
           text-align: left;
         }
@@ -362,17 +364,25 @@ class SearchTable extends HTMLElement {
           margin: 2px 2px;
           cursor: pointer;
         }
-          .edit-button {
-            background-color: #4CAF50;
-
+        .edit {
+          background-color:rgb(76, 122, 175);
+        }
+        .edit:hover {
+          background-color: #3d8ae5;
+        }
+        .delete {
+          background-color: #f44336;
+        }
+          .delete:hover {
+            background-color: #e53935;
           }
-            .delete-button {
-              background-color: #f44336;
-            }
-              .cancel-button {
-                background-color: #f44336;
-              }
+        .cancel {
+          background-color: #f44336;
+        }
         .hidden {
+          display: none;
+        }
+        [hidden-column] {
           display: none;
         }
       </style>
@@ -391,7 +401,48 @@ class SearchTable extends HTMLElement {
     `;
   }
 
-  // Método para configurar las acciones
+  setHiddenColumns(columns) {
+    this.hiddenColumns = columns;
+    this.updateColumnVisibility();
+  }
+
+  updateColumnVisibility() {
+    const headers = this.shadowRoot.querySelectorAll('th');
+    const rows = this.shadowRoot.querySelectorAll('tbody tr');
+
+    headers.forEach((header, index) => {
+      const isHidden = this.hiddenColumns.includes(this.getColumnName(index));
+      if (isHidden) {
+        header.setAttribute('hidden-column', '');
+      } else {
+        header.removeAttribute('hidden-column');
+      }
+    });
+
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      cells.forEach((cell, index) => {
+        const isHidden = this.hiddenColumns.includes(this.getColumnName(index));
+        if (isHidden) {
+          cell.setAttribute('hidden-column', '');
+        } else {
+          cell.removeAttribute('hidden-column');
+        }
+      });
+    });
+  }
+
+  getColumnName(index) {
+    switch(index) {
+      case 0: return 'id';
+      case 1: return 'name';
+      case 2: return 'details';
+      case 3: return 'actions';
+      default: return '';
+    }
+  }
+
+  // Rest of the existing methods remain the same
   setActions(actions) {
     this.actions = actions;
     const actionsHeader = this.shadowRoot.querySelector('.actions-header');
@@ -422,18 +473,16 @@ class SearchTable extends HTMLElement {
         <td>${this.renderDetails(item)}</td>
       `;
 
-      // Solo añadir la celda de acciones si hay botones configurados
       if (this.actions.length > 0) {
         html += '<td class="actions-cell">' + 
           this.actions.map(action => `
-            <button data-action="${action.name}">${action.label}</button>
+            <button data-action="${action.name}" class="${action.name}">${action.label}</button>
           `).join('') + 
         '</td>';
       }
 
       row.innerHTML = html;
       
-      // Configurar los event listeners para cada botón
       if (this.actions.length > 0) {
         const buttons = row.querySelectorAll('button');
         buttons.forEach(button => {
@@ -449,6 +498,7 @@ class SearchTable extends HTMLElement {
 
       tableBody.appendChild(row);
     });
+    this.updateColumnVisibility();
   }
 
   renderDetails(item) {
@@ -506,6 +556,7 @@ class SearchTable extends HTMLElement {
 
       tableBody.appendChild(row);
     });
+    this.updateColumnVisibility();
   }
 
   emitActionEvent(actionName, item) {
