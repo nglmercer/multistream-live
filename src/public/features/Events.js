@@ -17,6 +17,23 @@ async function EventsManagermap() {
       return [];
     }
 }
+async function getallshortcuts() {
+  try {
+    const alldata = JSON.parse(localStorage.getItem('shortcuts_array'));  
+    return  alldata.map(data => ({
+      value: data.id || data.shortcut,
+      label: data.nombre || data.name,
+    }))
+    } catch (error) {
+      console.error('Error getting all files:', error);
+      return [];
+    }
+}
+(async () => {
+  const allshortcuts = await getallshortcuts();
+  console.log("allshortcuts",allshortcuts);
+}
+)()
 const openeventformModal = document.getElementById('openeventformModal')
 
 const newmodalevent = document.getElementById('eventformModal')
@@ -48,6 +65,9 @@ const eventform = document.createElement('dynamic-form');
                     { value: 'bits', label: 'bits' },
                     { value: 'follow', label: 'follow' },
                     { value: 'subscribe', label: 'subscribe' },
+                    { value: 'like', label: 'like' },
+                    { value: 'share', label: 'share' },
+                    { value: 'shortcut', label: 'shortcut' },
                 ],
                 value: 'gift',
             })
@@ -80,6 +100,27 @@ const eventform = document.createElement('dynamic-form');
                 showWhen: {
                     field: 'eventType',
                     value: 'bits'
+                }
+            })
+            .addField({
+                type: 'number',
+                name: 'like',
+                label: 'like',
+                value: 10,
+                showWhen: {
+                    field: 'eventType',
+                    value: 'like'
+                }
+            })
+            .addField({
+                type: 'flexible-modal-selector',
+                name: 'shortcut',
+                label: 'shortcut',
+                mode: 'multi',
+                options: await getallshortcuts(),
+                showWhen: {
+                    field: 'eventType',
+                    value: 'shortcut'
                 }
             })
             .addField({

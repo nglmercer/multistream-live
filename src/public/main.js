@@ -923,6 +923,7 @@ window.electronAPI.onShortcutTriggered(async (data) => {
     console.log(`Shortcut triggered: Name = ${data.name}, Shortcut = ${data.shortcut}`,data);
     const exists = await existsshortcuts(data);
     console.log("shorcutssaved",exists);
+    HandleAccionEvent('shortcut',data);
 });
 async function existsshortcuts(shortcuts) {
   try {

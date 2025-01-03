@@ -42,6 +42,30 @@ const databases = {
             });
         });
     } 
+    async getDataById(id) {
+        return this.executeTransaction(this.dbConfig.store, 'readonly', (store) => {
+            return new Promise((resolve, reject) => {
+                // Convertir el id a número si es necesario
+                const numericId = typeof id === 'number' ? id : Number(id);
+                
+                if (isNaN(numericId)) {
+                    return reject(new Error(`Invalid id: ${id}. The id must be a valid number.`));
+                }
+
+                const request = store.get(numericId);
+
+                request.onsuccess = () => {
+                    if (request.result) {
+                        resolve(request.result);
+                    } else {
+                        reject(new Error(`No data found with id ${numericId}`));
+                    }
+                };
+
+                request.onerror = () => reject(request.error);
+            });
+        });
+    }
 
     async openDatabase() {
         if (this.db) return this.db;

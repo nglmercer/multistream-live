@@ -120,12 +120,13 @@
       </div>
       <div slot="4-content">
           <section class="section" id="WindowManager">
-              <h1 class="text-3xl font-bold mb-6">Window Manager (Web Interface)</h1>
+              <h1 class="text-3xl font-bold mb-6">Window Manager</h1>
             <button type="button" role="button" aria-label="window manager"  id="newWindowBtn" class="open-modal-btn" onclick="document.getElementById('windowModal').open()">
               Nueva Ventana
             </button>
             <div id="windowsList" class="mt-6 space-y-4"></div>
             <window-manager id="myWindowManager"></window-manager>
+            <h2 class="text-3xl font-bold mb-6">Overlay</h2>
             <preview-webcomponent id="iframeweb" link="http://localhost:9000/overlaya.html" showpreview="false" theme="dark"></preview-webcomponent>
           
           </section>
