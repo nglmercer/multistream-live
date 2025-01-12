@@ -732,9 +732,9 @@ async function HandleAccionEvent(eventType,data,comparison = 'isEqual',includetr
     console.log(`Objeto coincidente encontrado en el índice ${index}:`, matchingObject, results);
   };
   const eventslist = {
-    chat: data.comment,
-    gift: data.giftId,
-    like: data.likeCount,
+    chat: data?.comment,
+    gift: data?.giftId,
+    like: data?.likeCount,
     eventType: eventType,
   }
   const results = compareObjects(eventslist, await EventsManager.getAllData(), keysToCheck, callbackFunction,includetrue);
