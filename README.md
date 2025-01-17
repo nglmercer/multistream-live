@@ -11,4 +11,4 @@ npm run dev
 
 ## demo
 i hosted this with onrender deploy
-(livesocket.onrender.com)[demo]
+[demo](livesocket.onrender.com)
