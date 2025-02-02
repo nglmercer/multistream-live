@@ -26,7 +26,8 @@ class WindowManager extends EventEmitter {
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
-        enableRemoteModule: true
+        enableRemoteModule: true,
+        backgroundThrottling: false
       }
     };
     
