@@ -192,18 +192,7 @@
       </custom-tabs>
   </custom-modal>
   <script type="module">
-    document.querySelectorAll('login-button').forEach(login => {
-      login.addEventListener('loginStateChange', (e) => {
-        console.log("login",login,e.detail);
-        setActivePage('login');
-        resaltarContenedor('logintabcontainer');
-/*           window.location.hash = 'logintabcontainer';
-          document.getElementById('logintabcontainer').scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-          }); */
-      });
-    });
+
     function resaltarContenedor(container) {
         const contenedor = document.getElementById(container);
         

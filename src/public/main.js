@@ -264,6 +264,19 @@ wss.addEventListener('ws-disconnected', () => {
 wss.addEventListener('ws-error', (event) => {
   console.log('Error de conexión:', event.detail);
 });
+document.querySelectorAll('login-button').forEach(login => {
+  login.addEventListener('loginStateChange', (e) => {
+    console.log("login",login,e.detail);
+    setActivePage('login');
+    resaltarContenedor('logintabcontainer');
+    //emit reconnect or connect to platform e.detail.platform
+/*           window.location.hash = 'logintabcontainer';
+      document.getElementById('logintabcontainer').scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+      }); */
+  });
+});
 events.forEach(event => {
     socket.on(event, async (data) => {
         Readtext(event, data);
@@ -282,6 +295,10 @@ events.forEach(event => {
                 handlechat(newdata);
                 Readtext('chat',newdata);
                 break;
+            case 'disconnected':
+              //add reconnect
+              showAlert('error', `Disconnected`,3000,data)
+              break;
             default:
               console.log("event",event,data)
                 break;
@@ -342,6 +359,9 @@ function tiktokhandlerdata(event,data) {
       //console.log(event, data);
       showAlert('success', `Connected`,3000,data)
       break;
+    case 'disconnected':
+      //add reconnect
+      showAlert('error', `Disconnected`,3000,data)
     default:
       HandleAccionEvent(event,data)
       //console.log("event",event,data)

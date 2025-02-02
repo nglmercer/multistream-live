@@ -237,6 +237,7 @@ class TiktokConnection extends PlatformConnection {
           console.log(`TikTok ${event} event for ${this.uniqueId}`);
           this.isConnected = false;
         }
+        checkAndReconnectConnections(socket); // Intentar reconectar inmediatamente
       });
     });
 
@@ -288,6 +289,7 @@ class KickConnection extends PlatformConnection {
         if (event === 'disconnected') {
           console.log(`Kick ${event} event for ${this.uniqueId}`);
           this.isConnected = false;
+          checkAndReconnectConnections(socket);
         }
       });
     });
@@ -358,6 +360,24 @@ function getAllConnectionsInfo() {
   
   return allConnections;
 }
+async function checkAndReconnectConnections(socket) {
+  const allConnections = getAllConnectionsInfo();
+
+  for (const connectionInfo of allConnections) {
+    if (!connectionInfo.isConnected) {
+      try {
+        const connection = platformConnections[connectionInfo.platform].get(connectionInfo.uniqueId);
+        if (connection) {
+          console.log(`Attempting to reconnect to ${connectionInfo.platform} ${connectionInfo.uniqueId}`);
+          await connection.connect(socket);
+          console.log(`Successfully reconnected to ${connectionInfo.platform} ${connectionInfo.uniqueId}`);
+        }
+      } catch (err) {
+        console.error(`Failed to reconnect to ${connectionInfo.platform} ${connectionInfo.uniqueId}:`, err);
+      }
+    }
+  }
+}
 function getLivesInfo(livesMap) {
     // Convertimos el Map a un array de objetos con la información requerida
     return Array.from(livesMap).map(([uniqueId, liveControl]) => ({
@@ -371,6 +391,7 @@ function getLivesInfo(livesMap) {
 // Conexión con Socket.IO
 let lastromdata = {};
 io.on('connection', (socket) => {
+    checkAndReconnectConnections(socket);
     console.log('A user connected:', socket.id, "disponible connections",Livescreated);
     socket.emit('allConnections', getAllConnectionsInfo());
     socket.emit('shortcuts-event', getshortcuts());
