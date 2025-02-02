@@ -4417,9 +4417,35 @@ class ResponsiveNavSidebar extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         
         // Create base modal structure
-        const template = document.createElement('template');
-        template.innerHTML = /*html*/`
+        const htmlelement = /*html*/`
             <style>
+              ${this.getStyles()}
+            </style>
+            <div class="modal-overlay">
+                <div class="modal-content">
+                    <button class="close-button">&times;</button>
+                    <div class="modal-body">
+                        <slot></slot>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add modal structure to shadow DOM
+        this.shadowRoot.innerHTML = htmlelement;
+        
+        // Get references within shadow DOM
+        this.overlay = this.shadowRoot.querySelector('.modal-overlay');
+        this.closeButton = this.shadowRoot.querySelector('.close-button');
+        this.modalBody = this.shadowRoot.querySelector('.modal-body');
+        
+        this.setupEventListeners();
+        
+        // Set default to dark mode
+        this.setMode('dark');
+    }
+    getStyles(){
+      return /*css*/`
                 :host {
                     display: none;
                     position: fixed;
@@ -4521,31 +4547,8 @@ class ResponsiveNavSidebar extends HTMLElement {
                 ::slotted(*) {
                     max-width: 100%;
                 }
-            </style>
-            <div class="modal-overlay">
-                <div class="modal-content">
-                    <button class="close-button">&times;</button>
-                    <div class="modal-body">
-                        <slot></slot>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Add modal structure to shadow DOM
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-        
-        // Get references within shadow DOM
-        this.overlay = this.shadowRoot.querySelector('.modal-overlay');
-        this.closeButton = this.shadowRoot.querySelector('.close-button');
-        this.modalBody = this.shadowRoot.querySelector('.modal-body');
-        
-        this.setupEventListeners();
-        
-        // Set default to dark mode
-        this.setMode('dark');
+      `;
     }
-
     connectedCallback() {
         // No additional setup needed in connectedCallback
     }
