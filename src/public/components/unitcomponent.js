@@ -3506,8 +3506,6 @@ class GameConsole extends HTMLElement {
   
   customElements.define('action-buttons', ActionButtons);
 
-  // Registrar el componente
-  customElements.define('kubek-alerts', KubekAlerts1);
   class TaskNotifications extends HTMLElement {
     constructor() {
       super();
