@@ -67,7 +67,6 @@ class ProgressOverlay extends HTMLElement {
         if (name === 'goal'){
             this.goal = Number(newValue) || 100;
             this.complete = this.currentValue > this.goal ? true : false;
-            console.log(this.complete);
         }
         if (name === 'current-value') this.currentValue = Number(newValue) || 0;
         if (name === 'text') this.text = newValue || 'Progreso';
@@ -161,31 +160,128 @@ customElements.define('progress-overlay', ProgressOverlay);
 
 // 🔹 Ejemplo de uso con colores personalizados:
 const progress = document.createElement('progress-overlay');
-progress.setAttribute('goal', '200');
-progress.setAttribute('current-value', '50');
-progress.setAttribute('text', 'meta');
-progress.setAttribute('bar-color', 'orange');
-progress.setAttribute('background-color', '#ddd');
-progress.setAttribute('text-color', 'white');
-progress.setAttribute('font-size', '32px');
-progress.setAttribute('font-weight', 'bold');
-progress.setAttribute('bar-height', '190px');
-progress.setAttribute('border-radius', '10px');
-progress.setAttribute('text-stroke', '0.8px black');
-progress.setAttribute('text-position', 'inside-center');
-document.body.appendChild(progress);
-let lastValue = 0;
-// 🔹 Simular incremento de progreso
-var testInterval = setInterval(() => {
-    let newValue = parseInt(progress.getAttribute('current-value')) + 25;
-    progress.setAttribute('current-value', newValue);
-    if (newValue >= lastValue + 100) {
-        progress.setAttribute('goal', newValue + 100);
-        lastValue = newValue;
-    }
-}, 1000);
+
 
 // 🔹 Escuchar evento cuando se alcance la meta
 progress.addEventListener('goalReached', (event) => {
     console.log('¡Meta alcanzada!', JSON.stringify(event.detail));
+});
+class GoalManager {
+    constructor(id, goal = 100, currentValue = 0, text = 'Progreso', autoIncreaseBy = 100) {
+        this.id = id; // ID único para el elemento
+        this.goal = goal; // Objetivo inicial
+        this.currentValue = currentValue; // Valor actual inicial
+        this.text = text; // Nombre o texto descriptivo
+        this.autoIncreaseBy = autoIncreaseBy; // Cantidad para aumentar el objetivo automáticamente (0 para desactivar)
+        this.lastValue = 0; // Último valor registrado para el aumento automático
+        this.element = null; // Referencia al elemento creado
+        this.createElement(); // Crear el elemento al instanciar
+    }
+
+    // Crear el elemento progress-overlay y configurarlo
+    createElement() {
+        // Verificar si ya existe un elemento con este ID
+        if (document.getElementById(this.id)) {
+            throw new Error(`Ya existe un elemento con el ID '${this.id}'`);
+        }
+
+        this.element = document.createElement('progress-overlay');
+        this.element.setAttribute('id', this.id);
+        this.element.setAttribute('goal', this.goal);
+        this.element.setAttribute('current-value', this.currentValue);
+        this.element.setAttribute('text', this.text);
+
+        // Estilos opcionales por defecto (personalizables)
+        this.element.setAttribute('bar-color', '#4caf50');
+        this.element.setAttribute('background-color', '#e0e0e0');
+        this.element.setAttribute('text-color', 'black');
+        this.element.setAttribute('font-size', '16px');
+        this.element.setAttribute('bar-height', '20px');
+        this.element.setAttribute('text-position', 'inside-center');
+
+        document.body.appendChild(this.element);
+        return this.element;
+    }
+
+    // Actualizar el valor actual y manejar el aumento automático del objetivo
+    update(currentValue) {
+        this.currentValue = currentValue;
+        this.element.setAttribute('current-value', this.currentValue);
+
+        // Si autoIncreaseBy está habilitado y se supera el umbral
+        if (this.autoIncreaseBy > 0 && this.currentValue >= this.lastValue + this.autoIncreaseBy) {
+            this.setGoal(this.currentValue + this.autoIncreaseBy);
+            this.lastValue = this.currentValue;
+        }
+    }
+
+    // Establecer un nuevo objetivo manualmente
+    setGoal(newGoal) {
+        this.goal = newGoal;
+        this.element.setAttribute('goal', this.goal);
+    }
+
+    // Eliminar el elemento del DOM
+    remove() {
+        if (this.element) {
+            this.element.remove();
+            this.element = null;
+        }
+    }
+
+    // Obtener el elemento HTML asociado
+    getElement() {
+        return this.element;
+    }
+}
+
+// Ejemplo de uso
+// Crear varias instancias
+/* const manager1 = new GoalManager('progress1', 200, 50, 'Meta a', 100);
+const manager2 = new GoalManager('progress2', 150, 20, 'Meta b', 0); // Sin aumento automático */
+// funcion para crear elementos con un json
+const initconfig = [
+    {
+        id: 'progress1',
+        goal: 200,
+        currentValue: 50,
+        text: 'Meta a',
+        autoIncreaseBy: 100
+    },
+    {
+        id: 'progress2',
+        goal: 150,
+        currentValue: 20,
+        text: 'Meta b',
+        autoIncreaseBy: 0
+    }
+]
+function createbyconfig(config) {
+    const manager = new GoalManager(config.id, config.goal, config.currentValue, config.text, config.autoIncreaseBy);
+    return manager;
+}
+const manager1 = createbyconfig(initconfig[0]);
+const manager2 = createbyconfig(initconfig[1]);
+
+// Crear elementos con un json
+// Simular actualizaciones
+setInterval(() => {
+    manager1.update(manager1.currentValue + 25); // Aumenta en 25, con aumento automático del goal
+    console.log(`Progress 1: ${manager1.currentValue}/${manager1.goal}`);
+}, 1000);
+
+setInterval(() => {
+    console.log(`Progress 2: ${manager2.currentValue}/${manager2.goal}`);
+    if (manager2.currentValue >= manager2.goal) {
+        console.log('Meta 2 alcanzada, eliminando...');
+    //    manager2.remove();
+    } else {
+        manager2.update(manager2.currentValue + 10); // Aumenta en 10, sin cambiar el goal
+
+    }
+}, 1000);
+
+// Escuchar evento de meta alcanzada desde el elemento
+manager1.getElement().addEventListener('goalReached', (event) => {
+    console.log('¡Meta 1 alcanzada!', JSON.stringify(event.detail));
 });
