@@ -4,7 +4,7 @@
   "description": "The electronjs application launcher",
   "keywords": [],
   "main": "./main.js",
-  "version": "1.4.0",
+  "version": "1.4.2",
   "author": "melser",
   "scripts": {
     "start": "electron ./src",
@@ -14,7 +14,6 @@
     "build:linux": "rimraf build && electron-builder --linux --config electron-builder.yml",
     "postinstall": "cd src && npm install"
   },
-  
   "devDependencies": {
     "electron": "31.4.0",
     "electron-builder": "24.13.3",
