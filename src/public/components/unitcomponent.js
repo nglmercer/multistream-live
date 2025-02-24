@@ -944,8 +944,8 @@ class GameConsole extends HTMLElement {
                   display: block;
                   margin: inherit;
                   color-scheme: light dark;
-                  margin: 0.5rem;
-                  padding: 0.5rem;
+                  margin: 0.4rem;
+                  padding: 0.4rem;
                 }
                 
                 .input-container {
@@ -956,14 +956,17 @@ class GameConsole extends HTMLElement {
                 
                 input, textarea, select {
                   padding: inherit;
-                  padding: 0.5rem;  /* Valor de respaldo si no se hereda */
+                  padding: 0.4rem;  /* Valor de respaldo si no se hereda */
                   border: inherit;
                   border-color: ${darkMode ? '#555' : '#ccc'};
-                  border-radius: 4px;
+                  border-radius: 6px;
                   font-size: 14px;
                   background-color: inherit;
                   color: inherit;
                 }
+                  input[type="color"] {
+                    padding: 0;
+                  }
                 textarea {
                   resize: vertical;
                   min-height: 100px;

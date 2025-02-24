@@ -326,3 +326,100 @@ if (retrievedConfig) {
         console.log('¡Meta 1 alcanzada!', JSON.stringify(event.detail));
     }); */
 }
+
+const widget_form = document.querySelector('.widget_form');
+widget_form.show();
+const widget_content = document.querySelector('.widget_content');
+const options = [
+  {
+    label: 'Option 1',
+    callback: () => {
+        const allinputs = document.querySelectorAll('custom-input');
+        allinputs.forEach(input => {
+        console.log(input.getInputValues());
+      });
+    },
+    class: 'save-btn'
+  },
+  {
+    label: 'Option 2',
+    callback: () => {
+      console.log('Option 2 selected');
+    },
+    class: 'cancel-btn'
+  }
+  
+];
+widget_content.options = options;
+widget_content.addEventListener('button-clicked', (event) => {
+  console.log('Button clicked:', event.detail);
+});
+const config1 =     {
+  id: 'progress1',
+  goal: 200,
+  currentValue: 50,
+  text: 'Meta a',
+  autoIncreaseBy: 100,
+  style: {
+      barColor: '#4caf50',
+      backgroundColor: '#e0e0e0',
+      textColor: 'black',
+      fontSize: '32px',
+      barHeight: '64px',
+      textPosition: 'inside-center',
+      borderRadius: '10px',
+      textStroke: '0.5px gray'
+  }
+}
+const formDialog = document.querySelector('.formdialog');
+const selectoptions = {
+    textPosition : ['inside-center', 'inside-left', 'inside-right', 'outside-left', 'outside-center', 'outside-right'],
+    barHeight: ['20px', '30px', '40px', '50px'],
+    borderRadius: ['5px', '10px', '15px', '20px'],
+    textStroke: ['0px transparent', '0.5px gray', '1px black']
+}
+function parsedoptions(options){
+    const parsedoptions = options.map(option => {
+        return { value: option, text: option, label: option };
+    });
+    return parsedoptions;
+}
+console.log(parsedoptions(selectoptions.textPosition));
+const inputsConfig = [
+  { id: 'inputID', name: 'inputID', value: 'Widget', placeholder: 'your widget name', title: 'inputID', pattern: '[a-zA-Z0-9]+', type: 'text' },
+  { id: 'goal', name: 'goal', value: '100', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+  { id: 'currentValue', name: 'currentValue', value: '0', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+  { id: 'inputText', name: 'inputText', value: 'my goal', placeholder: 'your widget name', title: 'inputID' },
+  { id: 'autoIncreaseBy', name: 'autoIncreaseBy', value: '100', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+  { id: 'style_barColor', name: 'style_barColor', value: '#4caf50', placeholder: 'your widget name', title: 'inputID', type: 'color' },
+  { id: 'style_backgroundColor', name: 'style_backgroundColor', value: '#e0e0e0', placeholder: 'your widget name', title: 'inputID', type: 'color' },
+  { id: 'style_textColor', name: 'style_textColor', value: 'black', placeholder: 'your widget name', title: 'inputID', type: 'color' },
+  { id: 'style_fontSize', name: 'style_fontSize', value: '32', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+  { id: 'style_barHeight', name: 'style_barHeight', value: '64', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+  { id: 'style_textPosition', name: 'style_textPosition', value: 'inside-center', placeholder: 'your widget name', title: 'inputID', type: 'select', options: parsedoptions(selectoptions.textPosition) },
+  { id: 'style_borderRadius', name: 'style_borderRadius', value: '10', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+  { id: 'style_textStroke', name: 'style_textStroke', value: '0.5px gray', placeholder: 'your widget name', title: 'inputID' },
+];
+
+inputsConfig.forEach(config => {
+  const inputElement = createCustomInput(config);
+  formDialog.appendChild(inputElement);
+});
+
+
+function createCustomInput({ id, name, value, placeholder, title, pattern, type, options }) {
+  const input = document.createElement('custom-input');
+  input.setAttribute('id', id);
+  input.setAttribute('name', name);
+  input.setAttribute('value', value);
+  input.setAttribute('placeholder', name);
+  input.setAttribute('title', title);
+  input.setAttribute('type', type);
+    if (options) {
+        input.setAttribute('options', JSON.stringify(options));
+    }
+  if (pattern) {
+      input.setAttribute('pattern', pattern);
+  }
+  return input;
+}
