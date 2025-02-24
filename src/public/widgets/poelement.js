@@ -15,6 +15,8 @@ class ProgressOverlay extends HTMLElement {
                     position: relative;
                     width: 100%;
                     font-family: sans-serif;
+                    margin-block: 10px;
+                    padding-block: 10px;
                 }
                 .progress-container {
                     z-index: -1;
@@ -167,7 +169,7 @@ progress.addEventListener('goalReached', (event) => {
     console.log('¡Meta alcanzada!', JSON.stringify(event.detail));
 });
 class GoalManager {
-    constructor(id, goal = 100, currentValue = 0, text = 'Progreso', autoIncreaseBy = 100) {
+    constructor(id, goal = 100, currentValue = 0, text = 'Progreso', autoIncreaseBy = 100,style) {
         this.id = id; // ID único para el elemento
         this.goal = goal; // Objetivo inicial
         this.currentValue = currentValue; // Valor actual inicial
@@ -175,6 +177,7 @@ class GoalManager {
         this.autoIncreaseBy = autoIncreaseBy; // Cantidad para aumentar el objetivo automáticamente (0 para desactivar)
         this.lastValue = 0; // Último valor registrado para el aumento automático
         this.element = null; // Referencia al elemento creado
+        this.style = style;
         this.createElement(); // Crear el elemento al instanciar
     }
 
@@ -192,17 +195,24 @@ class GoalManager {
         this.element.setAttribute('text', this.text);
 
         // Estilos opcionales por defecto (personalizables)
-        this.element.setAttribute('bar-color', '#4caf50');
-        this.element.setAttribute('background-color', '#e0e0e0');
-        this.element.setAttribute('text-color', 'black');
-        this.element.setAttribute('font-size', '16px');
-        this.element.setAttribute('bar-height', '20px');
-        this.element.setAttribute('text-position', 'inside-center');
+        this.changeStyle(this.style);
 
         document.body.appendChild(this.element);
         return this.element;
     }
-
+    changeStyle(style) {
+        if (style) this.style = style;
+        console.log("style", this.style);
+        if (!this.style) this.style = {};
+        this.element.setAttribute('bar-color', this.style.barColor || '#4caf50');
+        this.element.setAttribute('background-color', this.style.backgroundColor || '#e0e0e0');
+        this.element.setAttribute('text-color', this.style.textColor || 'black');
+        this.element.setAttribute('font-size', this.style.fontSize || '16px');
+        this.element.setAttribute('bar-height', this.style.barHeight || '32px');
+        this.element.setAttribute('text-position', this.style.textPosition || 'inside-center');
+        this.element.setAttribute('border-radius', this.style.borderRadius || '10px');
+        this.element.setAttribute('text-stroke', this.style.textStroke || '0px transparent');
+    }
     // Actualizar el valor actual y manejar el aumento automático del objetivo
     update(currentValue) {
         this.currentValue = currentValue;
@@ -246,42 +256,73 @@ const initconfig = [
         goal: 200,
         currentValue: 50,
         text: 'Meta a',
-        autoIncreaseBy: 100
-    },
-    {
-        id: 'progress2',
-        goal: 150,
-        currentValue: 20,
-        text: 'Meta b',
-        autoIncreaseBy: 0
+        autoIncreaseBy: 100,
+        style: {
+            barColor: '#4caf50',
+            backgroundColor: '#e0e0e0',
+            textColor: 'black',
+            fontSize: '32px',
+            barHeight: '64px',
+            textPosition: 'inside-center',
+            borderRadius: '10px',
+            textStroke: '0.5px gray'
+        }
     }
 ]
 function createbyconfig(config) {
-    const manager = new GoalManager(config.id, config.goal, config.currentValue, config.text, config.autoIncreaseBy);
+    const manager = new GoalManager(config.id, config.goal, config.currentValue, config.text, config.autoIncreaseBy, config.style);
     return manager;
 }
-const manager1 = createbyconfig(initconfig[0]);
-const manager2 = createbyconfig(initconfig[1]);
 
-// Crear elementos con un json
-// Simular actualizaciones
-setInterval(() => {
-    manager1.update(manager1.currentValue + 25); // Aumenta en 25, con aumento automático del goal
-    console.log(`Progress 1: ${manager1.currentValue}/${manager1.goal}`);
-}, 1000);
+const encodedConfig = encodeURIComponent(JSON.stringify(initconfig));
 
-setInterval(() => {
-    console.log(`Progress 2: ${manager2.currentValue}/${manager2.goal}`);
-    if (manager2.currentValue >= manager2.goal) {
-        console.log('Meta 2 alcanzada, eliminando...');
-    //    manager2.remove();
-    } else {
-        manager2.update(manager2.currentValue + 10); // Aumenta en 10, sin cambiar el goal
+// Crear la URL con el parámetro
+const newUrl = `${window.location.origin}${window.location.pathname}?config=${encodedConfig}`;
 
+console.log("Nueva URL:", newUrl);
+function getConfigFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const configString = params.get('config');
+    
+    if (configString) {
+        try {
+            return JSON.parse(decodeURIComponent(configString));
+        } catch (error) {
+            console.error("Error al parsear la configuración:", error);
+            return null;
+        }
     }
-}, 1000);
+    return null;
+}
 
-// Escuchar evento de meta alcanzada desde el elemento
-manager1.getElement().addEventListener('goalReached', (event) => {
-    console.log('¡Meta 1 alcanzada!', JSON.stringify(event.detail));
-});
+// Recuperar la configuración desde la URL
+const retrievedConfig = getConfigFromUrl();
+
+if (retrievedConfig) {
+    console.log("Configuración recuperada:", retrievedConfig);
+    const manager1 = createbyconfig(retrievedConfig[0]);
+    
+    // Crear elementos con un json
+    // Simular actualizaciones
+    setInterval(() => {
+        manager1.update(manager1.currentValue + 25); // Aumenta en 25, con aumento automático del goal
+        console.log(`Progress 1: ${manager1.currentValue}/${manager1.goal}`);
+    }, 1000);
+/*     const manager2 = createbyconfig(retrievedConfig[1]);
+
+    setInterval(() => {
+        console.log(`Progress 2: ${manager2.currentValue}/${manager2.goal}`);
+        if (manager2.currentValue >= manager2.goal) {
+            console.log('Meta 2 alcanzada, eliminando...');
+        //    manager2.remove();
+        } else {
+            manager2.update(manager2.currentValue + 10); // Aumenta en 10, sin cambiar el goal
+    
+        }
+    }, 1000);
+    
+    // Escuchar evento de meta alcanzada desde el elemento
+    manager1.getElement().addEventListener('goalReached', (event) => {
+        console.log('¡Meta 1 alcanzada!', JSON.stringify(event.detail));
+    }); */
+}
