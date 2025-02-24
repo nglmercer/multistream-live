@@ -1202,5 +1202,21 @@ function showAlert(type='info', message, duration = 3000,data) {
 document.body.appendChild(alert);
 
 }
-export {LocalStorageManager,unflattenObject, showAlert,flattenObject, Counter, TypeofData,ComboTracker, replaceVariables, compareObjects, logger, UserInteractionTracker, EvaluerLikes, ArrayStorageManager, ArrayManagerUI,getallfilesmap };
+export {
+  LocalStorageManager,
+  unflattenObject,
+  showAlert,
+  flattenObject, 
+  Counter, 
+  TypeofData,
+  ComboTracker, 
+  replaceVariables, 
+  compareObjects, 
+  logger, 
+  UserInteractionTracker, 
+  EvaluerLikes, 
+  ArrayStorageManager, 
+  ArrayManagerUI,
+  getallfilesmap 
+};
   
