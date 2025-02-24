@@ -64,7 +64,11 @@ class ProgressOverlay extends HTMLElement {
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        if (name === 'goal') this.goal = Number(newValue) || 100;
+        if (name === 'goal'){
+            this.goal = Number(newValue) || 100;
+            this.complete = this.currentValue > this.goal ? true : false;
+            console.log(this.complete);
+        }
         if (name === 'current-value') this.currentValue = Number(newValue) || 0;
         if (name === 'text') this.text = newValue || 'Progreso';
         if (name === 'text-position') this.textPosition = newValue || 'inside-center';
@@ -110,16 +114,18 @@ class ProgressOverlay extends HTMLElement {
         this.progressText.textContent = `${this.text} ${this.currentValue}/${this.goal}`;
 
         // Establecer posición del texto
-        this.setTextPosition(percentage);
+        this.setTextPosition();
 
         if (this.currentValue >= this.goal && !this.complete) {
             this.complete = true;
+            console.log(this.text, this.currentValue, this.goal, this.complete);
             this.dispatchEvent(new CustomEvent('goalReached', {
                 detail: { text: this.text, currentValue: this.currentValue, goal: this.goal },
                 bubbles: true,
                 composed: true
             }));
         }
+
     }
 
     setTextPosition() {
@@ -168,13 +174,14 @@ progress.setAttribute('border-radius', '10px');
 progress.setAttribute('text-stroke', '0.8px black');
 progress.setAttribute('text-position', 'inside-center');
 document.body.appendChild(progress);
-
+let lastValue = 0;
 // 🔹 Simular incremento de progreso
 var testInterval = setInterval(() => {
     let newValue = parseInt(progress.getAttribute('current-value')) + 25;
     progress.setAttribute('current-value', newValue);
-    if (newValue >= 250) {
-        progress.setAttribute('goal', '500');
+    if (newValue >= lastValue + 100) {
+        progress.setAttribute('goal', newValue + 100);
+        lastValue = newValue;
     }
 }, 1000);
 
