@@ -1,3 +1,35 @@
+function parsePattern(pattern) {
+  // Si pattern es null o undefined, retornamos una expresión regular que coincide con cualquier cadena vacía.
+  if (pattern == null) return new RegExp('');
+
+  let parsedPattern = '';
+
+  try {
+    if (pattern instanceof RegExp) {
+      // Si es un objeto RegExp, lo retornamos directamente.
+      return pattern;
+    } else if (typeof pattern === 'string') {
+      // Si la cadena tiene delimitadores tipo "/…/flags", extraemos la parte interna y los flags.
+      const literalRegex = /^\/(.*)\/([a-z]*)$/i;
+      const match = pattern.match(literalRegex);
+      if (match) {
+        parsedPattern = match[1];
+        const flags = match[2];
+        return new RegExp(parsedPattern, flags);
+      } else {
+        parsedPattern = pattern;
+        // Validamos que el patrón sea una expresión regular válida.
+        return new RegExp(parsedPattern);
+      }
+    } else {
+      throw new Error('El patrón debe ser una cadena o un objeto RegExp.');
+    }
+  } catch (error) {
+    console.error('Error al parsear el patrón:', error);
+    // Si hay un error, devolvemos una expresión regular que coincide con cualquier cadena vacía.
+    return new RegExp('');
+  }
+}
 class GameConsole extends HTMLElement {
     constructor() {
         super();
@@ -493,6 +525,7 @@ class GameConsole extends HTMLElement {
         :host {
           display: block;
           font-family: system-ui, -apple-system, sans-serif;
+          color: inherit;
         }
   
         .container {
@@ -502,12 +535,10 @@ class GameConsole extends HTMLElement {
         }
   
         .container.light {
-          color: #1a1a1a;
           border: 1px solid #e5e5e5;
         }
   
         .container.dark {
-          color: #ffffff;
           border: 1px solid #333333;
         }
   
@@ -1023,6 +1054,7 @@ class GameConsole extends HTMLElement {
                 }
                 
                 input:focus, textarea:focus, select:focus {
+                  background-color: ${this.style.backgroundColor || '#222'};
                   outline: none;
                   border-color: #2196F3;
                   box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
@@ -1122,7 +1154,8 @@ class GameConsole extends HTMLElement {
             renderInput(allarguments) {
               const { type, id, name, value, placeholder, disabled, readonly, options, required, title, pattern } = allarguments;
               const requiredAttr = required ? 'required' : ''; // This will output just 'required' when needed
-              
+              const newpattern = parsePattern(pattern)
+              console.log("newpattern",newpattern)
               switch (type) {
                 case 'textarea':
                   return `
@@ -1208,7 +1241,7 @@ class GameConsole extends HTMLElement {
                         ${readonly ? 'readonly' : ''}
                         ${requiredAttr}
                         ${title ? `title="${title}" oninvalid="this.setCustomValidity('${title}')" oninput="this.setCustomValidity('')"` : ''}
-                        ${pattern ? `pattern="${pattern}"` : ''}
+                        ${pattern ? `pattern=${newpattern.source}` : ''}
                       >
                     `;
                 

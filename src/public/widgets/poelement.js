@@ -1,3 +1,58 @@
+function flattenObject(obj, separator = '_') {
+    const result = {};
+  
+    function recurse(current, path = '') {
+        // Maneja valores primitivos y null
+        if (Object(current) !== current) {
+            result[path.slice(0, -1)] = current;
+            return;
+        }
+  
+        // Maneja arrays
+        if (Array.isArray(current)) {
+            result[path.slice(0, -1)] = current; // Guarda el array como tal
+            return;
+        }
+  
+        // Maneja objetos
+        for (const key in current) {
+            const newPath = path + key + separator;
+            recurse(current[key], newPath);
+        }
+    }
+  
+    recurse(obj);
+    return result;
+  }
+  
+  // Función para reconstituir un objeto plano a su forma original
+  function unflattenObject(obj, separator = '_') {
+    const result = {};
+  
+    for (const key in obj) {
+        const parts = key.split(separator);
+        let current = result;
+  
+        for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!(part in current)) {
+                current[part] = {};
+            }
+            current = current[part];
+        }
+  
+        const lastPart = parts[parts.length - 1];
+  
+        // Detecta arrays al deshacer el aplanado
+        if (Array.isArray(obj[key])) {
+            current[lastPart] = obj[key];
+        } else {
+            current[lastPart] = obj[key];
+        }
+    }
+  
+    return result;
+  }
 class ProgressOverlay extends HTMLElement {
     constructor() {
         super();
@@ -270,8 +325,44 @@ const initconfig = [
     }
 ]
 function createbyconfig(config) {
+    if (!config.style) config.style = {};
+    config.style = normalizeStyle(config.style);
     const manager = new GoalManager(config.id, config.goal, config.currentValue, config.text, config.autoIncreaseBy, config.style);
-    return manager;
+    return manager;             
+}
+function normalizeStyle(style) {
+    const defaultStyles = {
+        barColor: '#4caf50',
+        backgroundColor: '#e0e0e0',
+        textColor: 'black',
+        fontSize: '16px',
+        barHeight: '32px',
+        textPosition: 'inside-center',
+        borderRadius: '10px',
+    };
+
+    // Asegurar que las propiedades existen y están en el formato correcto
+    style.barColor = (style.barColor && style.barColor.startsWith('#')) ? style.barColor : defaultStyles.barColor;
+    style.backgroundColor = (style.backgroundColor && style.backgroundColor.startsWith('#')) ? style.backgroundColor : defaultStyles.backgroundColor;
+    style.textColor = (style.textColor && style.textColor.startsWith('#')) ? style.textColor : defaultStyles.textColor;
+
+    // Si el valor es numérico, lo convierte a string con "px", si ya lo tiene, lo deja igual
+    style.fontSize = (typeof style.fontSize === 'number') ? `${style.fontSize}px` 
+                   : (style.fontSize && style.fontSize.includes('px')) ? style.fontSize 
+                   : defaultStyles.fontSize;
+
+    style.barHeight = (typeof style.barHeight === 'number') ? `${style.barHeight}px` 
+                    : (style.barHeight && style.barHeight.includes('px')) ? style.barHeight 
+                    : defaultStyles.barHeight;
+
+    style.borderRadius = (typeof style.borderRadius === 'number') ? `${style.borderRadius}px` 
+                        : (style.borderRadius && style.borderRadius.includes('px')) ? style.borderRadius 
+                        : defaultStyles.borderRadius;
+
+    // Text Position no necesita validaciones especiales
+    style.textPosition = style.textPosition || defaultStyles.textPosition;
+
+    return style;
 }
 
 const encodedConfig = encodeURIComponent(JSON.stringify(initconfig));
@@ -330,19 +421,21 @@ if (retrievedConfig) {
 const widget_form = document.querySelector('.widget_form');
 widget_form.show();
 const widget_content = document.querySelector('.widget_content');
+let lastelement = null;
 const options = [
   {
-    label: 'Option 1',
+    label: 'crear',
     callback: () => {
-        const allinputs = document.querySelectorAll('custom-input');
-        allinputs.forEach(input => {
-        console.log(input.getInputValues());
-      });
+        if (lastelement) lastelement.remove();
+        console.log(getInputValues());
+    const newelement =    createbyconfig(getInputValues().proccessedValues);  
+    newelement.update(10)
+    lastelement = newelement;
     },
     class: 'save-btn'
   },
   {
-    label: 'Option 2',
+    label: 'cerrar',
     callback: () => {
       console.log('Option 2 selected');
     },
@@ -383,28 +476,44 @@ function parsedoptions(options){
         return { value: option, text: option, label: option };
     });
     return parsedoptions;
-}
+} 
 console.log(parsedoptions(selectoptions.textPosition));
 const inputsConfig = [
-  { id: 'inputID', name: 'inputID', value: 'Widget', placeholder: 'your widget name', title: 'inputID', pattern: '[a-zA-Z0-9]+', type: 'text' },
+  { id: 'inputID', name: 'inputID', value: 'Widget', placeholder: 'your widget name', title: 'inputID', type: 'text' },
   { id: 'goal', name: 'goal', value: '100', placeholder: 'your widget name', title: 'inputID', type: 'number' },
   { id: 'currentValue', name: 'currentValue', value: '0', placeholder: 'your widget name', title: 'inputID', type: 'number' },
   { id: 'inputText', name: 'inputText', value: 'my goal', placeholder: 'your widget name', title: 'inputID' },
-  { id: 'autoIncreaseBy', name: 'autoIncreaseBy', value: '100', placeholder: 'your widget name', title: 'inputID', type: 'number' },
-  { id: 'style_barColor', name: 'style_barColor', value: '#4caf50', placeholder: 'your widget name', title: 'inputID', type: 'color' },
-  { id: 'style_backgroundColor', name: 'style_backgroundColor', value: '#e0e0e0', placeholder: 'your widget name', title: 'inputID', type: 'color' },
-  { id: 'style_textColor', name: 'style_textColor', value: 'black', placeholder: 'your widget name', title: 'inputID', type: 'color' },
-  { id: 'style_fontSize', name: 'style_fontSize', value: '32', placeholder: 'your widget name', title: 'inputID', type: 'number' },
-  { id: 'style_barHeight', name: 'style_barHeight', value: '64', placeholder: 'your widget name', title: 'inputID', type: 'number' },
-  { id: 'style_textPosition', name: 'style_textPosition', value: 'inside-center', placeholder: 'your widget name', title: 'inputID', type: 'select', options: parsedoptions(selectoptions.textPosition) },
-  { id: 'style_borderRadius', name: 'style_borderRadius', value: '10', placeholder: 'your widget name', title: 'inputID', type: 'number' },
-  { id: 'style_textStroke', name: 'style_textStroke', value: '0.5px gray', placeholder: 'your widget name', title: 'inputID' },
+  { id: 'autoIncreaseBy', name: 'autoIncreaseBy', value: '100', placeholder: 'your widget name', title: 'inputID', type: 'number' }
+];
+const styleConfig = [
+    { id: 'style_barColor', name: 'style_barColor', value: '#4caf50', placeholder: 'your widget name', title: 'inputID', type: 'color' },
+    { id: 'style_backgroundColor', name: 'style_backgroundColor', value: '#e0e0e0', placeholder: 'your widget name', title: 'inputID', type: 'color' },
+    { id: 'style_textColor', name: 'style_textColor', value: 'black', placeholder: 'your widget name', title: 'inputID', type: 'color' },
+    { id: 'style_fontSize', name: 'style_fontSize', value: '32', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+    { id: 'style_barHeight', name: 'style_barHeight', value: '64', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+    { id: 'style_textPosition', name: 'style_textPosition', value: 'inside-center', placeholder: 'your widget name', title: 'inputID', type: 'select', options: parsedoptions(selectoptions.textPosition) },
+    { id: 'style_borderRadius', name: 'style_borderRadius', value: '10', placeholder: 'your widget name', title: 'inputID', type: 'number' },
+    { id: 'style_textStroke', name: 'style_textStroke', value: '0.5px gray', placeholder: 'your widget name', title: 'inputID' }
 ];
 function renderInputsform(inputsConfig) {
+    widget_content.setAttribute('title', `Configuración del widget`);
     inputsConfig.forEach(config => {
       const inputElement = createCustomInput(config);
       const row = createrow(inputElement, { text: config.name, className: 'input-row' });
       formDialog.appendChild(row);
+    });
+    const detailselement = document.createElement('details');
+    const summaryElement = document.createElement('summary');
+    summaryElement.textContent = 'Cambiar estilos';
+
+    // Agregar el summary al details
+    detailselement.appendChild(summaryElement);
+    // cambiar texto de summary con javascript de inicio
+    formDialog.appendChild(detailselement);
+    styleConfig.forEach(config => {
+      const inputElement = createCustomInput(config);
+      const row = createrow(inputElement, { text: config.name, className: 'input-row' });
+      detailselement.appendChild(row);
     });
 }
 function createrow(element, { text, className }) {
@@ -436,4 +545,18 @@ function createCustomInput({ id, name, value, placeholder, title, pattern, type,
       input.setAttribute('pattern', pattern);
   }
   return input;
+}
+function getInputValues() {
+    const inputs = document.querySelectorAll('custom-input');
+    const values = {};
+    inputs.forEach(input => {
+        values[input.getAttribute('name')] = input.getInputValues();
+    });
+    return {
+        proccessedValues:
+        unflattenObject(values),
+        rawValues:
+        flattenObject(values),
+        values
+    };
 }
