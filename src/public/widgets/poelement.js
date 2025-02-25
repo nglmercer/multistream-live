@@ -400,15 +400,29 @@ const inputsConfig = [
   { id: 'style_borderRadius', name: 'style_borderRadius', value: '10', placeholder: 'your widget name', title: 'inputID', type: 'number' },
   { id: 'style_textStroke', name: 'style_textStroke', value: '0.5px gray', placeholder: 'your widget name', title: 'inputID' },
 ];
-
-inputsConfig.forEach(config => {
-  const inputElement = createCustomInput(config);
-  formDialog.appendChild(inputElement);
-});
-
+function renderInputsform(inputsConfig) {
+    inputsConfig.forEach(config => {
+      const inputElement = createCustomInput(config);
+      const row = createrow(inputElement, { text: config.name, className: 'input-row' });
+      formDialog.appendChild(row);
+    });
+}
+function createrow(element, { text, className }) {
+    const row = document.createElement('div');
+    row.style.color = 'white';
+    row.classList.add('row');
+    if (className) row.classList.add(className);
+    const label = document.createElement('label');
+    label.textContent = text;
+    row.appendChild(label);
+    row.appendChild(element);
+    return row;
+}
+renderInputsform(inputsConfig);
 
 function createCustomInput({ id, name, value, placeholder, title, pattern, type, options }) {
   const input = document.createElement('custom-input');
+  input.style.color = 'white';
   input.setAttribute('id', id);
   input.setAttribute('name', name);
   input.setAttribute('value', value);
