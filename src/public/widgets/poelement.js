@@ -272,10 +272,15 @@ class GoalManager {
     update(currentValue) {
         this.currentValue = currentValue;
         this.element.setAttribute('current-value', this.currentValue);
-
+        if (!this.autoIncreaseBy) return;
         // Si autoIncreaseBy está habilitado y se supera el umbral
         if (this.autoIncreaseBy > 0 && this.currentValue >= this.lastValue + this.autoIncreaseBy) {
             this.setGoal(this.currentValue + this.autoIncreaseBy);
+            this.lastValue = this.currentValue;
+        }
+        if (this.autoIncreaseBy.includes('%') && this.currentValue > this.goal) {
+            const percentage = parseFloat(this.autoIncreaseBy.replace('%', ''));
+            this.setGoal(this.goal * (1 + percentage / 100));
             this.lastValue = this.currentValue;
         }
     }
@@ -302,7 +307,7 @@ class GoalManager {
 
 // Ejemplo de uso
 // Crear varias instancias
-/* const manager1 = new GoalManager('progress1', 200, 50, 'Meta a', 100);
+const manager1 = new GoalManager('progress1', 200, 50, 'Meta a', "100%");
 const manager2 = new GoalManager('progress2', 150, 20, 'Meta b', 0); // Sin aumento automático */
 // funcion para crear elementos con un json
 const initconfig = [
@@ -399,7 +404,7 @@ if (retrievedConfig) {
         manager1.update(manager1.currentValue + 25); // Aumenta en 25, con aumento automático del goal
         console.log(`Progress 1: ${manager1.currentValue}/${manager1.goal}`);
     }, 1000);
-/*     const manager2 = createbyconfig(retrievedConfig[1]);
+    const manager2 = createbyconfig(retrievedConfig[1]);
 
     setInterval(() => {
         console.log(`Progress 2: ${manager2.currentValue}/${manager2.goal}`);
@@ -415,9 +420,12 @@ if (retrievedConfig) {
     // Escuchar evento de meta alcanzada desde el elemento
     manager1.getElement().addEventListener('goalReached', (event) => {
         console.log('¡Meta 1 alcanzada!', JSON.stringify(event.detail));
-    }); */
+    }); 
 }
-
+setInterval(() => {
+    manager1.update(manager1.currentValue + 25); // Aumenta en 25, con aumento automático del goal
+    console.log(`Progress 1: ${manager1.currentValue}/${manager1.goal}`);
+}, 1000);
 const widget_form = document.querySelector('.widget_form');
 widget_form.show();
 const widget_content = document.querySelector('.widget_content');

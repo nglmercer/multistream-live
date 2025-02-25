@@ -1155,7 +1155,6 @@ class GameConsole extends HTMLElement {
               const { type, id, name, value, placeholder, disabled, readonly, options, required, title, pattern } = allarguments;
               const requiredAttr = required ? 'required' : ''; // This will output just 'required' when needed
               const newpattern = parsePattern(pattern)
-              console.log("newpattern",newpattern)
               switch (type) {
                 case 'textarea':
                   return `
