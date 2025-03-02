@@ -15,7 +15,7 @@ const keynut = require("./features/keycontroll.js");
 const {
   StorageManager
 } = require('./utils.js');
-const store = new StorageManager();
+const store = new StorageManager("store.json");
 
 const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
 const  { createClient } = require('@retconned/kick-js'); 
