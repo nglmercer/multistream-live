@@ -13,19 +13,17 @@ import WindowManager from './features/window-manager.js'; */
 const WindowManager = require('./features/window-manager.js');
 const keynut = require("./features/keycontroll.js");
 const Store = require('./features/store.js');
-const store = new Store();
+const store = new Store("store.json",);
 
 const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
 const  { createClient } = require('@retconned/kick-js'); 
 const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
-const { fileURLToPath } = require('url');
 const path = require('node:path');
 const fs = require('node:fs');
 const express = require('express');
 const { Server } = require('socket.io');
 const http = require('http');
 const cors = require('cors');
-const { get } = require('node:http');
 const windowManager = new WindowManager();
 const essapp = express();
 essapp.use(cors());
@@ -597,7 +595,7 @@ function saveshortcuts(data) {
     }
     
     shortcuts[data.name] = data.shortcut;
-    store.set('shortcuts', shortcuts);
+    store.JSONset('shortcuts', shortcuts);
     
     if (shortcutsEnabled) {
       unregisterAllShortcuts();
@@ -619,13 +617,13 @@ function deleteshortcuts(data) {
     delete shortcuts[shortcutKey]; // Elimina el atajo del objeto
 
     // Actualiza la base de datos con el objeto shortcuts modificado
-    store.set('shortcuts', shortcuts);
+    store.JSONset('shortcuts', shortcuts);
   }
 }
 
 function getshortcuts() {
   try {
-    const shortcuts = store.get('shortcuts') || {};
+    const shortcuts = store.JSONget('shortcuts') || {};
     console.log("getshortcuts",shortcuts);
     return shortcuts;
     } catch (error) {

@@ -51,7 +51,7 @@ function saveshortcuts(data, store) {
     }
     
     shortcuts[data.name] = data.shortcut;
-    store.set('shortcuts', shortcuts);
+    store.JSONset('shortcuts', shortcuts);
     
     if (shortcutsEnabled) {
       unregisterAllShortcuts();
@@ -60,9 +60,9 @@ function saveshortcuts(data, store) {
     return shortcuts;
 }
 function deleteshortcuts(name, store) {
-    const shortcuts = store.get('shortcuts') || {};
+    const shortcuts = store.JSONget('shortcuts') || {};
     delete shortcuts[name];
-    store.set('shortcuts', shortcuts);
+    store.JSONset('shortcuts', shortcuts);
     
     if (shortcutsEnabled) {
       unregisterAllShortcuts();
@@ -72,7 +72,7 @@ function deleteshortcuts(name, store) {
 }
 function getshortcuts(store) {
   try {
-    return store.get('shortcuts') || {};
+    return store.JSONget('shortcuts') || {};
     } catch (error) {
         console.error('Error getting shortcuts:', error);
         return {};
