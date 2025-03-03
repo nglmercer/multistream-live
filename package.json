@@ -4,7 +4,7 @@
   "description": "The electronjs application launcher",
   "keywords": [],
   "main": "./main.js",
-  "version": "1.4.2",
+  "version": "1.4.4",
   "author": "melser",
   "scripts": {
     "start": "electron ./src",

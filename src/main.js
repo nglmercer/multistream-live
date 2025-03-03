@@ -224,6 +224,7 @@ class TiktokConnection extends PlatformConnection {
   }
 
   initializeEventHandlers(socket, platform, uniqueId) {
+    console.log("initializeEventHandlers", platform, uniqueId);
     tiktokLiveEvents.forEach(event => {
       // Remove previous listeners
       this.tiktokLiveConnection.removeAllListeners(event);
@@ -261,7 +262,15 @@ class KickConnection extends PlatformConnection {
   async connect(socket) {
       try {
           this.isConnected = true;
+          console.log("connect", this.uniqueId);
           this.initializeEventHandlers(socket);
+          this.kickliveconnector.login({
+            type: "tokens",
+            credentials: {
+              bearerToken: process.env.BEARER_TOKEN,
+              cookies: process.env.COOKIES,
+            },
+          });          
           if (socket) {
               socket.emit('connected', this.getState());
           }
@@ -272,17 +281,13 @@ class KickConnection extends PlatformConnection {
       }
   }
 
-  initializeEventHandlers(socket, platform, uniqueId) {
+  initializeEventHandlers(socket) {
     // Unbind previous event listeners if they exist
-    LiveEvents.forEach(event => {
-      // Use standard event unbinding if possible
-      if (this.kickliveconnector.off) {
-        this.kickliveconnector.off(event);
-      }
-    });
+    console.log("initializeEventHandlers");
     LiveEvents.forEach(event => {
       this.kickliveconnector.on(event, (data) => {
         socket.emit(event, data);  // Emit directly to the socket
+        console.log(`Kick ${event}`, data);
         if (event === 'disconnected') {
           console.log(`Kick ${event} event for ${this.uniqueId}`);
           this.isConnected = false;
