@@ -722,7 +722,102 @@ class Logger {
 
 // Ejemplo de uso:
 const logger = new Logger({debug: true, info: true}, false);
+// localstorage getitem setting_events = [] transformarTriggers(setting_events)
+function transformarTriggers(inputArray) {
+  if (!Array.isArray(inputArray)) {
+    console.error("La entrada debe ser un array.");
+    return [];
+  }
 
+  return inputArray.map((item, index) => {
+    let type = 'unknown';
+    let name = 'Evento Desconocido';
+    let comparator = 'equal'; // Valor por defecto
+    let value = '';          // Valor por defecto
+
+    // Determinar tipo, nombre, valor y comparador según triggerTypeId
+    switch (item.triggerTypeId) {
+      case 1: // Follow (Asunción)
+        type = 'follow';
+        name = 'Nuevo Seguidor';
+        // No hay valor específico para comparar, es solo el evento
+        break;
+      case 2: // Chat Command
+        type = 'chat';
+        name = `Comando de Chat: ${item.chatCmd || 'N/A'}`;
+        value = item.chatCmd || '';
+        comparator = 'equal'; // El comando debe ser exacto
+        break;
+      case 3: // Bars/Coins Donation (Asunción por minBarsAmount)
+        type = 'bars'; // O 'coins', 'donation'
+        name = `Donación (>= ${item.minBarsAmount || 0} Barras/Monedas)`;
+        value = String(item.minBarsAmount || '0');
+        comparator = 'greaterOrEqual'; // Se activa al alcanzar o superar el umbral
+        break;
+      case 4: // Gift
+        type = 'gift';
+        name = `Envío de Regalo: ${item.giftName || 'Desconocido'}`;
+        value = String(item.giftId || ''); // Usamos el ID del regalo como valor
+        comparator = 'equal'; // El ID del regalo debe coincidir
+        break;
+      case 6: // Share (Asunción)
+        type = 'share';
+        name = 'Compartir Stream';
+        // No hay valor específico para comparar
+        break;
+      case 7: // Likes
+        type = 'like';
+        name = `Acumulación de Likes (>= ${item.minLikesAmount || 0})`;
+        value = String(item.minLikesAmount || '0');
+        comparator = 'greaterOrEqual'; // Se activa al alcanzar o superar el umbral
+        break;
+      case 9: // Join (Asunción)
+        type = 'join';
+        name = 'Nuevo Miembro en Chat';
+        // No hay valor específico para comparar
+        break;
+      case 10: // Subscribe (Asunción)
+        type = 'subscribe';
+        name = 'Nueva Suscripción';
+        // No hay valor específico para comparar
+        break;
+      case 11: // Otro tipo (ej. Poll, etc. - Asunción genérica)
+        type = `system_event_${item.triggerTypeId}`;
+        name = `Evento del Sistema ${item.triggerTypeId}`;
+        // No hay valor específico claro para comparar
+        break;
+      default:
+        name = `Evento Desconocido (Tipo ${item.triggerTypeId})`;
+        break;
+    }
+
+    // Construir el objeto en el nuevo formato
+    const nuevoObjeto = {
+      // Usamos el 'id' original (UUID) para mantener la unicidad,
+      // ya que el formato de ejemplo con 'id: 2' no tiene una fuente clara en los datos de entrada.
+      // Si necesitas un ID numérico secuencial, podrías usar 'index + 1' en su lugar.
+      id: item.id,
+      name: name,
+      // Mapeamos directamente el 'active' del objeto original
+      isActive: item.active || false,
+      // El rol 'any' parece ser un valor fijo según tu ejemplo
+      role: 'any',
+      // El comparador se determina según el tipo de trigger
+      comparator: comparator,
+      // El valor se determina según el tipo de trigger
+      value: value,
+      // El tipo se determina según el triggerTypeId
+      type: type
+    };
+
+    // Puedes añadir más lógica aquí si necesitas incluir 'actionIds'
+    // o 'actionRandomIds' en el nuevo formato de alguna manera.
+    // Por ejemplo:
+    // nuevoObjeto.actions = item.actionIds;
+
+    return nuevoObjeto;
+  });
+}
 
 // Añadir categorías dinámicamente
 // logger.addCategory('datos'); // Habilitada por defecto

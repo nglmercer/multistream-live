@@ -501,10 +501,11 @@ async function mapChatMessagetochat(data) {
     uniqueId: data.sender?.username,
     nickname: data.sender?.slug,
     color: data.sender?.indentity?.color,
+    emotes: data.emotes,// this is array of emotes
     profilePictureUrl: await GetAvatarUrlKick.getProfilePic(data.sender?.username),
   }
 }
-
+/// crear un componente class extend html para añadir el elemento con foto nombre y el comentario con emotes ademas 3 puntos a una esquina y esto emite un custom event dispatch y tambien al hacer click derecho al elemento emite details con los que fue creado 
 const newtextcontent = {
   user: {
     name: "username",
