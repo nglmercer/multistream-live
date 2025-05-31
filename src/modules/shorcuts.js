@@ -1,7 +1,6 @@
 const { globalShortcut } = require('electron');
 let shortcutsEnabled = true;
 let registeredShortcuts = {};
-let laststore = null;
 function registerAllShortcuts(store) {
     const shortcuts = getshortcuts(store);
     Object.entries(shortcuts).forEach(([name, shortcut]) => {

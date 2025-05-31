@@ -92,7 +92,9 @@ class WindowManagerBase extends EventEmitter {
     getWindow(id) {
         return this.windows.get(id);
     }
-
+    getWindows() {
+        return this.windows;
+    }
     /**
      * Obtiene la configuración registrada para una ventana por ID.
      * @param {string} id
