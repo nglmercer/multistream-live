@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><!-- REMOVE Font Awesome --><!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" /> --><!-- ADD Material Symbols (usando tu CSS local o el CDN de Google) --><!-- Opción 1: Usando tu CSS local (asegúrate que esté bien configurado) --><link rel="stylesheet" href="/materialSymbols.css"><!-- Opción 2: Usando el CDN de Google (más común y auto-contenido) --><!-- Descomenta esta línea si prefieres el CDN y comenta la anterior --><!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> --><meta name="color-scheme" content="light dark"><script type="module" src="/_astro/SidebarLayout.astro_astro_type_script_index_0_lang.BolNF27A.js"></script><script type="module" src="/_astro/SidebarLayout.astro_astro_type_script_index_1_lang.Dij2-b8r.js"></script><title>Mi Aplicación</title><link rel="stylesheet" href="/_astro/Actions.DkEGugyP.css"><script>/** @license Copyright 2020 Google LLC (BSD-3-Clause) */
+/** Bundled JS generated from "@astrojs/lit/client-shim.js" */
+var N = Object.defineProperty;
+var i = (t, n) => () => (t && (n = t((t = 0))), n);
+var b = (t, n) => {
+	for (var a in n) N(t, a, { get: n[a], enumerable: !0 });
+};
+function s() {
+	if (d === void 0) {
+		let t = document.createElement('div');
+		(t.innerHTML = '<div><template shadowrootmode="open"></template></div>'),
+			(d = !!t.firstElementChild.shadowRoot);
+	}
+	return d;
+}
+var d,
+	m = i(() => {});
+var p,
+	c,
+	f,
+	u = i(() => {
+		(p = (t) => t.parentElement === null),
+			(c = (t) => t.tagName === 'TEMPLATE'),
+			(f = (t) => t.nodeType === Node.ELEMENT_NODE);
+	});
+var h,
+	E = i(() => {
+		m();
+		u();
+		h = (t) => {
+			var n;
+			if (s()) return;
+			let a = [],
+				e = t.firstElementChild;
+			for (; e !== t && e !== null; )
+				if (c(e)) a.push(e), (e = e.content);
+				else if (e.firstElementChild !== null) e = e.firstElementChild;
+				else if (f(e) && e.nextElementSibling !== null) e = e.nextElementSibling;
+				else {
+					let o;
+					for (; e !== t && e !== null; )
+						if (p(e)) {
+							o = a.pop();
+							let r = o.parentElement,
+								l = o.getAttribute('shadowroot');
+							if (((e = o), l === 'open' || l === 'closed')) {
+								let y = o.hasAttribute('shadowrootdelegatesfocus');
+								try {
+									r.attachShadow({ mode: l, delegatesFocus: y }).append(o.content);
+								} catch {}
+							} else o = void 0;
+						} else {
+							let r = e.nextElementSibling;
+							if (r != null) {
+								(e = r), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							let l =
+								(n = e.parentElement) === null || n === void 0 ? void 0 : n.nextElementSibling;
+							if (l != null) {
+								(e = l), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							(e = e.parentElement), o !== void 0 && (o.parentElement.removeChild(o), (o = void 0));
+						}
+				}
+		};
+	});
+var w = i(() => {
+	E();
+});
+var v = {};
+b(v, { hasNativeDeclarativeShadowRoots: () => s, hydrateShadowRoots: () => h });
+var S = i(() => {
+	m();
+	w();
+});
+async function g() {
+	let { hydrateShadowRoots: t } = await Promise.resolve().then(() => (S(), v));
+	window.addEventListener('DOMContentLoaded', () => t(document.body), { once: true });
+}
+var x = Document.parseHTMLUnsafe(
+	'<p><template shadowrootmode="open"></template></p>'
+).querySelector('p');
+(!x || !x.shadowRoot) && g();
+</script></head> <body> <dialog-container id="ActionDialog" style="position: absolute;"> <div class="modal__container"> <div class="tiktok-event-simulator" style="padding: 15px; margin: 15px 0; border-radius: 5px;"> <h4>Simulate TikTok Event</h4> <p>
+Select an event type below (populated from localStorage) and click "Emit"
+  to simulate it using TiktokEmitter.
+</p> <div> <label for="tiktok-event-select">Event Type:</label> <select id="tiktok-event-select" style="margin-left: 5px; margin-right: 10px;"> <option value="">-- Select Event --</option> </select> <button id="emit-tiktok-event-button" disabled>Emit Selected Event</button> </div> <div id="tiktok-event-status" style="margin-top: 10px; font-style: italic; min-height: 1.2em;"></div> </div> <script type="module" src="/_astro/actiontest.astro_astro_type_script_index_0_lang.Bj66DB7l.js"></script> </div> </dialog-container> <div class="layout">  <nav class="mobile-nav"> <div class="nav-content"> <div class="logo"> <div> <h1 class="logo-text">Logo</h1> </div> </div> <div class="nav-buttons"> <a href="/" class="nav-link">  <span class="material-symbols-outlined">home</span> <span class="nav-text">Home</span> </a><a href="/chat" class="nav-link">  <span class="material-symbols-outlined">tooltip_2</span> <span class="nav-text">Chat</span> </a><a href="/Actions" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Actions</span> </a><a href="/voice" class="nav-link">  <span class="material-symbols-outlined">volume_down</span> <span class="nav-text">Volume</span> </a><a href="/page-4" class="nav-link">  <span class="material-symbols-outlined">favorite</span> <span class="nav-text">Favorites</span> </a><a href="/Setconfig" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Settings</span> </a> </div> <div class="login-mobile"></div> </div> </nav>  <aside class="sidebar"> <div class="sidebar-content"> <div class="logo"> <div> <h1 class="logo-text">Logo</h1> </div> </div> <div class="nav-buttons"> <a href="/" class="nav-link">  <span class="material-symbols-outlined">home</span> <span class="nav-text">Home</span> </a><a href="/chat" class="nav-link">  <span class="material-symbols-outlined">tooltip_2</span> <span class="nav-text">Chat</span> </a><a href="/Actions" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Actions</span> </a><a href="/voice" class="nav-link">  <span class="material-symbols-outlined">volume_down</span> <span class="nav-text">Volume</span> </a><a href="/page-4" class="nav-link">  <span class="material-symbols-outlined">favorite</span> <span class="nav-text">Favorites</span> </a><a href="/Setconfig" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Settings</span> </a> </div> <div class="login-desktop"> <script type="module" src="/_astro/userConnect.astro_astro_type_script_index_0_lang.bNkxgWly.js"></script> <div id="UserProfile"> <user-profile minimal="true" group-id="tiktok_login" id="tiktok_login"></user-profile> <user-profile minimal="true" group-id="kick_login" id="kick_login"></user-profile> </div> <script type="module" src="/_astro/userConnect.astro_astro_type_script_index_1_lang.BruUhu54.js"></script> </div> </div> </aside>  <main class="main-content">   <div class="content"> <h1>Contenido Principal</h1>  <div id="UserProfile"> <user-profile minimal="true" group-id="tiktok_login" id="tiktok_login"></user-profile> <user-profile minimal="true" group-id="kick_login" id="kick_login"></user-profile> </div>  </div>  </main> <button class="float-btn" id="MainModalshow"> <span class="material-symbols-outlined">
+view_headline
+</span> </button> </div> <script type="module" src="/_astro/SidebarLayout.astro_astro_type_script_index_2_lang.D5Dngid7.js"></script> </body> </html> 

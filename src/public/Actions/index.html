@@ -1,0 +1,476 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><!-- REMOVE Font Awesome --><!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" /> --><!-- ADD Material Symbols (usando tu CSS local o el CDN de Google) --><!-- Opción 1: Usando tu CSS local (asegúrate que esté bien configurado) --><link rel="stylesheet" href="/materialSymbols.css"><!-- Opción 2: Usando el CDN de Google (más común y auto-contenido) --><!-- Descomenta esta línea si prefieres el CDN y comenta la anterior --><!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> --><meta name="color-scheme" content="light dark"><script type="module" src="/_astro/SidebarLayout.astro_astro_type_script_index_0_lang.BolNF27A.js"></script><script type="module" src="/_astro/SidebarLayout.astro_astro_type_script_index_1_lang.Dij2-b8r.js"></script><title>Mi Aplicación</title><link rel="stylesheet" href="/_astro/Actions.DkEGugyP.css">
+<style>.action-form{--form-bg: #f9f9f9;--form-border: #eee;--text-color: #333;--border-color: #ddd;--error-color: #dc3545;--success-color: #28a745;--primary-color: #007bff;--secondary-color: #6c757d;display:block;font-family:system-ui,-apple-system,sans-serif;background-color:var(--form-bg);border:1px solid var(--form-border);border-radius:12px;padding:24px;margin-bottom:16px;color:var(--text-color);box-shadow:0 2px 8px #0000001a;width:80%;max-height:90dvh;overflow:auto}.action-form.dark{--form-bg: #1a1a1a;--form-border: #333;--text-color: #e0e0e0;--border-color: #444}.form-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-color)}.form-title{margin:0 0 8px;font-size:1.5rem;font-weight:600;color:var(--text-color)}.form-description{margin:0;color:var(--text-color);opacity:.8;font-size:.9rem;line-height:1.4}.fields-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px 24px;margin-bottom:24px}.field-wrapper{display:flex;flex-direction:column;gap:8px;transition:opacity .2s ease}.field-wrapper.invalid{border-left:3px solid var(--error-color);padding-left:12px;margin-left:-15px}.field-label{font-weight:500;font-size:.9rem;color:var(--text-color);margin-bottom:4px;display:flex;align-items:center;gap:4px}.required-indicator{color:var(--error-color);font-weight:700}.field-error{display:none;font-size:.8rem;color:var(--error-color);margin-top:4px}.custom-fields{margin-bottom:24px}.form-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:16px;border-top:1px solid var(--border-color)}.btn{padding:10px 20px;border:none;border-radius:6px;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s ease;min-width:100px}.btn:focus{outline:2px solid var(--primary-color);outline-offset:2px}.btn-primary{background-color:var(--primary-color);color:#fff}.btn-primary:hover{background-color:#0056b3;transform:translateY(-1px)}.btn-secondary{background-color:transparent;color:var(--secondary-color);border:1px solid var(--secondary-color)}.btn-secondary:hover{background-color:var(--secondary-color);color:#fff}.field-wrapper[data-field-type=range],.field-wrapper[data-field-type=textarea]{grid-column:span 2}@media (max-width: 768px){.action-form{padding:16px}.fields-container{grid-template-columns:1fr;gap:16px}.field-wrapper[data-field-type=range],.field-wrapper[data-field-type=textarea]{grid-column:span 1}.form-actions{flex-direction:column-reverse}.btn{width:100%}}#modal-container[data-astro-cid-3cdu4sz3] dyn-obj-disp[data-astro-cid-3cdu4sz3]{min-width:400px;display:block;background-color:#222;border-radius:8px}#modal-container[data-astro-cid-3cdu4sz3] dyn-obj-disp[data-astro-cid-3cdu4sz3] obj-edit-frm[data-astro-cid-3cdu4sz3]{border:none;padding:0;background:transparent}.output[data-astro-cid-3cdu4sz3]{margin-top:1rem;padding:1rem;background-color:#1a1a1a;border:1px solid #333;border-radius:5px;white-space:pre-wrap;font-family:monospace;min-height:50px}.loading[data-astro-cid-3cdu4sz3]{font-style:italic;color:#aaa}
+</style><script>/** @license Copyright 2020 Google LLC (BSD-3-Clause) */
+/** Bundled JS generated from "@astrojs/lit/client-shim.js" */
+var N = Object.defineProperty;
+var i = (t, n) => () => (t && (n = t((t = 0))), n);
+var b = (t, n) => {
+	for (var a in n) N(t, a, { get: n[a], enumerable: !0 });
+};
+function s() {
+	if (d === void 0) {
+		let t = document.createElement('div');
+		(t.innerHTML = '<div><template shadowrootmode="open"></template></div>'),
+			(d = !!t.firstElementChild.shadowRoot);
+	}
+	return d;
+}
+var d,
+	m = i(() => {});
+var p,
+	c,
+	f,
+	u = i(() => {
+		(p = (t) => t.parentElement === null),
+			(c = (t) => t.tagName === 'TEMPLATE'),
+			(f = (t) => t.nodeType === Node.ELEMENT_NODE);
+	});
+var h,
+	E = i(() => {
+		m();
+		u();
+		h = (t) => {
+			var n;
+			if (s()) return;
+			let a = [],
+				e = t.firstElementChild;
+			for (; e !== t && e !== null; )
+				if (c(e)) a.push(e), (e = e.content);
+				else if (e.firstElementChild !== null) e = e.firstElementChild;
+				else if (f(e) && e.nextElementSibling !== null) e = e.nextElementSibling;
+				else {
+					let o;
+					for (; e !== t && e !== null; )
+						if (p(e)) {
+							o = a.pop();
+							let r = o.parentElement,
+								l = o.getAttribute('shadowroot');
+							if (((e = o), l === 'open' || l === 'closed')) {
+								let y = o.hasAttribute('shadowrootdelegatesfocus');
+								try {
+									r.attachShadow({ mode: l, delegatesFocus: y }).append(o.content);
+								} catch {}
+							} else o = void 0;
+						} else {
+							let r = e.nextElementSibling;
+							if (r != null) {
+								(e = r), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							let l =
+								(n = e.parentElement) === null || n === void 0 ? void 0 : n.nextElementSibling;
+							if (l != null) {
+								(e = l), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							(e = e.parentElement), o !== void 0 && (o.parentElement.removeChild(o), (o = void 0));
+						}
+				}
+		};
+	});
+var w = i(() => {
+	E();
+});
+var v = {};
+b(v, { hasNativeDeclarativeShadowRoots: () => s, hydrateShadowRoots: () => h });
+var S = i(() => {
+	m();
+	w();
+});
+async function g() {
+	let { hydrateShadowRoots: t } = await Promise.resolve().then(() => (S(), v));
+	window.addEventListener('DOMContentLoaded', () => t(document.body), { once: true });
+}
+var x = Document.parseHTMLUnsafe(
+	'<p><template shadowrootmode="open"></template></p>'
+).querySelector('p');
+(!x || !x.shadowRoot) && g();
+</script></head> <body> <dialog-container id="ActionDialog" style="position: absolute;"> <div class="modal__container"> <div class="tiktok-event-simulator" style="padding: 15px; margin: 15px 0; border-radius: 5px;"> <h4>Simulate TikTok Event</h4> <p>
+Select an event type below (populated from localStorage) and click "Emit"
+  to simulate it using TiktokEmitter.
+</p> <div> <label for="tiktok-event-select">Event Type:</label> <select id="tiktok-event-select" style="margin-left: 5px; margin-right: 10px;"> <option value="">-- Select Event --</option> </select> <button id="emit-tiktok-event-button" disabled>Emit Selected Event</button> </div> <div id="tiktok-event-status" style="margin-top: 10px; font-style: italic; min-height: 1.2em;"></div> </div> <script type="module" src="/_astro/actiontest.astro_astro_type_script_index_0_lang.Bj66DB7l.js"></script> </div> </dialog-container> <div class="layout">  <nav class="mobile-nav"> <div class="nav-content"> <div class="logo"> <div> <h1 class="logo-text">Logo</h1> </div> </div> <div class="nav-buttons"> <a href="/" class="nav-link">  <span class="material-symbols-outlined">home</span> <span class="nav-text">Home</span> </a><a href="/chat" class="nav-link">  <span class="material-symbols-outlined">tooltip_2</span> <span class="nav-text">Chat</span> </a><a href="/Actions" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Actions</span> </a><a href="/voice" class="nav-link">  <span class="material-symbols-outlined">volume_down</span> <span class="nav-text">Volume</span> </a><a href="/page-4" class="nav-link">  <span class="material-symbols-outlined">favorite</span> <span class="nav-text">Favorites</span> </a><a href="/Setconfig" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Settings</span> </a> </div> <div class="login-mobile"></div> </div> </nav>  <aside class="sidebar"> <div class="sidebar-content"> <div class="logo"> <div> <h1 class="logo-text">Logo</h1> </div> </div> <div class="nav-buttons"> <a href="/" class="nav-link">  <span class="material-symbols-outlined">home</span> <span class="nav-text">Home</span> </a><a href="/chat" class="nav-link">  <span class="material-symbols-outlined">tooltip_2</span> <span class="nav-text">Chat</span> </a><a href="/Actions" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Actions</span> </a><a href="/voice" class="nav-link">  <span class="material-symbols-outlined">volume_down</span> <span class="nav-text">Volume</span> </a><a href="/page-4" class="nav-link">  <span class="material-symbols-outlined">favorite</span> <span class="nav-text">Favorites</span> </a><a href="/Setconfig" class="nav-link">  <span class="material-symbols-outlined">settings</span> <span class="nav-text">Settings</span> </a> </div> <div class="login-desktop"> <script type="module" src="/_astro/userConnect.astro_astro_type_script_index_0_lang.bNkxgWly.js"></script> <div id="UserProfile"> <user-profile minimal="true" group-id="tiktok_login" id="tiktok_login"></user-profile> <user-profile minimal="true" group-id="kick_login" id="kick_login"></user-profile> </div> <script type="module" src="/_astro/userConnect.astro_astro_type_script_index_1_lang.BruUhu54.js"></script> </div> </div> </aside>  <main class="main-content">   <div class="content"> <h1>Contenido Principal</h1> <script type="module" src="/_astro/ActionsEvents.astro_astro_type_script_index_0_lang.DvC1AfeF.js"></script> <script type="module" src="/_astro/ActionsEvents.astro_astro_type_script_index_1_lang.CIB__c5M.js"></script> <script type="module" src="/_astro/ActionsEvents.astro_astro_type_script_index_2_lang.BR9H5V2b.js"></script> <div class="container" data-astro-cid-3cdu4sz3> <div class="button-group" data-astro-cid-3cdu4sz3> <button data-form-type="comment" class="primary" data-astro-cid-3cdu4sz3>Evento Comentario</button> <button data-form-type="bits" class="primary" data-astro-cid-3cdu4sz3>Evento Bits</button> <button data-form-type="likes" class="primary" data-astro-cid-3cdu4sz3>Evento Likes</button> <button data-form-type="gift" class="primary" data-astro-cid-3cdu4sz3>Evento Regalo</button> <button id="actionButton" class="primary" data-astro-cid-3cdu4sz3>Acción</button> </div> <dlg-cont id="modal-container" data-astro-cid-3cdu4sz3="true"> <dyn-obj-disp id="dynamic-editor" mode="edit" darkmode="true" data-astro-cid-3cdu4sz3="true"></dyn-obj-disp> </dlg-cont> <dlg-cont id="Action-modal" data-astro-cid-3cdu4sz3="true"> <obj-edit-frm id="Action-editor" mode="edit" darkmode="true" data-astro-cid-3cdu4sz3="true"></obj-edit-frm> </dlg-cont> <grid-manager-lit id="eventConfigManager" darkmode="true" data-astro-cid-3cdu4sz3="true"></grid-manager-lit> <grid-manager-lit id="ActionConfigManager" darkmode="true" data-astro-cid-3cdu4sz3="true"></grid-manager-lit> <dialog-container class="ActionModal" id="ActionModal" data-astro-cid-3cdu4sz3="true"> <div class="action-form dark" data-form-id="actionForm"> <form id="actionForm" class="form-container" novalidate> <header class="form-header"> <h3 class="form-title">Configurar Acción</h3>  </header> <div class="fields-container"> <div class="field-wrapper" data-field="name" data-field-type="text"> <label for="actionForm-field-name" class="field-label"> Nombre <span class="required-indicator" aria-label="Campo requerido">*</span> </label> <c-input id="actionForm-field-name" name="name" type="text" value="Nueva Acción" placeholder="Ingresa el nombre de la acción" required darkmode="true" data-field-name="name"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="minecraft_check" data-field-type="switch"> <label for="actionForm-field-minecraft_check" class="field-label"> Minecraft  </label> <c-input id="actionForm-field-minecraft_check" name="minecraft_check" type="switch" value="false" darkmode="true" data-field-name="minecraft_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="minecraft_command" data-show-if="{&#34;field&#34;:&#34;minecraft_check&#34;,&#34;value&#34;:true}" data-field-type="textarea"> <label for="actionForm-field-minecraft_command" class="field-label"> Comando Minecraft  </label> <c-input id="actionForm-field-minecraft_command" name="minecraft_command" type="textarea" value="/say hola" placeholder="/say hola mundo" darkmode="true" data-field-name="minecraft_command"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="tts_check" data-field-type="switch"> <label for="actionForm-field-tts_check" class="field-label"> Texto-a-Voz  </label> <c-input id="actionForm-field-tts_check" name="tts_check" type="switch" value="false" darkmode="true" data-field-name="tts_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="tts_text" data-show-if="{&#34;field&#34;:&#34;tts_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-tts_text" class="field-label"> Texto a leer  </label> <c-input id="actionForm-field-tts_text" name="tts_text" type="text" value="Texto de ejemplo" placeholder="Texto que será leído en voz alta" darkmode="true" data-field-name="tts_text"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_check" data-field-type="switch"> <label for="actionForm-field-overlay_check" class="field-label"> Superposición  </label> <c-input id="actionForm-field-overlay_check" name="overlay_check" type="switch" value="false" darkmode="true" data-field-name="overlay_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_src" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-overlay_src" class="field-label"> Fuente(s) (IDs/URLs)  </label> <c-input id="actionForm-field-overlay_src" name="overlay_src" type="text" value="https://example.com/image.png" placeholder="https://example.com/image.png" darkmode="true" data-field-name="overlay_src"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_content" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-overlay_content" class="field-label"> Texto Contenido  </label> <c-input id="actionForm-field-overlay_content" name="overlay_content" type="text" value="Contenido de ejemplo" placeholder="Texto a mostrar en la superposición" darkmode="true" data-field-name="overlay_content"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_duration" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="number"> <label for="actionForm-field-overlay_duration" class="field-label"> Duración (segundos)  </label> <c-input id="actionForm-field-overlay_duration" name="overlay_duration" type="number" value="60" min="1" step="1" darkmode="true" data-field-name="overlay_duration"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_volume" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="range"> <label for="actionForm-field-overlay_volume" class="field-label"> Volumen (%)  </label> <c-input id="actionForm-field-overlay_volume" name="overlay_volume" type="range" value="50" min="0" max="100" step="1" darkmode="true" data-field-name="overlay_volume"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="keypress_check" data-field-type="switch"> <label for="actionForm-field-keypress_check" class="field-label"> Pulsación de Tecla  </label> <c-input id="actionForm-field-keypress_check" name="keypress_check" type="switch" value="false" darkmode="true" data-field-name="keypress_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="keypress_key" data-show-if="{&#34;field&#34;:&#34;keypress_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-keypress_key" class="field-label"> Tecla(s)  </label> <c-input id="actionForm-field-keypress_key" name="keypress_key" type="text" value="space" placeholder="space, ctrl+c, alt+tab" darkmode="true" data-field-name="keypress_key"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="id" data-field-type="text"> <label for="actionForm-field-id" class="field-label"> ID  </label> <c-input id="actionForm-field-id" name="id" type="text" value readonly darkmode="true" data-field-name="id"></c-input> <div class="field-error" role="alert"></div> </div> </div> <div class="custom-fields"> <div data-astro-cid-3cdu4sz3> <label for="fetchForm" class="field-label"> Habilitar Configuración HTTP </label> <c-input type="checkbox" id="fetchForm_check" name="fetchForm_check" value="off" class="switch"></c-input> <div class="field-wrapper hidden" data-field="fetchForm" data-field-type="Habilitar Configuración HTTP">  <http-request-config id="fetchForm_config" data-astro-cid-3cdu4sz3="true"></http-request-config>  </div> <script>(function(){const id = "fetchForm";
+const label = "Habilitar Configuración HTTP";
+const checked = false;
+const switchId = "fetchForm_check";
+
+  // This script can be used to handle any additional logic related to the switch component.
+  // For example, you could add event listeners or manipulate the DOM based on the switch state.
+
+  document.addEventListener("DOMContentLoaded", () => {
+  const switchElement = document.getElementById(switchId);
+  const elementWrapper = document.querySelector(`[data-field="${id}"]`);
+  console.log(`Switch ${id} initialized with checked=${checked}`, switchElement, elementWrapper);
+  function initlistenersform(){
+    if (!switchElement) return;
+      switchElement.addEventListener("change", (event) => {
+        const valuesw = (event.detail?.value || switchElement.value)
+        const IsChecked = (valuesw === "on" || valuesw === true || valuesw === "true");
+        if (!elementWrapper) return;
+        elementWrapper.classList.toggle("hidden",!IsChecked);
+        console.log(`Switch ${id} changed to ${IsChecked}`, elementWrapper);
+      });
+    
+      console.log("elementWrapper initialized", elementWrapper);
+      return elementWrapper;
+    }
+    initlistenersform()
+  });
+})();</script> </div> </div> <footer class="form-actions"> <div class="ActionForm-buttons" data-astro-cid-3cdu4sz3> <button type="button" class="btn btn-secondary" data-action="reset" data-astro-cid-3cdu4sz3>
+Reiniciar
+</button> <button type="button" class="btn btn-primary" data-action="submit" data-astro-cid-3cdu4sz3>
+Guardar
+</button> </div> </footer> </form> </div> <script>(function(){const initialData = {};
+const id = "actionForm";
+const formConfig = {"name":{"label":"Nombre","type":"text","required":true,"placeholder":"Ingresa el nombre de la acción"},"minecraft_check":{"label":"Minecraft","type":"switch"},"minecraft_command":{"label":"Comando Minecraft","type":"textarea","placeholder":"/say hola mundo","showIf":{"field":"minecraft_check","value":true}},"tts_check":{"label":"Texto-a-Voz","type":"switch"},"tts_text":{"label":"Texto a leer","type":"text","placeholder":"Texto que será leído en voz alta","showIf":{"field":"tts_check","value":true}},"overlay_check":{"label":"Superposición","type":"switch"},"overlay_src":{"label":"Fuente(s) (IDs/URLs)","type":"text","placeholder":"https://example.com/image.png","showIf":{"field":"overlay_check","value":true}},"overlay_content":{"label":"Texto Contenido","type":"text","placeholder":"Texto a mostrar en la superposición","showIf":{"field":"overlay_check","value":true}},"overlay_duration":{"label":"Duración (segundos)","type":"number","min":1,"step":1,"showIf":{"field":"overlay_check","value":true}},"overlay_volume":{"label":"Volumen (%)","type":"range","min":0,"max":100,"step":1,"showIf":{"field":"overlay_check","value":true}},"keypress_check":{"label":"Pulsación de Tecla","type":"switch"},"keypress_key":{"label":"Tecla(s)","type":"text","placeholder":"space, ctrl+c, alt+tab","showIf":{"field":"keypress_check","value":true}},"id":{"label":"ID","type":"text","readonly":true},"type":{"hidden":true}};
+
+  function safeParse(value) {
+    if (value == null || typeof value !== 'string') {
+        return value;
+    }
+
+    const trimmed = value.trim();
+    if (!(trimmed.startsWith('{') || trimmed.startsWith('['))) {
+        return value;
+    }
+
+    try {
+        return JSON.parse(trimmed);
+    } catch {
+        try {
+            const fixedJson = trimmed
+                .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":')
+                .replace(/:\s*'([^']+)'/g, ': "$1"');
+            return JSON.parse(fixedJson);
+        } catch (error) {
+            console.error("Error al parsear JSON:", error, "Valor recibido:", value);
+            return value;
+        }
+    }
+  }
+  class ActionFormManager {
+    constructor(formId) {
+      this.formId = formId;
+      this.form = document.getElementById(formId);
+      this.formData = new Map();
+      this.fieldConfigs = new Map();
+      this.validationErrors = new Map();
+      
+      if (!this.form) {
+        console.error(`Form with id "${formId}" not found`);
+        return;
+      }
+      
+      this.initialize();
+    }
+
+    initialize() {
+      this.parseFieldConfigs();
+      this.initializeFormData();
+      this.bindEvents();
+      this.evaluateAllFieldVisibility();
+    }
+
+    parseFieldConfigs() {
+      Object.entries(formConfig).forEach(([key, config]) => {
+        this.fieldConfigs.set(key, config);
+      });
+    }
+
+    initializeFormData() {
+      const inputs = this.form.querySelectorAll('c-input');
+      inputs.forEach(input => {
+        const fieldName = input.getAttribute('data-field-name');
+        const value = input.getAttribute('value') || '';
+        const parsedValue = this.parseValueByType(value, input.getAttribute('type'));
+        this.formData.set(fieldName, parsedValue);
+      });
+    }
+
+    bindEvents() {
+      // Event delegation para cambios en los inputs
+      this.form.addEventListener('change', this.handleFieldChange.bind(this));
+      
+      // Eventos de botones
+      this.form.addEventListener('click', this.handleButtonClick.bind(this));
+            
+    }
+
+    handleFieldChange(event) {
+      console.log('Field change detected:', event);
+      const input = event.target.closest('c-input');
+      if (!input) return;
+      
+      const fieldName = input.getAttribute('data-field-name');
+      if (!fieldName) return;
+      
+      const newValue = input.getVal ? input.getVal() : input.getAttribute('value');
+      this.updateFieldValue(fieldName, newValue);
+    }
+
+    updateFieldValue(fieldName, value) {
+      const oldValue = this.formData.get(fieldName);
+      this.formData.set(fieldName, value);
+      
+      // Re-evaluar visibilidad si el campo cambió
+      if (oldValue !== value) {
+        this.evaluateAllFieldVisibility();
+        this.validateField(fieldName);
+        this.emitFormDataChange(fieldName, value, oldValue);
+      }
+    }
+
+    evaluateAllFieldVisibility() {
+      const fieldWrappers = this.form.querySelectorAll('.field-wrapper[data-show-if]');
+      
+      fieldWrappers.forEach(wrapper => {
+        const showIfData = wrapper.getAttribute('data-show-if');
+        if (!showIfData) return;
+        try {
+          const condition = safeParse(showIfData);
+          const shouldShow = this.evaluateShowCondition(condition);
+          this.toggleFieldVisibility(wrapper, shouldShow);
+        } catch (error) {
+          console.error('Error evaluating show condition:', error, showIfData);
+        } 
+      });
+    }
+
+    evaluateShowCondition(condition) {
+      if (!condition?.field) return true;
+      
+      const triggerValue = this.formData.get(condition.field);
+      const expectedValue = condition.value;
+      const negate = condition.negate === true;
+      
+      let matches;
+      if (Array.isArray(expectedValue)) {
+        matches = expectedValue.some(val => this.compareValues(triggerValue, val));
+      } else {
+        matches = this.compareValues(triggerValue, expectedValue);
+      }
+      
+      return negate ? !matches : matches;
+    }
+
+    compareValues(actual, expected) {
+      // Comparación para booleanos
+      if (typeof expected === 'boolean') {
+        const actualBool = this.coerceToBoolean(actual);
+        return String(actualBool) === String(expected);
+      }
+      
+      // Comparación para null/undefined
+      if (actual == null) {
+        return expected == null || expected === '';
+      }
+      
+      // Comparación de strings
+      return String(actual) === String(expected);
+    }
+
+    coerceToBoolean(value) {
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'string') {
+        return !['false', '0', '', 'null', 'undefined'].includes(value.toLowerCase());
+      }
+      return Boolean(value);
+    }
+
+    toggleFieldVisibility(wrapper, isVisible) {
+      wrapper.classList.toggle('hidden', !isVisible);
+      
+      // Limpiar errores de validación si se oculta
+      if (!isVisible) {
+        const fieldName = wrapper.getAttribute('data-field');
+        this.clearFieldError(fieldName);
+      }
+    }
+
+    parseValueByType(value, type) {
+      if (!value && value !== '0' && value !== 0) {
+        return type === 'number' ? null : '';
+      }
+      
+      switch (type) {
+        case 'switch':
+        case 'checkbox':
+        case 'boolean':
+          return this.coerceToBoolean(value);
+        case 'number':
+        case 'range':
+          const num = Number(value);
+          return isNaN(num) ? null : num;
+        default:
+          return String(value);
+      }
+    }
+
+    validateField(fieldName) {
+      const input = this.form.querySelector(`c-input[data-field-name="${fieldName}"]`);
+      const wrapper = this.form.querySelector(`.field-wrapper[data-field="${fieldName}"]`);
+      
+      if (!input || !wrapper || wrapper.classList.contains('hidden')) {
+        this.validationErrors.delete(fieldName);
+        return true;
+      }
+      
+      const isValid = input.isValid ? input.isValid() : true;
+      console.log("isValid for field:", fieldName, isValid);
+      if (isValid || (typeof isValid === 'boolean')) {
+        this.clearFieldError(fieldName);
+      } else {
+        this.showFieldError(fieldName);
+      }
+      
+      return isValid;
+    }
+
+    getVisibleFields() {
+      const visibleWrappers = this.form.querySelectorAll('.field-wrapper:not(.hidden)');
+      return Array.from(visibleWrappers).map(wrapper => wrapper.getAttribute('data-field'));
+    }
+
+    showFieldError(fieldName, message) {
+      const wrapper = this.form.querySelector(`.field-wrapper[data-field="${fieldName}"]`);
+      if (!wrapper) return;
+      
+      const errorContainer = wrapper.querySelector('.field-error');
+      if (errorContainer) {
+        errorContainer.textContent = message;
+        errorContainer.style.display = 'block';
+      }
+      
+      wrapper.classList.add('invalid');
+      this.validationErrors.set(fieldName, message);
+    }
+
+    clearFieldError(fieldName) {
+      const wrapper = this.form.querySelector(`.field-wrapper[data-field="${fieldName}"]`);
+      if (!wrapper) return;
+      
+      const errorContainer = wrapper.querySelector('.field-error');
+      if (errorContainer) {
+        errorContainer.textContent = '';
+        errorContainer.style.display = 'none';
+      }
+      
+      wrapper.classList.remove('invalid');
+      this.validationErrors.delete(fieldName);
+    }
+
+    handleButtonClick(event) {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      
+      const action = button.getAttribute('data-action');
+      
+      switch (action) {
+        case 'reset':
+          event.preventDefault();
+          this.resetForm();
+          break;
+        case 'submit':
+          // Let the form submit event handle this
+          break;
+      }
+    }
+
+    resetForm() {
+      const inputs = this.form.querySelectorAll('c-input');
+      inputs.forEach(input => {
+        if (input.reset) {
+          input.reset();
+        }
+      });
+      
+      this.initializeFormData();
+      this.evaluateAllFieldVisibility();
+      this.clearAllErrors();
+      this.emitFormReset();
+    }
+
+    clearAllErrors() {
+      this.validationErrors.clear();
+      const errorContainers = this.form.querySelectorAll('.field-error');
+      errorContainers.forEach(container => {
+        container.textContent = '';
+        container.style.display = 'none';
+      });
+      
+      const invalidWrappers = this.form.querySelectorAll('.field-wrapper.invalid');
+      invalidWrappers.forEach(wrapper => wrapper.classList.remove('invalid'));
+    }
+
+    focusFirstInvalidField() {
+      const firstInvalidWrapper = this.form.querySelector('.field-wrapper.invalid:not(.hidden)');
+      if (firstInvalidWrapper) {
+        const input = firstInvalidWrapper.querySelector('c-input');
+        if (input && input.focus) {
+          input.focus();
+        }
+      }
+    }
+
+    // Public API methods
+    getFormData() {
+      return Object.fromEntries(this.formData.entries());
+    }
+
+    setFormData(data) {
+      Object.entries(data).forEach(([key, value]) => {
+        const input = this.form.querySelector(`c-input[data-field-name="${key}"]`);
+        if (input && input.setVal) {
+          input.setVal(value);
+          this.formData.set(key, value);
+        }
+      });
+      
+      this.evaluateAllFieldVisibility();
+    }
+
+    getFieldValue(fieldName) {
+      return this.formData.get(fieldName);
+    }
+
+    setFieldValue(fieldName, value) {
+      const input = this.form.querySelector(`c-input[data-field-name="${fieldName}"]`);
+      if (input && input.setVal) {
+        input.setVal(value);
+        this.updateFieldValue(fieldName, value);
+      }
+    }
+
+    // Event emitters
+    emitFormDataChange(fieldName, newValue, oldValue) {
+      this.form.dispatchEvent(new CustomEvent('form-data-change', {
+        detail: { fieldName, newValue, oldValue, formData: this.getFormData() },
+        bubbles: true
+      }));
+    }
+
+    emitFormSubmit() {
+      this.form.dispatchEvent(new CustomEvent('form-submit', {
+        detail: { formData: this.getFormData(), formId: this.formId },
+        bubbles: true
+      }));
+    }
+
+    emitFormReset() {
+      this.form.dispatchEvent(new CustomEvent('form-reset', {
+        detail: { formId: this.formId },
+        bubbles: true
+      }));
+    }
+  }
+
+  const formManager = new ActionFormManager(id);
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log(`ActionFormManager initialized for form: ${id}`);
+    // Initialize form manager
+    
+    // Expose to global scope for external access
+    window[`formManager_${id}`] = formManager;
+  });
+})();</script>  </dialog-container> </div> <script type="module" src="/_astro/ActionsEvents.astro_astro_type_script_index_3_lang.Dzc4pImn.js"></script> <script type="module" src="/_astro/ActionsEvents.astro_astro_type_script_index_4_lang.Bm4cnsOL.js"></script> <script type="module" src="/_astro/ActionsEvents.astro_astro_type_script_index_5_lang.DtEq9BcF.js"></script>  </div>  </main> <button class="float-btn" id="MainModalshow"> <span class="material-symbols-outlined">
+view_headline
+</span> </button> </div> <script type="module" src="/_astro/SidebarLayout.astro_astro_type_script_index_2_lang.D5Dngid7.js"></script> </body> </html> 
