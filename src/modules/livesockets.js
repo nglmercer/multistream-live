@@ -54,7 +54,7 @@ function initializeIO(io) {
         // =============================================================================
         // MANEJADORES DE EVENTOS DE CONEXIÓN
         // =============================================================================
-        socket.on('joinRoom', async ({ platform, uniqueId }) => {
+        socket.on('join-platform', async ({ platform, uniqueId }) => {
             try {
                 if (!Object.values(PlatformType).includes(platform)) {
                     throw new Error('Invalid platform specified');

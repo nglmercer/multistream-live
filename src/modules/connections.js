@@ -51,12 +51,12 @@ class TiktokConnection extends PlatformConnection {
         return uniqueId.startsWith('@') ? uniqueId : '@' + uniqueId;
     }
 
-    async connect(socket) {
+    async connect(socket, platform, uniqueId) {
         try {
             const state = await this.tiktokLiveConnection.connect();
             this.isConnected = true;
             this.state = state;
-            this.initializeEventHandlers(socket);
+            this.initializeEventHandlers(socket, platform, uniqueId);
             if (socket) {
                 socket.emit('connected', this.getState());
             }
@@ -107,11 +107,11 @@ class KickConnection extends PlatformConnection {
         return uniqueId.trim();
     }
 
-    async connect(socket) {
+    async connect(socket, platform, uniqueId) {
         try {
             this.isConnected = true;
             console.log("connect", this.uniqueId);
-            this.initializeEventHandlers(socket);
+            this.initializeEventHandlers(socket, platform, uniqueId);
             this.kickliveconnector.login({
                 type: "tokens",
                 credentials: {
@@ -172,7 +172,7 @@ async function getOrCreatePlatformConnection(platform, uniqueId, socket) {
     if (connection) {
         if (!connection.isConnected) {
             try {
-                await connection.connect(socket);
+                await connection.connect(socket,platform,uniqueId);
             } catch (err) {
                 throw new Error(`Failed to reconnect to ${platform} ${normalizedId}: ${err.message}`);
             }
@@ -190,7 +190,7 @@ async function getOrCreatePlatformConnection(platform, uniqueId, socket) {
             new KickConnection(normalizedId, { socketId: socket.id });
         
         console.log(`conexión: ${platform} ${normalizedId}`);
-        await connection.connect(socket);
+        await connection.connect(socket, platform, normalizedId);
         connections.set(normalizedId, connection);
         return connection;
     } catch (err) {
@@ -221,7 +221,7 @@ async function checkAndReconnectConnections(socket) {
                 const connection = platformConnections[connectionInfo.platform].get(connectionInfo.uniqueId);
                 if (connection) {
                     console.log(`Attempting to reconnect to ${connectionInfo.platform} ${connectionInfo.uniqueId}`);
-                    await connection.connect(socket);
+                    await connection.connect(socket, connectionInfo.platform, connectionInfo.uniqueId);
                     console.log(`Successfully reconnected to ${connectionInfo.platform} ${connectionInfo.uniqueId}`);
                 }
             } catch (err) {
