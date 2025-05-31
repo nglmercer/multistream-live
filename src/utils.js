@@ -25,7 +25,7 @@ class StorageManager {
    * @param {string} fileName - El nombre del archivo donde se almacenarán los datos (por ejemplo, 'store.json').
    * @param {string} basePath - La ruta donde se creará o buscará el archivo. Si es relativa se usa process.cwd().
    */
-  constructor(fileName = 'default.json', basePath = '.', isRelative = false) {
+  constructor(fileName = 'store.json', basePath = '.', isRelative = false) {
     const initBasepath = isRelative ? processdirname : __dirname;
     // Resuelve la ruta absoluta del directorio base.
     this.storePath = path.isAbsolute(basePath) ? basePath : path.join(initBasepath, basePath);
