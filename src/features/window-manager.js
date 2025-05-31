@@ -1,185 +1,203 @@
-/* import { EventEmitter } from 'events';
-import { BrowserWindow, app, screen } from 'electron'; */
-const { EventEmitter } = require('events');
-const { BrowserWindow, app, screen } = require('electron');
-class WindowManager extends EventEmitter {
-  constructor() {
-    super();
-    this.windows = new Map();
-    this.config = {
-      width: 800,
-      height: 600,
-      alwaysOnTop: false,
-      transparent: true,
-      ignoreMouseEvents: false,
-      frame: false,
-      x: 0,
-      y: 0,
-      titleBarStyle: 'hiddenInset',
-      titleBarOverlay: {
-        color: '#2f3241',
-        symbolColor: '#74b1be',
-        height: 40
-      },
-      trafficLightPosition: { x: 16, y: 16 },
-      autoHideMenuBar: true,
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        enableRemoteModule: true,
-        backgroundThrottling: false
-      }
-    };
-    
-    app.disableHardwareAcceleration();
-  }
+// WindowManagerBase.js
+const { EventEmitter } = require('node:events'); // Usar 'node:events' es más moderno
+const { BrowserWindow, screen } = require('electron');
 
-  getScreenSize() {
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    return { width, height };
-  }
+class WindowManagerBase extends EventEmitter {
+    constructor() {
+        super();
+        this.windows = new Map(); // Almacena instancias de BrowserWindow por ID
+        this.windowConfigs = new Map(); // Almacena la configuración asociada a cada ID
+    }
 
-  createWindow(config) {
-    const windowConfig = {
-      ...this.config,
-      ...config
-    };
-    
-    const childWindow = new BrowserWindow(windowConfig);
-        
-    // Load the URL
-    childWindow.loadURL(config.url || 'https://google.com');
-    
-    // Add custom styles for the drag region
-    childWindow.webContents.on('did-finish-load', () => {
-      childWindow.webContents.insertCSS(`
-        .titlebar-drag-region {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: ${windowConfig.titleBarOverlay.height}px;
-          background-color: rgba(255,255,255,0.2);
-          -webkit-app-region: drag;
-          z-index: 999999;
+    /**
+     * Obtiene el tamaño del área de trabajo de la pantalla principal.
+     * @returns {{width: number, height: number}}
+     */
+    getScreenSize() {
+        const primaryDisplay = screen.getPrimaryDisplay();
+        return primaryDisplay.workAreaSize;
+    }
+
+    /**
+     * Crea y registra una nueva ventana. Las clases hijas deben llamar a este método.
+     * @param {string} id Un identificador único para la ventana.
+     * @param {object} browserWindowOptions Opciones para el constructor de BrowserWindow.
+     * @param {object} [customConfig={}] Configuración adicional específica de la aplicación.
+     * @returns {BrowserWindow | null} La instancia de BrowserWindow creada o null si falla.
+     */
+    _createWindow(id, browserWindowOptions, customConfig = {}) {
+        if (this.windows.has(id)) {
+            console.warn(`Window with ID ${id} already exists. Focusing existing window.`);
+            this.getWindow(id)?.focus();
+            return this.getWindow(id);
         }
-        .titlebar-drag-region:hover {
-          background-color: ${windowConfig.titleBarOverlay.color || 'rgba(255,255,255,0.5)'};
+
+        try {
+            const newWindow = new BrowserWindow(browserWindowOptions);
+            this.windows.set(id, newWindow);
+            this.windowConfigs.set(id, {
+                id: id,
+                options: browserWindowOptions, // Guarda las opciones de creación
+                custom: customConfig,       // Guarda configuración personalizada
+                isMaximized: newWindow.isMaximized(),
+                isMinimized: newWindow.isMinimized(),
+            });
+
+            // Manejadores de eventos básicos
+            newWindow.on('closed', () => {
+                console.log(`Window ${id} closed.`);
+                this.windows.delete(id);
+                this.windowConfigs.delete(id);
+                this.emit('window-closed', id);
+            });
+
+            newWindow.on('maximize', () => this._updateWindowState(id, { isMaximized: true }));
+            newWindow.on('unmaximize', () => this._updateWindowState(id, { isMaximized: false }));
+            newWindow.on('minimize', () => this._updateWindowState(id, { isMinimized: true }));
+            newWindow.on('restore', () => this._updateWindowState(id, { isMinimized: false })); // Cuando se restaura desde minimizado
+
+            console.log(`Window ${id} created successfully.`);
+            this.emit('window-created', this.getWindowConfig(id));
+            return newWindow;
+
+        } catch (error) {
+            console.error(`Failed to create window ${id}:`, error);
+            this.emit('window-creation-failed', { id, error });
+            // Limpiar si algo se creó parcialmente (aunque BrowserWindow suele lanzar en el constructor)
+            this.windows.delete(id);
+            this.windowConfigs.delete(id);
+            return null;
         }
-        .titlebar-no-drag {
-          -webkit-app-region: no-drag;
+    }
+
+    /**
+     * Actualiza el estado registrado de una ventana (maximizado, minimizado).
+     * @private
+     */
+    _updateWindowState(id, stateChanges) {
+        const config = this.windowConfigs.get(id);
+        if (config) {
+            const updatedConfig = { ...config, ...stateChanges };
+            this.windowConfigs.set(id, updatedConfig);
+            this.emit('window-state-changed', { id, ...stateChanges });
+            // console.log(`Window ${id} state updated:`, stateChanges);
         }
-        
-        body {
-          margin-top: ${windowConfig.titleBarOverlay.height}px;
+    }
+
+    /**
+     * Obtiene la instancia de BrowserWindow por ID.
+     * @param {string} id
+     * @returns {BrowserWindow | undefined}
+     */
+    getWindow(id) {
+        return this.windows.get(id);
+    }
+
+    /**
+     * Obtiene la configuración registrada para una ventana por ID.
+     * @param {string} id
+     * @returns {object | undefined}
+     */
+    getWindowConfig(id) {
+        // Devuelve una copia para evitar modificaciones externas accidentales
+        const config = this.windowConfigs.get(id);
+        return config ? { ...config } : undefined;
+    }
+
+    /**
+     * Obtiene la configuración de todas las ventanas gestionadas.
+     * @returns {Map<string, object>} Un mapa con ID como clave y configuración como valor.
+     */
+    getAllWindowConfigs() {
+        // Devuelve una nueva Mappa con copias de las configuraciones
+        const configs = new Map();
+        this.windowConfigs.forEach((config, id) => {
+            configs.set(id, { ...config });
+        });
+        return configs;
+    }
+
+    /**
+     * Cierra una ventana específica por ID.
+     * @param {string} id
+     */
+    closeWindow(id) {
+        const window = this.getWindow(id);
+        if (window && !window.isDestroyed()) {
+            console.log(`Requesting close for window ${id}`);
+            window.close(); // El evento 'closed' se encargará de la limpieza del Map
+        } else {
+            console.warn(`Window ${id} not found or already destroyed.`);
+            // Asegurarse de limpiar si el evento 'closed' no se disparó por alguna razón
+            this.windows.delete(id);
+            this.windowConfigs.delete(id);
         }
-      `);
-      
-      childWindow.webContents.executeJavaScript(`
-        const dragRegion = document.createElement('div');
-        dragRegion.className = 'titlebar-drag-region';
-        document.body.prepend(dragRegion);
-      `);
-    });
-    
-    const id = Date.now().toString();
-    this.windows.set(id, { 
-      ...config, 
-      window: childWindow,
-      isMaximized: false 
-    });
-
-    // Handle window state events
-    childWindow.on('maximize', () => {
-      const windowData = this.windows.get(id);
-      if (windowData) {
-        windowData.isMaximized = true;
-        this.emit('window-state-changed', { id, isMaximized: true });
-      }
-    });
-
-    childWindow.on('unmaximize', () => {
-      const windowData = this.windows.get(id);
-      if (windowData) {
-        windowData.isMaximized = false;
-        this.emit('window-state-changed', { id, isMaximized: false });
-      }
-    });
-
-    childWindow.on('closed', () => {
-      this.windows.delete(id);
-      this.emit('window-closed', id);
-    });
-
-    this.emit('window-created', { id, config });
-    return id;
-  }
-
-  toggleMaximize(id) {
-    const windowData = this.windows.get(id);
-    if (windowData && windowData.window) {
-      if (windowData.window.isMaximized()) {
-        windowData.window.unmaximize();
-      } else {
-        windowData.window.maximize();
-      }
     }
-  }
 
-  minimize(id) {
-    const windowData = this.windows.get(id);
-    if (windowData && windowData.window) {
-      windowData.window.minimize();
+    /**
+     * Cierra todas las ventanas gestionadas por esta instancia.
+     */
+    closeAll() {
+        console.log(`Closing all windows managed by ${this.constructor.name}...`);
+        // Crear una copia de las claves para evitar problemas al modificar el Map mientras se itera
+        const windowIds = Array.from(this.windows.keys());
+        windowIds.forEach(id => this.closeWindow(id));
     }
-  }
 
-  updateWindow(id, config) {
-    const windowData = this.windows.get(id);
-    if (windowData && windowData.window) {
-      const window = windowData.window;
-      window.setAlwaysOnTop(config.alwaysOnTop);
-      window.setIgnoreMouseEvents(config.ignoreMouseEvents);
-      
-      if (config.titleBarOverlay) {
-        window.setTitleBarOverlay(config.titleBarOverlay);
-      }
-      
-      this.windows.set(id, { ...windowData, ...config });
-      this.emit('window-updated', { id, config });
+    /**
+     * Minimiza una ventana.
+     * @param {string} id
+     */
+    minimize(id) {
+        const window = this.getWindow(id);
+        if (window && !window.isDestroyed() && window.minimizable) {
+            window.minimize();
+        }
     }
-  }
 
-  refreshWindow(id) {
-    const windowData = this.windows.get(id);
-    if (windowData && windowData.window) {
-      windowData.window.reload();
-      this.emit('window-refreshed', id);
+    /**
+     * Maximiza o restaura una ventana.
+     * @param {string} id
+     */
+    toggleMaximize(id) {
+        const window = this.getWindow(id);
+        if (window && !window.isDestroyed()) {
+            if (window.isMaximized()) {
+                window.unmaximize();
+            } else if (window.maximizable) {
+                window.maximize();
+            }
+        }
     }
-  }
 
-  closeWindow(id) {
-    const windowData = this.windows.get(id);
-    if (windowData && windowData.window) {
-      windowData.window.close();
+    /**
+     * Recarga el contenido de una ventana.
+     * @param {string} id
+     */
+    reloadWindow(id) {
+        const window = this.getWindow(id);
+        if (window && !window.isDestroyed()) {
+            window.webContents.reload();
+            this.emit('window-reloaded', id);
+        }
     }
-  }
 
-  closeAll() {
-    this.windows.forEach((windowData) => {
-      if (windowData.window) {
-        windowData.window.close();
-      }
-    });
-  }
-
-  getWindows() {
-    const windowsData = new Map();
-    this.windows.forEach((data, id) => {
-      const { window, ...config } = data;
-      windowsData.set(id, config);
-    });
-    return windowsData;
-  }
+    /**
+     * Envía un mensaje a una ventana específica a través de IPC.
+     * @param {string} id El ID de la ventana destino.
+     * @param {string} channel El canal IPC.
+     * @param {...any} args Argumentos a enviar.
+     * @returns {boolean} True si el mensaje fue enviado, false si la ventana no existe o está destruida.
+     */
+    sendMessage(id, channel, ...args) {
+        const window = this.getWindow(id);
+        if (window && !window.isDestroyed()) {
+            window.webContents.send(channel, ...args);
+            return true;
+        }
+        console.warn(`Cannot send message to window ${id}: Not found or destroyed.`);
+        return false;
+    }
 }
-module.exports = WindowManager;
-/* export default WindowManager; */
+
+module.exports = WindowManagerBase;
