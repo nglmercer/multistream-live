@@ -12,7 +12,6 @@ const { PlatformType } = require('../constants.js');
 const { 
     getOrCreatePlatformConnection, 
     getAllConnectionsInfo, 
-    checkAndReconnectConnections 
 } = require('./connections.js');
 
 const { 
@@ -40,7 +39,6 @@ function initializeIO(io) {
     const roomManager = new RoomManager(io);
     
     io.on('connection', (socket) => {
-        checkAndReconnectConnections(socket);
         console.log('A user connected:', socket.id, "disponible connections", Livescreated);
         
         // Enviar datos iniciales
