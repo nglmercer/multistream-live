@@ -19,8 +19,8 @@ const path = require('node:path');
 // Módulos locales
 const WindowManager = require('./modules/window-manager.js');
 const { io, essapp, httpServer, port } = require('./routers/index.js');
-const { initializeIO, registerAllShortcuts } = require('./modules/livesockets.js');
-
+const { initializeIO } = require('./modules/livesockets.js');
+const { registerAllShortcuts } = require('./modules/shortcuts.js');
 // =============================================================================
 // VARIABLES GLOBALES
 // =============================================================================
