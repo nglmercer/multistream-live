@@ -17,6 +17,5 @@ win:
 linux:
   target:
     - AppImage
-    - deb
   icon: "./images/logo.png"
   category: "Utility"
