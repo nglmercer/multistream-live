@@ -1,1 +1,0 @@
-import"./custom-modal.N6Or44FX.js";import"./lit-element.CyV8MMp1.js";import"./directive.D03qP3rJ.js";import"./state.DOXniPlE.js";const t=document.getElementById("ActionDialog"),n=document.getElementById("MainModalshow");function e(){n&&t&&n.addEventListener("click",()=>{t.show()})}document.addEventListener("DOMContentLoaded",()=>{e()});
