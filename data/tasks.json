@@ -1,3 +1,43 @@
 {
-  "overlay": []
+  "overlay": [
+    {
+      "id": "123",
+      "overlay": {
+        "src": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+        "context": "Este es un overlay de prueba desde API",
+        "duration": "",
+        "check": true,
+        "volumen": ""
+      },
+      "completed": true,
+      "createdAt": "2025-06-03T18:43:21.135Z",
+      "updatedAt": "2025-06-03T19:06:57.037Z"
+    },
+    {
+      "id": "1234",
+      "overlay": {
+        "src": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+        "context": "Este es un overlay de prueba desde API",
+        "duration": "",
+        "check": true,
+        "volumen": ""
+      },
+      "completed": true,
+      "createdAt": "2025-06-03T18:43:21.135Z",
+      "updatedAt": "2025-06-03T19:07:00.566Z"
+    },
+    {
+      "id": "12345",
+      "overlay": {
+        "src": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+        "context": "Este es un overlay de prueba desde API",
+        "duration": "",
+        "check": true,
+        "volumen": ""
+      },
+      "completed": true,
+      "createdAt": "2025-06-03T18:43:21.135Z",
+      "updatedAt": "2025-06-03T19:07:04.112Z"
+    }
+  ]
 }

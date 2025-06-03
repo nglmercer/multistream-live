@@ -209,7 +209,6 @@ const formConfig = {"name":{"label":"Nombre","type":"text","required":true,"plac
     }
 
     handleFieldChange(event) {
-      console.log('Field change detected:', event);
       const input = event.target.closest('c-input');
       if (!input) return;
       

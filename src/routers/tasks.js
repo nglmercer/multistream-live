@@ -66,7 +66,7 @@ router.delete('/remove/:type/:taskId', validateTaskType, validateTaskId, async (
 });
 
 // Marcar una tarea como completada
-router.patch('/complete/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
+router.put('/complete/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
     const { type, taskId } = req.params;
     const updatedTask = taskStorage.updateTaskCompletion(type, taskId, true);
     if (updatedTask) {
@@ -77,7 +77,7 @@ router.patch('/complete/:type/:taskId', validateTaskType, validateTaskId, async 
 });
 
 // Marcar una tarea como incompleta
-router.patch('/uncomplete/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
+router.put('/uncomplete/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
     const { type, taskId } = req.params;
     const updatedTask = taskStorage.updateTaskCompletion(type, taskId, false);
     if (updatedTask) {
