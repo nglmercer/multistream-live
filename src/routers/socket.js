@@ -11,13 +11,13 @@ const { PlatformType } = require('../constants.js');
 const { 
     getOrCreatePlatformConnection, 
     getAllConnectionsInfo, 
-} = require('./connections.js');
+} = require('../modules/connections.js');
 
 const { 
     toggleShortcuts, 
     getshortcuts, 
     handleStoreManager 
-} = require('./shortcuts.js');
+} = require('../modules/shortcuts.js');
 
 // =============================================================================
 // INICIALIZACIÓN DE MÓDULOS
