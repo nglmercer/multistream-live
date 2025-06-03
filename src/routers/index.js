@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const http = require('http');
 const cors = require('cors');
 const essapp = express();
+const tasksRouter = require('./tasks.js');
 essapp.use(cors());
 const uri = path.join(__dirname, '../public');
 console.log(uri);
@@ -55,4 +56,6 @@ essapp.get('/media/*', (req, res) => {
       fileStream.pipe(res);
     });
   });
+
+essapp.use('/tasks', tasksRouter);
 module.exports = { io, essapp, httpServer,port };

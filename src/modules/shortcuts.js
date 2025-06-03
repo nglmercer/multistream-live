@@ -3,6 +3,8 @@
 // =============================================================================
 
 const { globalShortcut } = require('electron');
+const { StorageManager } = require('../utils.js');
+const store = new StorageManager('store.json', './data', true);
 
 // =============================================================================
 // VARIABLES GLOBALES
@@ -35,7 +37,7 @@ function unregisterAllShortcuts() {
     globalShortcut.unregisterAll();
 }
 
-function registerAllShortcuts(store) {
+function registerAllShortcuts() {
     const shortcuts = getshortcuts(store);
     Object.entries(shortcuts).forEach(([name, shortcut]) => {
         registerShortcut(name, shortcut);
@@ -94,7 +96,7 @@ function toggleShortcuts(enabled) {
 // =============================================================================
 // GESTIÓN DE ALMACENAMIENTO
 // =============================================================================
-function saveshortcuts(data, store) {
+function saveshortcuts(data) {
     const shortcuts = getshortcuts(store);
     console.log("saveshortcuts", data, store, shortcuts);
     
@@ -112,7 +114,7 @@ function saveshortcuts(data, store) {
     return shortcuts;
 }
 
-function deleteshortcuts(data, store) {
+function deleteshortcuts(data) {
     const shortcuts = getshortcuts(store);
     console.log("deleteshortcuts", data, shortcuts);
 
@@ -126,18 +128,18 @@ function deleteshortcuts(data, store) {
     }
 }
 
-function getshortcuts(store) {
+function getshortcuts() {
     try {
         const shortcuts = store.JSONget('shortcuts') || {};
         console.log("getshortcuts", shortcuts);
         return shortcuts;
     } catch (error) {
-        console.error('Error getting shortcuts:', error);
+        console.error('Error getting shortcuts:', error,"store",store);
         return {};
     }
 }
 
-function handleStoreManager(socket, data, store) {
+function handleStoreManager(socket, data) {
     console.log("handleStoreManager", data, socket.id);
     if (data.action === 'save') {
         saveshortcuts(data, store);

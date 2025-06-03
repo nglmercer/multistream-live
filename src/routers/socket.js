@@ -4,7 +4,6 @@
 
 const WindowManager = require('../modules/window-manager.js');
 const keynut = require("../modules/keycontroll.js");
-const { StorageManager } = require('../utils.js');
 const { RoomManager } = require('../modules/socketManager.js');
 const { PlatformType } = require('../constants.js');
 
@@ -24,7 +23,6 @@ const {
 // INICIALIZACIÓN DE MÓDULOS
 // =============================================================================
 const windowManager = new WindowManager();
-const store = new StorageManager("store.json");
 
 // =============================================================================
 // VARIABLES GLOBALES
@@ -43,7 +41,7 @@ function initializeIO(io) {
         
         // Enviar datos iniciales
         socket.emit('allConnections', getAllConnectionsInfo());
-        socket.emit('shortcuts-event', getshortcuts(store));
+        socket.emit('shortcuts-event', getshortcuts());
         socket.emit('window-list',
             Array.from(windowManager.getWindows().entries())
                 .map(([id, config]) => ({ id, ...config }))
@@ -115,7 +113,7 @@ function initializeIO(io) {
         // =============================================================================
         // MANEJADORES DE EVENTOS DE ATAJOS Y TECLAS
         // =============================================================================
-        socket.on("storemanager", (data) => handleStoreManager(socket, data, store));
+        socket.on("storemanager", (data) => handleStoreManager(socket, data));
         socket.on("toggle-shortcuts", (enabled) => toggleShortcuts(enabled));
         socket.on("presskey", (key) => handleKeyPress(socket, key));
         socket.on("pressKey2", (key) => handleKeyPress2(socket, key));
