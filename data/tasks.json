@@ -2,42 +2,73 @@
   "overlay": [
     {
       "id": "123",
-      "overlay": {
-        "src": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+      "actionData": {
+        "src": "/home/melser/Descargas/srcassets/vlipsy-simonssx-shocked-cat-xLtMcsmh.mp4",
         "context": "Este es un overlay de prueba desde API",
         "duration": "",
         "check": true,
         "volumen": ""
       },
-      "completed": true,
+      "completed": false,
       "createdAt": "2025-06-03T18:43:21.135Z",
-      "updatedAt": "2025-06-03T19:06:57.037Z"
+      "updatedAt": "2025-06-03T19:54:03.896Z"
     },
     {
       "id": "1234",
-      "overlay": {
-        "src": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+      "actionData": {
+        "src": "/home/melser/Descargas/srcassets/vlipsy-simonssx-shocked-cat-xLtMcsmh.mp4",
         "context": "Este es un overlay de prueba desde API",
         "duration": "",
         "check": true,
         "volumen": ""
       },
-      "completed": true,
+      "completed": false,
       "createdAt": "2025-06-03T18:43:21.135Z",
-      "updatedAt": "2025-06-03T19:07:00.566Z"
+      "updatedAt": "2025-06-03T19:54:08.215Z"
     },
     {
       "id": "12345",
-      "overlay": {
-        "src": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+      "actionData": {
+        "src": "/home/melser/Descargas/srcassets/vlipsy-simonssx-shocked-cat-xLtMcsmh.mp4",
         "context": "Este es un overlay de prueba desde API",
         "duration": "",
         "check": true,
         "volumen": ""
       },
-      "completed": true,
+      "completed": false,
       "createdAt": "2025-06-03T18:43:21.135Z",
-      "updatedAt": "2025-06-03T19:07:04.112Z"
+      "updatedAt": "2025-06-03T19:54:12.575Z"
+    },
+    {
+      "id": "1748978229069_ymg1l0t",
+      "actionData": {
+        "check": "true",
+        "src": "/home/melser/Descargas/srcassets/vlipsy-simonssx-shocked-cat-xLtMcsmh.mp4",
+        "content": "uniqueId say comment",
+        "duration": "11",
+        "volume": "51"
+      },
+      "completed": false,
+      "createdAt": "2025-06-03T19:17:09.069Z",
+      "updatedAt": "2025-06-03T19:51:48.427Z"
+    }
+  ],
+  "minecraft": [
+    {
+      "id": "1748978125291_hmwp33w",
+      "check": "true",
+      "command": "say uniqueId say comment",
+      "completed": false,
+      "createdAt": "2025-06-03T19:15:25.291Z"
+    },
+    {
+      "id": "1748978229060_q4e3b8d",
+      "actionData": {
+        "check": "true",
+        "command": "say uniqueId say comment"
+      },
+      "completed": false,
+      "createdAt": "2025-06-03T19:17:09.060Z"
     }
   ]
 }
