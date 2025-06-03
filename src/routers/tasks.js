@@ -3,7 +3,7 @@ const router = express.Router();
 const StorageManager = require('../modules/StorageManager.js'); // Ajusta la ruta si es necesario
 
 // Usamos la misma instancia de StorageManager
-const taskStorage = new StorageManager('store.json', './data', true);
+const taskStorage = new StorageManager('tasks.json', './data', true);
 const taskTypes = ["overlay", "minecraft", "keypress", "timer"];
 
 // Middleware para validar el tipo de tarea
@@ -27,8 +27,8 @@ const validateTaskId = (req, res, next) => {
 router.post('/save/:type', validateTaskType, async (req, res) => {
     const type = req.params.type;
     const taskData = req.body;
-
-    if (Object.keys(taskData).length === 0) {
+    console.log("taskData", taskData);
+    if (!taskData || Object.keys(taskData).length === 0) {
         return res.status(400).send({ error: "Task data cannot be empty" });
     }
 

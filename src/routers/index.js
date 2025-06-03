@@ -7,6 +7,7 @@ const cors = require('cors');
 const essapp = express();
 const tasksRouter = require('./tasks.js');
 essapp.use(cors());
+essapp.use(express.json());
 const uri = path.join(__dirname, '../public');
 console.log(uri);
 const httpServer = http.createServer(essapp);
