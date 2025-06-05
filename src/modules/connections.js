@@ -256,18 +256,18 @@ class KickConnection extends PlatformConnection {
         this.isConnecting = true;
         
         try {
-            this.kickliveconnector = createClient(this.uniqueId, { logger: true });
+            this.kickliveconnector = createClient(this.uniqueId, { logger: true, readOnly: true });
             
             this.initializeEventHandlers();
             
-            await this.kickliveconnector.login({
+            /* await this.kickliveconnector.login({
                 type: "tokens",
                 credentials: {
                     bearerToken: process.env.BEARER_TOKEN,
                     cookies: process.env.COOKIES,
                 },
             });
-            
+             */
             this.isConnected = true;
             this.isConnecting = false;
             this.isReconnecting = false;
