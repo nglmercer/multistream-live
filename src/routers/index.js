@@ -6,6 +6,7 @@ const http = require('http');
 const cors = require('cors');
 const essapp = express();
 const tasksRouter = require('./tasks.js');
+const networkRouter = require('./networkRouter.js');
 
 essapp.use(cors());
 essapp.use(express.json());
@@ -83,7 +84,7 @@ essapp.get('/media/*', (req, res) => {
   });
 
 essapp.use('/tasks', tasksRouter);
-
+essapp.use('/api/network', networkRouter);
 // Asegúrate de que httpServer.listen se llama aquí si este es tu archivo principal
 // Si este archivo es importado por otro, el listen estará en el archivo principal.
 // Ejemplo (si este es el archivo principal):

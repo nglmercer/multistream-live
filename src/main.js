@@ -21,6 +21,7 @@ const WindowManager = require('./modules/window-manager.js');
 const { registerAllShortcuts } = require('./modules/shortcuts.js');
 const { io, essapp, httpServer, port } = require('./routers/index.js');
 const { initializeIO } = require('./routers/socket.js');
+const {    main,  gracefulShutdown } = require('./initserver.js')
 // =============================================================================
 // VARIABLES GLOBALES
 // =============================================================================
@@ -72,16 +73,6 @@ function setupIPCHandlers() {
     return filePaths;
   });
 }
-
-// =============================================================================
-// CONFIGURACIÓN DEL SERVIDOR
-// =============================================================================
-function startServer() {
-  httpServer.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-  });
-}
-
 // =============================================================================
 // EVENTOS DE LA APLICACIÓN ELECTRON
 // =============================================================================
@@ -110,8 +101,11 @@ function setupAppEvents() {
 function initializeApp() {
   setupWebSocketEvents();
   setupIPCHandlers();
-  startServer();
   setupAppEvents();
+  main().catch(async err => {
+    console.error("[MAIN] ❌ Error no manejado en la ejecución principal:", err);
+    gracefulShutdown(1);
+  });
 }
 
 // Ejecutar la aplicación
