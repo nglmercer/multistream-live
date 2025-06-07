@@ -21,6 +21,8 @@
     "@nut-tree-fork/nut-js": "^4.2.3",
     "@retconned/kick-js": "^0.5.3",
     "colors": "^1.4.0",
-    "strip-ansi": "^7.1.0"
+    "strip-ansi": "^7.1.0",
+    "bonjour": "^3.5.0",
+    "uuid": "^11.1.0"
   }
 }

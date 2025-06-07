@@ -18,9 +18,5 @@
     "electron": "31.4.0",
     "electron-builder": "24.13.3",
     "rimraf": "6.0.1"
-  },
-  "dependencies": {
-    "bonjour": "^3.5.0",
-    "uuid": "^11.1.0"
   }
 }
