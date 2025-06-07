@@ -1,7 +1,7 @@
 // config.js
 const P2P_SERVICE_TYPE = 'apiserver-com';
 const P2P_SERVICE_PROTOCOL = 'tcp';
-const P2P_INSTANCE_NAME_PREFIX = 'MinecraftNodeApp_';
+const P2P_INSTANCE_NAME_PREFIX = 'MultistreamNodeApp_';
 const P2P_MESSAGE_DELIMITER = '\n';
 
 // Podrías añadir configuraciones de Fastify aquí también si lo deseas
