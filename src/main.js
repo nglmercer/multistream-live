@@ -102,10 +102,6 @@ function initializeApp() {
   setupWebSocketEvents();
   setupIPCHandlers();
   setupAppEvents();
-  main().catch(async err => {
-    console.error("[MAIN] ❌ Error no manejado en la ejecución principal:", err);
-    gracefulShutdown(1);
-  });
 }
 
 // Ejecutar la aplicación

@@ -1,5 +1,5 @@
 // discovery.js
-const bonjour = require('bonjour');
+const { Bonjour } = require('bonjour-service');
 const { peerManager } = require('./peerManager.js');
 const { P2P_SERVICE_TYPE, P2P_SERVICE_PROTOCOL } = require('../config.js');
 
@@ -12,7 +12,7 @@ function startDiscovery(instanceName, portToAnnounce) {
         return;
     }
 
-    bonjourInstance = bonjour();
+    bonjourInstance = new Bonjour();
 
     // Anunciar nuestro servicio
     publishedService = bonjourInstance.publish({
