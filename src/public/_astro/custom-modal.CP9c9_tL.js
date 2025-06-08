@@ -157,7 +157,7 @@ import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as l}from"./lit-ht
             >${t.label}</button>`)}
         </div>
       </div>
-    `}_handleOptionClick(t,o){this.options[o]?.callback&&typeof this.options[o].callback=="function"?this.options[o].callback(t):console.warn(`No valid callback found for option index ${o}`)}}class k extends p{static get properties(){return{visible:{type:Boolean,reflect:!0},required:{type:Boolean,reflect:!0}}}constructor(){super(),this.visible=!1,this.required=!1}static get styles(){return c`
+    `}_handleOptionClick(t,o){this.options[o]?.callback&&typeof this.options[o].callback=="function"?this.options[o].callback(t):console.warn(`No valid callback found for option index ${o}`)}}class y extends p{static get properties(){return{visible:{type:Boolean,reflect:!0},required:{type:Boolean,reflect:!0}}}constructor(){super(),this.visible=!1,this.required=!1}static get styles(){return c`
       :host {
         --overlay-bg: rgba(0, 0, 0, 0.5);
         --dlg-z-index: 1000;
@@ -199,7 +199,7 @@ import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as l}from"./lit-ht
       <div class="dialog ${this.visible?"visible":""}" @click="${this._handleOverlayClick}">
           <slot></slot>
       </div>
-    `}_handleOverlayClick(t){t.target===t.currentTarget&&!this.required&&(this.hide(),this.emitClose())}emitClose(){this.dispatchEvent(new CustomEvent("close"))}show(){this.visible=!0}hide(){this.visible=!1}}let n=class extends p{constructor(){super(),this._options=[],this.isVisible=!1,this.posX=0,this.posY=0,this.lastFocusedElement=null,this.handleClickOutsideBound=this.handleClickOutside.bind(this)}get options(){return this._options}set options(e){this._options=[...e],this.requestUpdate()}addOption(e,t){const o=r=>{t(r),this.hide()};return this._options.push({html:e,callback:o}),this.requestUpdate(),this._options.length-1}setOptions(e){this._options=e.map(t=>({html:t.html,callback:o=>{t.callback(o),this.hide()}})),this.requestUpdate()}clearOptions(){this._options=[],this.requestUpdate()}removeOption(e){return e>=0&&e<this._options.length?(this._options.splice(e,1),this.requestUpdate(),!0):!1}show({x:e,y:t}){this.isVisible=!0,e!==void 0&&t!==void 0&&this.moveTo(e,t),this.requestUpdate(),setTimeout(()=>{document.addEventListener("click",this.handleClickOutsideBound)},0)}hide(){this.isVisible=!1,this.requestUpdate(),document.removeEventListener("click",this.handleClickOutsideBound)}moveTo(e,t){const o=this.shadowRoot?.querySelector(".container");if(!o)return;const r=o.getBoundingClientRect(),i=window.innerWidth,s=window.innerHeight;e+r.width>i&&(e=i-r.width-10),t+r.height>s&&(t=s-r.height-10),this.posX=Math.max(0,e),this.posY=Math.max(0,t),this.requestUpdate()}showAtElement(e){const t=e.getBoundingClientRect(),o={x:t.left,y:t.bottom};this.show(o),this.lastFocusedElement=e}handleClickOutside(e){const t=e.composedPath(),o=this.shadowRoot?.querySelector(".container");o&&!t.includes(o)&&(!this.lastFocusedElement||!t.includes(this.lastFocusedElement))&&this.hide()}disconnectedCallback(){super.disconnectedCallback(),document.removeEventListener("click",this.handleClickOutsideBound)}updated(e){super.updated(e);const t=this.shadowRoot?.querySelector(".container");t&&(t.style.display=this.isVisible?"flex":"none",t.style.left=`${this.posX}px`,t.style.top=`${this.posY}px`)}render(){return l`
+    `}_handleOverlayClick(t){t.target===t.currentTarget&&!this.required&&(this.hide(),this.emitClose())}emitClose(){this.dispatchEvent(new CustomEvent("close"))}show(){this.visible=!0}hide(){this.visible=!1}}let n=class extends p{constructor(){super(),this._options=[],this.isVisible=!1,this.posX=0,this.posY=0,this.lastFocusedElement=null,this.handleClickOutsideBound=this.handleClickOutside.bind(this)}get options(){return this._options}set options(e){this._options=[...e],this.requestUpdate()}addOption(e,t){const o=r=>{t(r),this.hide()};return this._options.push({html:e,callback:o}),this.requestUpdate(),this._options.length-1}setOptions(e){this._options=e.map(t=>({html:t.html,callback:o=>{t.callback(o),this.hide()}})),this.requestUpdate()}clearOptions(){this._options=[],this.requestUpdate()}removeOption(e){return e>=0&&e<this._options.length?(this._options.splice(e,1),this.requestUpdate(),!0):!1}show({x:e,y:t}){this.isVisible=!0,e!==void 0&&t!==void 0&&this.moveTo(e,t),this.requestUpdate(),setTimeout(()=>{document.addEventListener("click",this.handleClickOutsideBound)},0)}hide(){this.isVisible=!1,this.requestUpdate(),document.removeEventListener("click",this.handleClickOutsideBound)}moveTo(e,t){const o=this.shadowRoot?.querySelector(".container");if(!o)return;const r=o.getBoundingClientRect(),i=window.innerWidth,s=window.innerHeight;e+r.width>i&&(e=i-r.width-10),t+r.height>s&&(t=s-r.height-10),this.posX=Math.max(0,e),this.posY=Math.max(0,t),this.requestUpdate()}showAtElement(e){if(!e)return;const t=e.getBoundingClientRect(),o={x:t.left,y:t.bottom};console.log("showAtElement",e,o),this.show(o),this.lastFocusedElement=e}handleClickOutside(e){const t=e.composedPath(),o=this.shadowRoot?.querySelector(".container");o&&!t.includes(o)&&(!this.lastFocusedElement||!t.includes(this.lastFocusedElement))&&this.hide()}disconnectedCallback(){super.disconnectedCallback(),document.removeEventListener("click",this.handleClickOutsideBound)}updated(e){super.updated(e);const t=this.shadowRoot?.querySelector(".container");t&&(t.style.display=this.isVisible?"flex":"none",t.style.left=`${this.posX}px`,t.style.top=`${this.posY}px`)}render(){return l`
         <div class="container">
           ${this._options.map(e=>l`
             <div class="popup-option" @click=${e.callback}>
@@ -232,7 +232,11 @@ import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as l}from"./lit-ht
         border-radius: 4px;
       }
     }
-  
+    .material-symbols-rounded {
+      font-size: 48px;
+      font-family: 'Material Symbols Outlined';
+      opacity: 0.5;
+    }
     .popup-option {
       cursor: pointer;
       transition: background-color 0.2s;
@@ -266,4 +270,4 @@ import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as l}from"./lit-ht
         background-color: rgba(255, 255, 255, 0.1);
       }
     }
-  `;a([u({type:Array})],n.prototype,"_options",2);a([g()],n.prototype,"isVisible",2);a([g()],n.prototype,"posX",2);a([g()],n.prototype,"posY",2);n=a([b("custom-popup")],n);customElements.define("dialog-content",m);customElements.define("dialog-container",k);
+  `;a([u({type:Array})],n.prototype,"_options",2);a([g()],n.prototype,"isVisible",2);a([g()],n.prototype,"posX",2);a([g()],n.prototype,"posY",2);n=a([b("custom-popup")],n);customElements.define("dialog-content",m);customElements.define("dialog-container",y);
