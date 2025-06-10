@@ -1,4 +1,4 @@
-import{i as F,r as w}from"./lit-element.CdPzzhzS.js";import{T as x,x as d}from"./lit-html.Cs9YtZST.js";import{t as V}from"./custom-element.BhZVzxrc.js";import{n as g,r as m}from"./state.k4TxN2nw.js";import{o as k}from"./unsafe-html.o8VIWoCg.js";import{e as H,i as _,t as $}from"./directive.CGE4aKEl.js";import{e as p}from"./class-map.D2HkPoOL.js";import{a as h}from"./socketManager.CK2nxta4.js";import{B as E,L as P}from"./Logger.BU1C1vw5.js";import"./idb.zra9h0q-.js";import"./UserProcessor.Bu3Kw1mL.js";/**
+import{i as F,r as w}from"./lit-element.CdPzzhzS.js";import{T as x,x as d}from"./lit-html.Cs9YtZST.js";import{t as V}from"./custom-element.BhZVzxrc.js";import{n as g,r as m}from"./state.k4TxN2nw.js";import{o as k}from"./unsafe-html.o8VIWoCg.js";import{e as H,i as _,t as $}from"./directive.CGE4aKEl.js";import{e as p}from"./class-map.D2HkPoOL.js";import{a as h}from"./socketManager.BZAsUqmV.js";import{B as E,L as P}from"./Logger.BU1C1vw5.js";import"./idb.CmwNWw1r.js";import"./UserProcessor.CznKL11N.js";/**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause

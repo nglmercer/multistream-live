@@ -1,26 +1,26 @@
-import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./lit-element.CdPzzhzS.js";import{x as n,E as l}from"./lit-html.Cs9YtZST.js";import{t as $}from"./custom-element.BhZVzxrc.js";import{n as f,r as h}from"./state.k4TxN2nw.js";import{e as k}from"./class-map.D2HkPoOL.js";import"./custom-modal.CP9c9_tL.js";import"./CInput.Dz4Eadx2.js";import"./directive.CGE4aKEl.js";import"./unsafe-html.o8VIWoCg.js";import"./map.CC3vsOt5.js";const C=new p;var E=Object.defineProperty,T=Object.getOwnPropertyDescriptor,d=(e,t,a,o)=>{for(var r=o>1?void 0:o?T(t,a):t,i=e.length-1,s;i>=0;i--)(s=e[i])&&(r=(o?s(t,a,r):s(r))||r);return o&&r&&E(t,a,r),r};let c=class extends w{constructor(){super(...arguments),this.value=this.getDefaultConfig(),this.config=this.getDefaultConfig(),this.mode="create",this.theme="auto",this.activeTab=0,this.showSensitive=!1,this.methods=["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS"],this.bodyTypes=[{value:"json",label:"JSON"},{value:"text",label:"Text"},{value:"form",label:"Form Data"},{value:"urlencoded",label:"URL Encoded"}]}getDefaultConfig(){return{name:"",url:"",method:"GET",headers:[{key:"Content-Type",value:"application/json",enabled:!0}],params:[],body:"",bodyType:"json",auth:{type:"none",token:"",username:"",password:""}}}toggleTheme(){const e=["auto","light","dark"],t=e.indexOf(this.theme);this.theme=e[(t+1)%e.length]}getThemeIcon(){switch(this.theme){case"light":return"☀️";case"dark":return"🌙";default:return"🔄"}}getVal(){return this.getConfig()}getConfig(){return{...this.config}}setVal(e){this.setConfig(e)}setConfig(e){this.config={...e},this.requestUpdate()}reset(){this.config=this.getDefaultConfig(),this.activeTab=0,this.requestUpdate()}validate(){const e=[];if(this.config.name.trim()||e.push("El nombre es requerido"),this.config.url.trim()||e.push("La URL es requerida"),this.config.bodyType==="json"&&this.config.body.trim())try{JSON.parse(this.config.body)}catch{e.push("El cuerpo JSON no es válido")}return{isValid:e.length===0,errors:e}}emitChange(){this.dispatchEvent(new CustomEvent("config-change",{detail:this.getConfig(),bubbles:!0}))}updateConfig(e){this.config={...this.config,...e},this.emitChange(),this.requestUpdate()}addKeyValue(e){const t={key:"",value:"",enabled:!0};this.updateConfig({[e]:[...this.config[e],t]})}updateKeyValue(e,t,a,o){const r=[...this.config[e]];r[t]={...r[t],[a]:o},this.updateConfig({[e]:r})}removeKeyValue(e,t){const a=this.config[e].filter((o,r)=>r!==t);this.updateConfig({[e]:a})}renderKeyValueEditor(e,t,a){return n`
+import{E as y,I as x,d as w}from"./idb.CmwNWw1r.js";import{i as k,r as $}from"./lit-element.CdPzzhzS.js";import{x as i,E as l}from"./lit-html.Cs9YtZST.js";import{t as E}from"./custom-element.BhZVzxrc.js";import{n as f,r as b}from"./state.k4TxN2nw.js";import{e as C}from"./class-map.D2HkPoOL.js";import"./custom-modal.C9jVXNQQ.js";import"./CInput.Dz4Eadx2.js";import"./directive.CGE4aKEl.js";import"./unsafe-html.o8VIWoCg.js";import"./map.CC3vsOt5.js";const T=new y;var S=Object.defineProperty,F=Object.getOwnPropertyDescriptor,d=(e,t,o,a)=>{for(var r=a>1?void 0:a?F(t,o):t,n=e.length-1,s;n>=0;n--)(s=e[n])&&(r=(a?s(t,o,r):s(r))||r);return a&&r&&S(t,o,r),r};let c=class extends ${constructor(){super(...arguments),this.value=this.getDefaultConfig(),this.config=this.getDefaultConfig(),this.mode="create",this.theme="auto",this.activeTab=0,this.showSensitive=!1,this.methods=["GET","POST","PUT","DELETE","PATCH","HEAD","OPTIONS"],this.bodyTypes=[{value:"json",label:"JSON"},{value:"text",label:"Text"},{value:"form",label:"Form Data"},{value:"urlencoded",label:"URL Encoded"}]}getDefaultConfig(){return{name:"",url:"",method:"GET",headers:[{key:"Content-Type",value:"application/json",enabled:!0}],params:[],body:"",bodyType:"json",auth:{type:"none",token:"",username:"",password:""}}}toggleTheme(){const e=["auto","light","dark"],t=e.indexOf(this.theme);this.theme=e[(t+1)%e.length]}getThemeIcon(){switch(this.theme){case"light":return"☀️";case"dark":return"🌙";default:return"🔄"}}getVal(){return this.getConfig()}getConfig(){return{...this.config}}setVal(e){this.setConfig(e)}setConfig(e){this.config={...e},this.requestUpdate()}reset(){this.config=this.getDefaultConfig(),this.activeTab=0,this.requestUpdate()}validate(){const e=[];if(this.config.name.trim()||e.push("El nombre es requerido"),this.config.url.trim()||e.push("La URL es requerida"),this.config.bodyType==="json"&&this.config.body.trim())try{JSON.parse(this.config.body)}catch{e.push("El cuerpo JSON no es válido")}return{isValid:e.length===0,errors:e}}emitChange(){this.dispatchEvent(new CustomEvent("config-change",{detail:this.getConfig(),bubbles:!0}))}updateConfig(e){this.config={...this.config,...e},this.emitChange(),this.requestUpdate()}addKeyValue(e){const t={key:"",value:"",enabled:!0};this.updateConfig({[e]:[...this.config[e],t]})}updateKeyValue(e,t,o,a){const r=[...this.config[e]];r[t]={...r[t],[o]:a},this.updateConfig({[e]:r})}removeKeyValue(e,t){const o=this.config[e].filter((a,r)=>r!==t);this.updateConfig({[e]:o})}renderKeyValueEditor(e,t,o){return i`
       <div class="key-value-editor">
-        ${e.map((o,r)=>n`
+        ${e.map((a,r)=>i`
           <div class="key-value-row">
             <input
               type="checkbox"
               class="checkbox"
-              .checked=${o.enabled}
-              @change=${i=>this.updateKeyValue(t,r,"enabled",i.target.checked)}
+              .checked=${a.enabled}
+              @change=${n=>this.updateKeyValue(t,r,"enabled",n.target.checked)}
             />
             <input
               type="text"
               class="input"
               placeholder="Clave"
-              .value=${o.key}
-              @input=${i=>this.updateKeyValue(t,r,"key",i.target.value)}
+              .value=${a.key}
+              @input=${n=>this.updateKeyValue(t,r,"key",n.target.value)}
             />
             <input
-              type=${this.showSensitive||!o.key.toLowerCase().includes("auth")?"text":"password"}
+              type=${this.showSensitive||!a.key.toLowerCase().includes("auth")?"text":"password"}
               class="input"
               placeholder="Valor"
-              .value=${o.value}
-              @input=${i=>this.updateKeyValue(t,r,"value",i.target.value)}
+              .value=${a.value}
+              @input=${n=>this.updateKeyValue(t,r,"value",n.target.value)}
             />
             <button
               class="remove-btn"
@@ -35,10 +35,10 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
           class="add-btn"
           @click=${()=>this.addKeyValue(t)}
         >
-          ＋ Agregar ${a}
+          ＋ Agregar ${o}
         </button>
       </div>
-    `}render(){return n`
+    `}render(){return i`
       <div class="config-panel" style="position: relative;">
         <!-- Theme toggle button (opcional) -->
         <button
@@ -69,7 +69,7 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
               .value=${this.config.method}
               @change=${e=>this.updateConfig({method:e.target.value})}
             >
-              ${this.methods.map(e=>n`
+              ${this.methods.map(e=>i`
                 <option value=${e}>${e}</option>
               `)}
             </select>
@@ -87,9 +87,9 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
         <!-- Tabs -->
         <div class="tabs">
           <nav class="tab-nav">
-            ${["Parámetros","Headers","Auth","Body"].map((e,t)=>n`
+            ${["Parámetros","Headers","Auth","Body"].map((e,t)=>i`
               <button
-                class="tab-button ${k({active:this.activeTab===t})}"
+                class="tab-button ${C({active:this.activeTab===t})}"
                 @click=${()=>{this.activeTab=t}}
               >
                 ${e}
@@ -107,21 +107,21 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
 
         <!-- Tab Content -->
         <div class="tab-content">
-          ${this.activeTab===0?n`
+          ${this.activeTab===0?i`
             <div>
               <h3 class="form-label">Parámetros de Query</h3>
               ${this.renderKeyValueEditor(this.config.params,"params","parámetro")}
             </div>
           `:l}
 
-          ${this.activeTab===1?n`
+          ${this.activeTab===1?i`
             <div>
               <h3 class="form-label">Headers</h3>
               ${this.renderKeyValueEditor(this.config.headers,"headers","header")}
             </div>
           `:l}
 
-          ${this.activeTab===2?n`
+          ${this.activeTab===2?i`
             <div>
               <h3 class="form-label">Autenticación</h3>
               <div class="space-y-4">
@@ -135,7 +135,7 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
                   <option value="basic">Basic Auth</option>
                 </select>
 
-                ${this.config.auth.type==="bearer"?n`
+                ${this.config.auth.type==="bearer"?i`
                   <input
                     type=${this.showSensitive?"text":"password"}
                     class="input"
@@ -145,7 +145,7 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
                   />
                 `:l}
 
-                ${this.config.auth.type==="basic"?n`
+                ${this.config.auth.type==="basic"?i`
                   <div class="auth-grid">
                     <input
                       type="text"
@@ -167,7 +167,7 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
             </div>
           `:l}
 
-          ${this.activeTab===3&&!["GET","HEAD"].includes(this.config.method)?n`
+          ${this.activeTab===3&&!["GET","HEAD"].includes(this.config.method)?i`
             <div>
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
                 <h3 class="form-label">Cuerpo de la petición</h3>
@@ -177,7 +177,7 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
                   .value=${this.config.bodyType}
                   @change=${e=>{this.updateConfig({bodyType:e.target.value})}}
                 >
-                  ${this.bodyTypes.map(e=>n`
+                  ${this.bodyTypes.map(e=>i`
                     <option value=${e.value}>${e.label}</option>
                   `)}
                 </select>
@@ -193,14 +193,14 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
             </div>
           `:l}
 
-          ${this.activeTab===3&&["GET","HEAD"].includes(this.config.method)?n`
+          ${this.activeTab===3&&["GET","HEAD"].includes(this.config.method)?i`
             <div class="no-body-message">
               Los métodos ${this.config.method} no permiten cuerpo en la petición
             </div>
           `:l}
         </div>
       </div>
-    `}};c.styles=x`
+    `}};c.styles=k`
     :host {
       display: block;
       font-family: system-ui, -apple-system, sans-serif;
@@ -561,4 +561,4 @@ import{E as p,I as v,d as y}from"./idb.zra9h0q-.js";import{i as x,r as w}from"./
         gap: 0.25rem;
       }
     }
-  `;d([f({type:Object})],c.prototype,"value",2);d([f({type:String})],c.prototype,"mode",2);d([f({type:String,reflect:!0})],c.prototype,"theme",2);d([h()],c.prototype,"activeTab",2);d([h()],c.prototype,"showSensitive",2);c=d([$("http-request-config")],c);document.getElementById("fetchForm_config");const F=new v(y.ActionsDB),g=document.getElementById("actionButton"),u=document.getElementById("ActionModal");document.addEventListener("DOMContentLoaded",async()=>{try{D(),g?g.addEventListener("click",()=>{S(),b()}):console.warn("Action button not found")}catch(e){console.error("Error during DOM initialization:",e)}});function S(){if(!u){console.warn("Action modal not found");return}u.show()}function A(){if(!u){console.warn("Action modal not found");return}u.hide()}function D(){const e=document.querySelector(".form-actions");if(!e){console.warn("Form actions container not found");return}e.addEventListener("click",async function(t){try{if(!(t.target instanceof Element))return;const a=t.target.closest("button[data-action]");if(!a)return;const o=a.getAttribute("data-action");if(o==="reset")b(),console.log("Form reset");else if(o==="submit"){const r=V();if(!r){console.error("No form data found");return}typeof r.id=="string"&&(r.id=parseInt(r.id,10));const i=await F.saveData(r);i&&(A(),console.log("Form submitted successfully:",i),C.emit("actionFormSubmit",i))}else console.warn(`Unknown action: ${o}`);t.preventDefault(),t.stopPropagation()}catch(a){console.error("Error handling form action:",a)}})}function V(){try{const e=document.querySelector("#actionForm");if(!e)return console.warn("Action form not found"),null;const t=e.getElementsByTagName("c-input");if(t.length===0)return console.warn("No input fields found"),null;const a={};Array.from(t).forEach(s=>{const m=s.getAttribute("data-field-name");m&&(a[m]=s.value)});const o=document.querySelector("#fetchForm_check"),r=document.querySelector("#fetchForm_config"),i=r?r.getConfig()||r.value:{};return{...a,fetchForm_check:o?.value||"",fetchForm_value:i||{}}}catch(e){return console.error("Error getting form data:",e),null}}function M(e){if(!e||Object.keys(e).length===0){console.warn("No data provided to setFormData");return}try{const t=document.querySelector("#actionForm");if(!t){console.warn("Action form not found");return}const a=t.getElementsByTagName("c-input");Array.from(a).forEach(i=>{const s=i.getAttribute("data-field-name");s&&e[s]!==void 0&&i.setVal(e[s])}),console.log("Setting form data:",e);const o=document.querySelector("#fetchForm_check");o&&o.setVal(e.fetchForm_check);const r=document.querySelector("#fetchForm_config");r&&r.setConfig(e.fetchForm_value||{}),console.log("Form data set successfully")}catch(t){console.error("Error setting form data:",t)}}function b(){try{const e=document.querySelector("#actionForm");if(!e){console.warn("Action form not found");return}const t=e.getElementsByTagName("c-input");Array.from(t).forEach(r=>{r.reset()});const a=document.querySelector("#fetchForm_check");a&&a.setVal(!1);const o=document.querySelector("#fetchForm_config");o&&o.reset(),console.log("Form reset successfully")}catch(e){console.error("Error resetting form:",e)}}export{C as a,S as o,M as s};
+  `;d([f({type:Object})],c.prototype,"value",2);d([f({type:String})],c.prototype,"mode",2);d([f({type:String,reflect:!0})],c.prototype,"theme",2);d([b()],c.prototype,"activeTab",2);d([b()],c.prototype,"showSensitive",2);c=d([E("http-request-config")],c);async function A(){return new Promise((e,t)=>{try{const o=document.createElement("input");o.type="file",o.accept="application/json",o.onchange=()=>{const a=o.files?.[0];if(!a){t(new Error("No se seleccionó ningún archivo."));return}const r=new FileReader;r.onload=()=>{try{const n=r.result,s=JSON.parse(n);e(s)}catch{t(new Error("El archivo no contiene JSON válido."))}},r.onerror=()=>{t(new Error("Error al leer el archivo."))},r.readAsText(a)},o.click()}catch(o){t(new Error("Error inesperado: "+o.message))}})}function O(e,t){try{const o=JSON.stringify(e,null,2);if(!t){console.warn("faltan options{filename?,mode:download|copy}");return}if(t.mode==="download"){const a=new Blob([o],{type:"application/json"}),r=URL.createObjectURL(a),n=document.createElement("a");n.href=r,n.download=t.filename||"data.json",n.click(),URL.revokeObjectURL(r)}}catch(o){console.error("Error al exportar JSON:",o)}}document.getElementById("fetchForm_config");const D=new x(w.ActionsDB),g=document.getElementById("actionButton"),u=document.getElementById("ActionModal");document.addEventListener("DOMContentLoaded",async()=>{try{q(),g?g.addEventListener("click",()=>{N(),v()}):console.warn("Action button not found")}catch(e){console.error("Error during DOM initialization:",e)}});function N(){if(!u){console.warn("Action modal not found");return}u.show()}function V(){if(!u){console.warn("Action modal not found");return}u.hide()}function q(){const e=document.querySelector(".form-actions");if(!e){console.warn("Form actions container not found");return}e.addEventListener("click",async function(t){try{if(!(t.target instanceof Element))return;const o=t.target.closest("button[data-action]");if(!o)return;const a=o.getAttribute("data-action");if(!a)return;a in h?h[a]():console.warn(`Unknown action: ${a}`),t.preventDefault(),t.stopPropagation()}catch(o){console.error("Error handling form action:",o)}})}const h={reset:()=>{v(),console.log("Form reset")},submit:async()=>{const e=p();if(!e){console.error("No form data found");return}typeof e.id=="string"&&(e.id=parseInt(e.id,10));const t=await D.saveData(e);t&&(V(),console.log("Form submitted successfully:",t),T.emit("actionFormSubmit",t))},export:async()=>{const e=p();if(!e){console.error("No form data found");return}typeof e.id=="string"&&(e.id=parseInt(e.id,10)),await O(e,{mode:"download",filename:e.name}),console.log("exportcallback result",e)},import:async()=>{const e=await A();console.log("importcallback",e),e&&_(e)}};function p(){try{const e=document.querySelector("#actionForm");if(!e)return console.warn("Action form not found"),null;const t=e.getElementsByTagName("c-input");if(t.length===0)return console.warn("No input fields found"),null;const o={};Array.from(t).forEach(s=>{const m=s.getAttribute("data-field-name");m&&(o[m]=s.value)});const a=document.querySelector("#fetchForm_check"),r=document.querySelector("#fetchForm_config"),n=r?r.getConfig()||r.value:{};return{...o,fetchForm_check:a?.value||"",fetchForm_value:n||{}}}catch(e){return console.error("Error getting form data:",e),null}}function _(e){if(!e||Object.keys(e).length===0){console.warn("No data provided to setFormData");return}try{const t=document.querySelector("#actionForm");if(!t){console.warn("Action form not found");return}const o=t.getElementsByTagName("c-input");Array.from(o).forEach(n=>{const s=n.getAttribute("data-field-name");s&&e[s]!==void 0&&n.setVal(e[s])}),console.log("Setting form data:",e);const a=document.querySelector("#fetchForm_check");a&&a.setVal(e.fetchForm_check);const r=document.querySelector("#fetchForm_config");r&&r.setConfig(e.fetchForm_value||{}),console.log("Form data set successfully")}catch(t){console.error("Error setting form data:",t)}}function v(){try{const e=document.querySelector("#actionForm");if(!e){console.warn("Action form not found");return}const t=e.getElementsByTagName("c-input");Array.from(t).forEach(r=>{r.reset()});const o=document.querySelector("#fetchForm_check");o&&o.setVal(!1);const a=document.querySelector("#fetchForm_config");a&&a.reset(),console.log("Form reset successfully")}catch(e){console.error("Error resetting form:",e)}}export{T as a,N as o,_ as s};

@@ -1,4 +1,46 @@
-import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as l}from"./lit-html.Cs9YtZST.js";import{o as h}from"./unsafe-html.o8VIWoCg.js";import{t as b}from"./custom-element.BhZVzxrc.js";import{n as u,r as g}from"./state.k4TxN2nw.js";var v=Object.defineProperty,f=Object.getOwnPropertyDescriptor,a=(e,t,o,r)=>{for(var i=r>1?void 0:r?f(t,o):t,s=e.length-1,d;s>=0;s--)(d=e[s])&&(i=(r?d(t,o,i):d(i))||i);return r&&i&&v(t,o,i),i};class m extends p{static get properties(){return{title:{type:String,reflect:!0},description:{type:String,reflect:!0},theme:{type:String,reflect:!0},options:{type:Array}}}constructor(){super(),this.title="",this.description="",this.theme="light",this.options=[]}static get styles(){return c`
+import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as a}from"./lit-html.Cs9YtZST.js";import{o as v}from"./unsafe-html.o8VIWoCg.js";import{t as g}from"./custom-element.BhZVzxrc.js";import{n as f,r as h}from"./state.k4TxN2nw.js";var m=Object.defineProperty,y=Object.getOwnPropertyDescriptor,s=(t,e,o,r)=>{for(var i=r>1?void 0:r?y(e,o):e,l=t.length-1,d;l>=0;l--)(d=t[l])&&(i=(r?d(e,o,i):d(i))||i);return r&&i&&m(e,o,i),i};let b=class extends p{static get properties(){return{visible:{type:Boolean,reflect:!0},required:{type:Boolean,reflect:!0}}}constructor(){super(),this.visible=!1,this.required=!1}static get styles(){return c`
+      :host {
+        --overlay-bg: rgba(0, 0, 0, 0.5);
+        --dlg-z-index: 1000;
+        --transition-duration: 0.3s;
+        --content-max-height: 90dvh;
+        --content-border-radius: 16px;
+        --content-padding: 8px;
+        --content-bg: inherit;
+        --content-color: inherit;
+
+        display: block;
+        background: inherit;
+        color: inherit;
+      }
+
+      .dialog {
+        position: fixed;
+        inset: 0;
+        background-color: var(--overlay-bg);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        z-index: var(--dlg-z-index);
+
+        opacity: 0;
+        visibility: hidden;
+
+        transition: opacity var(--transition-duration) ease,
+                    visibility var(--transition-duration) ease;
+      }
+
+      .dialog.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+    `}render(){return a`
+      <div class="dialog ${this.visible?"visible":""}" @click="${this._handleOverlayClick}">
+          <slot></slot>
+      </div>
+    `}_handleOverlayClick(t){t.target===t.currentTarget&&!this.required&&(this.hide(),this.emitClose())}emitClose(){this.dispatchEvent(new CustomEvent("close"))}show(){this.visible=!0}hide(){this.visible=!1}};b=s([g("dialog-container")],b);let u=class extends p{static get properties(){return{title:{type:String,reflect:!0},description:{type:String,reflect:!0},theme:{type:String,reflect:!0},options:{type:Array}}}constructor(){super(),this.title="",this.description="",this.theme="light",this.options=[]}static get styles(){return c`
       :host {
         --dlg-padding: 1.5rem;
         --dlg-border-radius: 8px;
@@ -143,67 +185,25 @@ import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as l}from"./lit-ht
         border-color: var(--dlg-button-delete-hover-bg);
         opacity: 1;
       }
-    `}render(){return l`
+    `}render(){return a`
       <div class="container ${this.theme}">
         <h2 class="title">${this.title}</h2>
         <pre class="description">${this.description}</pre>
         <slot></slot>
         <div class="options">
-          ${this.options.map((t,o)=>l`<button 
-              @click=${r=>this._handleOptionClick(r,o)}
-              data-index="${o}"
+          ${this.options.map((t,e)=>a`<button 
+              @click=${o=>this._handleOptionClick(o,e)}
+              data-index="${e}"
               class="${t.class||""}"
               style="${t.style||""}"
             >${t.label}</button>`)}
         </div>
       </div>
-    `}_handleOptionClick(t,o){this.options[o]?.callback&&typeof this.options[o].callback=="function"?this.options[o].callback(t):console.warn(`No valid callback found for option index ${o}`)}}class y extends p{static get properties(){return{visible:{type:Boolean,reflect:!0},required:{type:Boolean,reflect:!0}}}constructor(){super(),this.visible=!1,this.required=!1}static get styles(){return c`
-      :host {
-        --overlay-bg: rgba(0, 0, 0, 0.5);
-        --dlg-z-index: 1000;
-        --transition-duration: 0.3s;
-        --content-max-height: 90dvh;
-        --content-border-radius: 16px;
-        --content-padding: 8px;
-        --content-bg: inherit;
-        --content-color: inherit;
-
-        display: block;
-        background: inherit;
-        color: inherit;
-      }
-
-      .dialog {
-        position: fixed;
-        inset: 0;
-        background-color: var(--overlay-bg);
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        z-index: var(--dlg-z-index);
-
-        opacity: 0;
-        visibility: hidden;
-
-        transition: opacity var(--transition-duration) ease,
-                    visibility var(--transition-duration) ease;
-      }
-
-      .dialog.visible {
-        opacity: 1;
-        visibility: visible;
-      }
-    `}render(){return l`
-      <div class="dialog ${this.visible?"visible":""}" @click="${this._handleOverlayClick}">
-          <slot></slot>
-      </div>
-    `}_handleOverlayClick(t){t.target===t.currentTarget&&!this.required&&(this.hide(),this.emitClose())}emitClose(){this.dispatchEvent(new CustomEvent("close"))}show(){this.visible=!0}hide(){this.visible=!1}}let n=class extends p{constructor(){super(),this._options=[],this.isVisible=!1,this.posX=0,this.posY=0,this.lastFocusedElement=null,this.handleClickOutsideBound=this.handleClickOutside.bind(this)}get options(){return this._options}set options(e){this._options=[...e],this.requestUpdate()}addOption(e,t){const o=r=>{t(r),this.hide()};return this._options.push({html:e,callback:o}),this.requestUpdate(),this._options.length-1}setOptions(e){this._options=e.map(t=>({html:t.html,callback:o=>{t.callback(o),this.hide()}})),this.requestUpdate()}clearOptions(){this._options=[],this.requestUpdate()}removeOption(e){return e>=0&&e<this._options.length?(this._options.splice(e,1),this.requestUpdate(),!0):!1}show({x:e,y:t}){this.isVisible=!0,e!==void 0&&t!==void 0&&this.moveTo(e,t),this.requestUpdate(),setTimeout(()=>{document.addEventListener("click",this.handleClickOutsideBound)},0)}hide(){this.isVisible=!1,this.requestUpdate(),document.removeEventListener("click",this.handleClickOutsideBound)}moveTo(e,t){const o=this.shadowRoot?.querySelector(".container");if(!o)return;const r=o.getBoundingClientRect(),i=window.innerWidth,s=window.innerHeight;e+r.width>i&&(e=i-r.width-10),t+r.height>s&&(t=s-r.height-10),this.posX=Math.max(0,e),this.posY=Math.max(0,t),this.requestUpdate()}showAtElement(e){if(!e)return;const t=e.getBoundingClientRect(),o={x:t.left,y:t.bottom};console.log("showAtElement",e,o),this.show(o),this.lastFocusedElement=e}handleClickOutside(e){const t=e.composedPath(),o=this.shadowRoot?.querySelector(".container");o&&!t.includes(o)&&(!this.lastFocusedElement||!t.includes(this.lastFocusedElement))&&this.hide()}disconnectedCallback(){super.disconnectedCallback(),document.removeEventListener("click",this.handleClickOutsideBound)}updated(e){super.updated(e);const t=this.shadowRoot?.querySelector(".container");t&&(t.style.display=this.isVisible?"flex":"none",t.style.left=`${this.posX}px`,t.style.top=`${this.posY}px`)}render(){return l`
+    `}_handleOptionClick(t,e){this.options[e]?.callback&&typeof this.options[e].callback=="function"?this.options[e].callback(t):console.warn(`No valid callback found for option index ${e}`)}};u=s([g("dialog-content")],u);let n=class extends p{constructor(){super(),this._options=[],this.isVisible=!1,this.posX=0,this.posY=0,this.lastFocusedElement=null,this.handleClickOutsideBound=this.handleClickOutside.bind(this)}get options(){return this._options}set options(t){this._options=[...t],this.requestUpdate()}addOption(t,e){const o=r=>{e(r),this.hide()};return this._options.push({html:t,callback:o}),this.requestUpdate(),this._options.length-1}setOptions(t){this._options=t.map(e=>({html:e.html,callback:o=>{e.callback(o),this.hide()}})),this.requestUpdate()}clearOptions(){this._options=[],this.requestUpdate()}removeOption(t){return t>=0&&t<this._options.length?(this._options.splice(t,1),this.requestUpdate(),!0):!1}show({x:t,y:e}){this.isVisible=!0,t!==void 0&&e!==void 0&&this.moveTo(t,e),this.requestUpdate(),setTimeout(()=>{document.addEventListener("click",this.handleClickOutsideBound)},0)}hide(){this.isVisible=!1,this.requestUpdate(),document.removeEventListener("click",this.handleClickOutsideBound)}moveTo(t,e){const o=this.shadowRoot?.querySelector(".container");if(!o)return;const r=o.getBoundingClientRect(),i=window.innerWidth,l=window.innerHeight;t+r.width>i&&(t=i-r.width-10),e+r.height>l&&(e=l-r.height-10),this.posX=Math.max(0,t),this.posY=Math.max(0,e),this.requestUpdate()}showAtElement(t){if(!t)return;const e=t.getBoundingClientRect(),o={x:e.left,y:e.bottom};console.log("showAtElement",t,o),this.show(o),this.lastFocusedElement=t}handleClickOutside(t){const e=t.composedPath(),o=this.shadowRoot?.querySelector(".container");o&&!e.includes(o)&&(!this.lastFocusedElement||!e.includes(this.lastFocusedElement))&&this.hide()}disconnectedCallback(){super.disconnectedCallback(),document.removeEventListener("click",this.handleClickOutsideBound)}updated(t){super.updated(t);const e=this.shadowRoot?.querySelector(".container");e&&(e.style.display=this.isVisible?"flex":"none",e.style.left=`${this.posX}px`,e.style.top=`${this.posY}px`)}render(){return a`
         <div class="container">
-          ${this._options.map(e=>l`
-            <div class="popup-option" @click=${e.callback}>
-              ${h(e.html)}
+          ${this._options.map(t=>a`
+            <div class="popup-option" @click=${t.callback}>
+              ${v(t.html)}
             </div>
           `)}
         </div>
@@ -270,4 +270,4 @@ import{i as c,r as p}from"./lit-element.CdPzzhzS.js";import{x as l}from"./lit-ht
         background-color: rgba(255, 255, 255, 0.1);
       }
     }
-  `;a([u({type:Array})],n.prototype,"_options",2);a([g()],n.prototype,"isVisible",2);a([g()],n.prototype,"posX",2);a([g()],n.prototype,"posY",2);n=a([b("custom-popup")],n);customElements.define("dialog-content",m);customElements.define("dialog-container",y);
+  `;s([f({type:Array})],n.prototype,"_options",2);s([h()],n.prototype,"isVisible",2);s([h()],n.prototype,"posX",2);s([h()],n.prototype,"posY",2);n=s([g("custom-popup")],n);
