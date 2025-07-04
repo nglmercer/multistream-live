@@ -17,7 +17,7 @@ const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
 const path = require('node:path');
 
 // Módulos locales
-const { io, essapp, httpServer, port } = require('./routers/index.js');
+const { io, fastify, port } = require('./routers/index.js');
 const {    main,  gracefulShutdown } = require('./initserver.js')
 // =============================================================================
 // VARIABLES GLOBALES

@@ -15,9 +15,9 @@ const {
     closeAllConnections: closeP2PConnections
 } = require('./p2p/communication.js');
 
-const { io, essapp, httpServer } = require('./routers/index.js');
+const { io, fastify } = require('./routers/index.js');
 const { emitter } = require('./routers/Emitter.js');
-const { initializeIO } = require('./routers/socket.js');
+const { initializeIO } = require('./routers/socketHandler.js');
 
 let p2pTcpServerInstance = null;
 let p2pTcpPort = 0;
@@ -77,10 +77,9 @@ async function main() {
         console.log(`[MAIN] ✅ Descubrimiento mDNS iniciado para ${p2pInstanceName} en puerto ${p2pTcpPort}`);
 
         // 3. Construir e iniciar el servidor Fastify
-        expresspapInstance = httpServer;
-        expresspapInstance.listen(API_PORT, () => {
-            console.log(`Server running at http://localhost:${API_PORT}`);
-        });
+        expresspapInstance = fastify;
+        await expresspapInstance.listen({ port:9001, host: '0.0.0.0' });
+        
         initializeIO(io);
         // Conectar eventos de PeerManager al emitter global
         peerManager.on('peerUp', (service) => {

@@ -18,5 +18,19 @@
     "electron": "31.4.0",
     "electron-builder": "24.13.3",
     "rimraf": "6.0.1"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@fastify/static": "^8.2.0",
+    "fastify": "^5.4.0",
+    "@retconned/kick-js": "^0.5.3",
+    "axios": "^1.7.9",
+    "bonjour-service": "^1.3.0",
+    "colors": "^1.4.0",
+    "serve-handler": "6.1.5",
+    "socket.io": "^4.8.0",
+    "strip-ansi": "^7.1.0",
+    "tiktok-live-connector": "^1.2.3",
+    "uuid": "^11.1.0"
   }
 }

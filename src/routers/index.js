@@ -1,98 +1,130 @@
+// server.js
 const path = require('node:path');
 const fs = require('node:fs');
-const express = require('express');
 const { Server } = require('socket.io');
-const http = require('http');
-const cors = require('cors');
-const essapp = express();
+const fastify = require('fastify')({
+    logger: true // El logger de Fastify es excelente para desarrollo
+});
+
+// Importar los plugins de rutas
 const tasksRouter = require('./tasks.js');
 const networkRouter = require('./networkRouter.js');
+//const { initializeIO } = require('./socketHandler.js'); // Asumiendo que tu lógica de socket está en este archivo
 
-essapp.use(cors());
-essapp.use(express.json());
+// =============================================================================
+// REGISTRO DE PLUGINS (equivalente a app.use() en Express)
+// =============================================================================
 
-// Esta URI es para express.static, que sirve archivos desde './public'
+// Plugin para CORS (reemplaza a app.use(cors()))
+fastify.register(require('@fastify/cors'), {
+    origin: "*", // Configura esto de forma más restrictiva en producción
+    methods: ["GET", "POST", "PUT", "DELETE"]
+});
+
+// Plugin para servir archivos estáticos (reemplaza a express.static)
 const publicUri = path.join(__dirname, '../public');
-console.log('Serving static files from:', publicUri);
-essapp.use(express.static(publicUri)); // Esto debe ir ANTES de tu ruta /media/* si quieres que tenga prioridad para rutas que no coincidan con /media/*
+fastify.register(require('@fastify/static'), {
+    root: publicUri,
+    prefix: '/', // Opcional, sirve desde la raíz
+});
 
-const httpServer = http.createServer(essapp);
-const io = new Server(httpServer, {
+// =============================================================================
+// REGISTRO DE RUTAS
+// =============================================================================
+
+// Registrar las rutas de tareas con un prefijo
+fastify.register(tasksRouter, { prefix: '/tasks' });
+
+// Registrar las rutas de red con un prefijo
+fastify.register(networkRouter, { prefix: '/api/network' });
+
+// =============================================================================
+// RUTA PERSONALIZADA /media/*
+// =============================================================================
+const imageobj = {
+    '.jpg': 'jpeg', '.jpeg': 'jpeg', '.png': 'png', '.gif': 'gif',
+    '.webp': 'webp', '.svg': 'svg+xml', '.bmp': 'bmp', '.ico': 'x-icon',
+    '.tiff': 'tiff', '.avif': 'avif', '.apng': 'apng'
+};
+
+fastify.get('/media/*', async (request, reply) => {
+    // Fastify usa request.params['*'] para el comodín
+    const relativePathFromUrl = decodeURIComponent(request.params['*']);
+    const filePath = path.resolve('/', relativePathFromUrl);
+
+    fastify.log.info(`Request for: ${request.url}`);
+    fastify.log.info(`Attempting to serve file from absolute path: ${filePath}`);
+
+    try {
+        const stats = await fs.promises.stat(filePath);
+
+        if (!stats.isFile()) {
+            fastify.log.warn(`Path ${filePath} is not a file.`);
+            return reply.code(404).send({ error: 'Path is not a file' });
+        }
+
+        const extname = path.extname(filePath).toLowerCase();
+        let contentType;
+
+        if (extname === '.mp3' || extname === '.wav') {
+            contentType = 'audio/' + extname.slice(1);
+        } else if (extname === '.mp4' || extname === '.webm') {
+            contentType = 'video/' + extname.slice(1);
+        } else if (imageobj[extname]) {
+            contentType = 'image/' + imageobj[extname];
+        } else {
+            fastify.log.warn(`Unsupported file type: ${extname} for file ${filePath}`);
+            return reply.code(415).send({ error: 'Unsupported file type' });
+        }
+        
+        reply.header('Content-Type', contentType);
+        const fileStream = fs.createReadStream(filePath);
+        return reply.send(fileStream); // Fastify maneja streams de forma nativa
+
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            fastify.log.error(`File not found at ${filePath}:`, err);
+            return reply.code(404).send({ error: 'File not found' });
+        }
+        fastify.log.error(`Error accessing file ${filePath}:`, err);
+        return reply.code(500).send({ error: 'Error accessing file' });
+    }
+});
+
+// =============================================================================
+// INICIALIZACIÓN DE SERVIDOR Y SOCKET.IO
+// =============================================================================
+
+// Adjuntamos Socket.IO al servidor HTTP subyacente de Fastify
+const io = new Server(fastify.server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
     }
 });
-const port = parseInt(process.env.PORT) || 9001;
 
-essapp.get('/media/*', (req, res) => {
-    // En lugar de req.params[0], usa req.path y remueve '/media'
-    const relativePathFromUrl = decodeURIComponent(req.path.replace('/media/', ''));
-    // Construye la ruta absoluta en el servidor Linux
-    // Anteponemos '/' para que path.resolve entienda que es desde la raíz del sistema de archivos.
-    const filePath = path.resolve('/', relativePathFromUrl);
+// Para que el networkRouter acceda a la info, usamos decoradores
+// Esto es el equivalente a app.locals en Express.
+// Supongamos que tienes la info p2p en una variable:
+const p2pInfo = {
+    instanceName: 'MyAwesomeInstance',
+    p2pPort: 9002,
+    // ... cualquier otra info
+};
+fastify.decorate('p2pInfo', p2pInfo);
 
-    console.log(`Request for: ${req.url}`);
-    console.log(`Attempting to serve file from absolute path: ${filePath}`); // Log para depuración
 
-    const extname = path.extname(filePath).toLowerCase();
-    const imageobj = {
-      '.jpg': 'jpeg',
-      '.jpeg': 'jpeg',
-      '.png': 'png',
-      '.gif': 'gif',
-      '.webp': 'webp',
-      '.svg': 'svg+xml',
-      '.bmp': 'bmp',
-      '.ico': 'x-icon',
-      '.tiff': 'tiff',
-      '.avif': 'avif',
-      '.apng': 'apng'
-    };
+const port = 9001;
+module.exports = { fastify, io, port };
+/* const start = async () => {
+    try {
+        await fastify.listen({ port, host: '0.0.0.0' });
+        // La dirección del servidor API ahora está disponible después de listen()
+        fastify.decorate('serverAddress', fastify.server.address());
+    } catch (err) {
+        fastify.log.error(err);
+        process.exit(1);
+    }
+};
 
-    fs.stat(filePath, (err, stats) => {
-      if (err) { // Si hay error, puede ser que no exista o no haya permisos
-        console.error(`Error accessing file ${filePath}:`, err);
-        if (err.code === 'ENOENT') {
-          return res.status(404).send('File not found');
-        }
-        return res.status(500).send('Error accessing file');
-      }
-
-      if (!stats.isFile()) {
-        console.warn(`Path ${filePath} is not a file.`);
-        return res.status(404).send('Path is not a file');
-      }
-
-      if (extname === '.mp3' || extname === '.wav') {
-        res.setHeader('Content-Type', 'audio/' + extname.slice(1));
-      } else if (extname === '.mp4' || extname === '.webm') {
-        res.setHeader('Content-Type', 'video/' + extname.slice(1));
-      } else if (imageobj[extname]) {
-        res.setHeader('Content-Type', 'image/' + imageobj[extname]);
-      } else {
-        console.warn(`Unsupported file type: ${extname} for file ${filePath}`);
-        return res.status(415).send('Unsupported file type');
-      }
-
-      const fileStream = fs.createReadStream(filePath);
-      fileStream.on('error', (streamErr) => {
-        console.error(`Error streaming file ${filePath}:`, streamErr);
-        res.status(500).send('Error streaming file');
-      });
-      fileStream.pipe(res);
-    });
-  });
-
-essapp.use('/tasks', tasksRouter);
-essapp.use('/api/network', networkRouter);
-// Asegúrate de que httpServer.listen se llama aquí si este es tu archivo principal
-// Si este archivo es importado por otro, el listen estará en el archivo principal.
-// Ejemplo (si este es el archivo principal):
-/*
-httpServer.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
-*/
-
-module.exports = { io, essapp, httpServer, port };
+start(); */

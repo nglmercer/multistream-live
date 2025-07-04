@@ -1,114 +1,119 @@
-const express = require('express');
-const router = express.Router();
-const StorageManager = require('../modules/StorageManager.js'); // Ajusta la ruta si es necesario
+// tasks.js
+const StorageManager = require('../modules/StorageManager.js');
 
-// Usamos la misma instancia de StorageManager
 const taskStorage = new StorageManager('tasks.json', './data', true);
 const taskTypes = ["overlay", "minecraft", "keypress", "timer"];
 
-// Middleware para validar el tipo de tarea
-const validateTaskType = (req, res, next) => {
-    const type = req.params.type;
-    if (!taskTypes.includes(type)) {
-        return res.status(400).send({ error: "Invalid task type" });
-    }
-    next();
-};
+// Un plugin de Fastify es una función asíncrona que recibe la instancia de fastify
+async function tasksRoutes(fastify, options) {
 
-// Middleware para validar taskId (opcional, pero buena práctica)
-const validateTaskId = (req, res, next) => {
-    if (!req.params.taskId) {
-        return res.status(400).send({ error: "Task ID is required" });
-    }
-    next();
-};
+    // Middleware convertido a un hook 'preHandler' de Fastify
+    const validateTaskType = async (request, reply) => {
+        const { type } = request.params;
+        if (!taskTypes.includes(type)) {
+            // En los hooks, se detiene la ejecución enviando una respuesta
+            reply.code(400).send({ error: "Invalid task type" });
+        }
+    };
+    
+    // Middleware convertido a un hook 'preHandler' de Fastify
+    const validateTaskId = async (request, reply) => {
+        if (!request.params.taskId) {
+            reply.code(400).send({ error: "Task ID is required" });
+        }
+    };
+    
+    // Añadimos hooks a rutas específicas usando un objeto de configuración
+    const routeOptionsWithValidation = (handler) => ({
+        preHandler: [validateTaskType, validateTaskId],
+        handler
+    });
 
-// Guardar nueva tarea (AÑADIR a la lista)
-router.post('/save/:type', validateTaskType, async (req, res) => {
-    const type = req.params.type;
-    const taskData = req.body;
-    console.log("taskData", taskData);
-    if (!taskData || Object.keys(taskData).length === 0) {
-        return res.status(400).send({ error: "Task data cannot be empty" });
-    }
+    const routeOptionsWithTypeValidation = (handler) => ({
+        preHandler: [validateTaskType],
+        handler
+    });
 
-    const newTask = taskStorage.addTask(type, taskData);
-    res.status(201).send({ message: "Task added successfully", task: newTask });
-});
+    // Guardar nueva tarea
+    fastify.post('/save/:type', routeOptionsWithTypeValidation(async (request, reply) => {
+        const { type } = request.params;
+        const taskData = request.body;
+        if (!taskData || Object.keys(taskData).length === 0) {
+            return reply.code(400).send({ error: "Task data cannot be empty" });
+        }
+        const newTask = taskStorage.addTask(type, taskData);
+        reply.code(201).send({ message: "Task added successfully", task: newTask });
+    }));
 
-// Obtener TODAS las tareas de un tipo
-router.get('/get/:type', validateTaskType, async (req, res) => {
-    const type = req.params.type;
-    const tasks = taskStorage.getTasksByType(type);
-    res.status(200).send(tasks); // Devuelve un array, puede estar vacío
-});
+    // Obtener TODAS las tareas de un tipo
+    fastify.get('/get/:type', routeOptionsWithTypeValidation(async (request, reply) => {
+        const { type } = request.params;
+        const tasks = taskStorage.getTasksByType(type);
+        reply.code(200).send(tasks);
+    }));
 
-// Obtener una tarea específica por ID
-router.get('/get/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
-    const { type, taskId } = req.params;
-    const task = taskStorage.getTaskById(type, taskId);
-    if (task) {
-        res.status(200).send(task);
-    } else {
-        res.status(404).send({ error: "Task not found" });
-    }
-});
+    // Obtener una tarea específica por ID
+    fastify.get('/get/:type/:taskId', routeOptionsWithValidation(async (request, reply) => {
+        const { type, taskId } = request.params;
+        const task = taskStorage.getTaskById(type, taskId);
+        if (task) {
+            reply.code(200).send(task);
+        } else {
+            reply.code(404).send({ error: "Task not found" });
+        }
+    }));
 
-// Eliminar una tarea
-router.delete('/remove/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
-    const { type, taskId } = req.params;
-    const removed = taskStorage.removeTask(type, taskId);
-    if (removed) {
-        res.status(200).send({ message: "Task removed successfully" });
-    } else {
-        res.status(404).send({ error: "Task not found or already removed" });
-    }
-});
+    // Eliminar una tarea
+    fastify.delete('/remove/:type/:taskId', routeOptionsWithValidation(async (request, reply) => {
+        const { type, taskId } = request.params;
+        const removed = taskStorage.removeTask(type, taskId);
+        if (removed) {
+            reply.code(200).send({ message: "Task removed successfully" });
+        } else {
+            reply.code(404).send({ error: "Task not found or already removed" });
+        }
+    }));
 
-// Marcar una tarea como completada
-router.put('/complete/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
-    const { type, taskId } = req.params;
-    const updatedTask = taskStorage.updateTaskCompletion(type, taskId, true);
-    if (updatedTask) {
-        res.status(200).send({ message: "Task marked as complete", task: updatedTask });
-    } else {
-        res.status(404).send({ error: "Task not found" });
-    }
-});
+    // Marcar una tarea como completada
+    fastify.put('/complete/:type/:taskId', routeOptionsWithValidation(async (request, reply) => {
+        const { type, taskId } = request.params;
+        const updatedTask = taskStorage.updateTaskCompletion(type, taskId, true);
+        if (updatedTask) {
+            reply.code(200).send({ message: "Task marked as complete", task: updatedTask });
+        } else {
+            reply.code(404).send({ error: "Task not found" });
+        }
+    }));
 
-// Marcar una tarea como incompleta
-router.put('/uncomplete/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
-    const { type, taskId } = req.params;
-    const updatedTask = taskStorage.updateTaskCompletion(type, taskId, false);
-    if (updatedTask) {
-        res.status(200).send({ message: "Task marked as incomplete", task: updatedTask });
-    } else {
-        res.status(404).send({ error: "Task not found" });
-    }
-});
+    // Marcar una tarea como incompleta
+    fastify.put('/uncomplete/:type/:taskId', routeOptionsWithValidation(async (request, reply) => {
+        const { type, taskId } = request.params;
+        const updatedTask = taskStorage.updateTaskCompletion(type, taskId, false);
+        if (updatedTask) {
+            reply.code(200).send({ message: "Task marked as incomplete", task: updatedTask });
+        } else {
+            reply.code(404).send({ error: "Task not found" });
+        }
+    }));
 
-// Actualizar datos de una tarea (ejemplo, podrías querer ser más específico con los campos)
-router.put('/update/:type/:taskId', validateTaskType, validateTaskId, async (req, res) => {
-    const { type, taskId } = req.params;
-    const updates = req.body;
+    // Actualizar datos de una tarea
+    fastify.put('/update/:type/:taskId', routeOptionsWithValidation(async (request, reply) => {
+        const { type, taskId } = request.params;
+        const updates = request.body;
+        if (Object.keys(updates).length === 0) {
+            return reply.code(400).send({ error: "Update data cannot be empty" });
+        }
+        delete updates.id;
+        delete updates.completed;
+        delete updates.createdAt;
+        delete updates.updatedAt;
+        const updatedTask = taskStorage.updateTaskData(type, taskId, updates);
+        if (updatedTask) {
+            reply.code(200).send({ message: "Task data updated successfully", task: updatedTask });
+        } else {
+            reply.code(404).send({ error: "Task not found" });
+        }
+    }));
+}
 
-    if (Object.keys(updates).length === 0) {
-        return res.status(400).send({ error: "Update data cannot be empty" });
-    }
-     // Prevenir que se modifiquen campos protegidos si se envían en el body
-    delete updates.id;
-    delete updates.completed; // La completitud se maneja con otros endpoints
-    delete updates.createdAt;
-    delete updates.updatedAt;
-
-
-    const updatedTask = taskStorage.updateTaskData(type, taskId, updates);
-    if (updatedTask) {
-        res.status(200).send({ message: "Task data updated successfully", task: updatedTask });
-    } else {
-        res.status(404).send({ error: "Task not found" });
-    }
-});
-
-
-module.exports = router;
+module.exports = tasksRoutes;
