@@ -2,8 +2,6 @@
 // GESTIÓN DE SOCKETS Y EVENTOS
 // =============================================================================
 
-const WindowManager = require('../modules/window-manager.js');
-const keynut = require("../modules/keycontroll.js");
 const { RoomManager } = require('../modules/socketManager.js');
 const { PlatformType } = require('../constants.js');
 
@@ -13,16 +11,9 @@ const {
     getAllConnectionsInfo, 
 } = require('../modules/connections.js');
 
-const { 
-    toggleShortcuts, 
-    getshortcuts, 
-    handleStoreManager 
-} = require('../modules/shortcuts.js');
-
 // =============================================================================
 // INICIALIZACIÓN DE MÓDULOS
 // =============================================================================
-const windowManager = new WindowManager();
 
 // =============================================================================
 // VARIABLES GLOBALES
@@ -41,11 +32,6 @@ function initializeIO(io) {
         
         // Enviar datos iniciales
         socket.emit('allConnections', getAllConnectionsInfo());
-        socket.emit('shortcuts-event', getshortcuts());
-        socket.emit('window-list',
-            Array.from(windowManager.getWindows().entries())
-                .map(([id, config]) => ({ id, ...config }))
-        );
 
         // =============================================================================
         // MANEJADORES DE EVENTOS DE CONEXIÓN
@@ -94,30 +80,6 @@ function initializeIO(io) {
                 roomManager.emitToRoom(roomId, 'create-overlay', mapconfig);
             }
         });
-
-        // =============================================================================
-        // MANEJADORES DE EVENTOS DE VENTANAS
-        // =============================================================================
-        socket.on('update-window', ({ id, config }) => {
-            windowManager.updateWindow(id, config);
-        });
-
-        socket.on('create-window', (config) => {
-            windowManager.createWindow(config);
-        });
-
-        socket.on('close-window', (id) => {
-            windowManager.closeWindow(id);
-        });
-
-        // =============================================================================
-        // MANEJADORES DE EVENTOS DE ATAJOS Y TECLAS
-        // =============================================================================
-        socket.on("storemanager", (data) => handleStoreManager(socket, data));
-        socket.on("toggle-shortcuts", (enabled) => toggleShortcuts(enabled));
-        socket.on("presskey", (key) => handleKeyPress(socket, key));
-        socket.on("pressKey2", (key) => handleKeyPress2(socket, key));
-
         // =============================================================================
         // MANEJADOR DE DESCONEXIÓN
         // =============================================================================
@@ -138,27 +100,7 @@ function initializeIO(io) {
 // =============================================================================
 // MANEJADORES DE EVENTOS DE TECLAS
 // =============================================================================
-function handleKeyPress2(socket, key) {
-    try {
-        console.log("keypressed2", key);
-        keynut.keyboardController.handleKeyPress(key);
-    } catch (error) {
-        console.error("Error al presionar el teclado:", error);
-    }
-}
-
-function handleKeyPress(socket, key) {
-    console.log("keypressed", key);
-    try {
-        keynut.keyboardController.parseAndExecuteKeyCommand(key);
-        socket.emit("keypressed", key);
-    } catch (error) {
-        socket.emit("error", error.message);
-    }
-}
 
 module.exports = { 
-    initializeIO,
-    handleKeyPress,
-    handleKeyPress2
+    initializeIO
 };

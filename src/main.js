@@ -9,7 +9,7 @@ import http from 'http';
 import cors from 'cors';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-import WindowManager from './modules/window-manager.js'; */
+*/
 // =============================================================================
 // IMPORTS Y DEPENDENCIAS
 // =============================================================================
@@ -17,15 +17,11 @@ const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
 const path = require('node:path');
 
 // Módulos locales
-const WindowManager = require('./modules/window-manager.js');
-const { registerAllShortcuts } = require('./modules/shortcuts.js');
 const { io, essapp, httpServer, port } = require('./routers/index.js');
-const { initializeIO } = require('./routers/socket.js');
 const {    main,  gracefulShutdown } = require('./initserver.js')
 // =============================================================================
 // VARIABLES GLOBALES
 // =============================================================================
-const windowManager = new WindowManager();
 let mainWindow;
 
 // =============================================================================
@@ -42,27 +38,6 @@ function createWindow() {
   const url = `http://localhost:${port}`;
   mainWindow.loadURL(url);
 }
-
-// =============================================================================
-// CONFIGURACIÓN DE WEBSOCKETS Y EVENTOS
-// =============================================================================
-function setupWebSocketEvents() {
-  initializeIO(io);
-  
-  // Eventos del WindowManager
-  windowManager.on('window-created', (data) => {
-    io.emit('window-created', data);
-  });
-  
-  windowManager.on('window-closed', (id) => {
-    io.emit('window-closed', id);
-  });
-  
-  windowManager.on('window-updated', (data) => {
-    io.emit('window-updated', data);
-  });
-}
-
 // =============================================================================
 // MANEJADORES IPC
 // =============================================================================
@@ -78,9 +53,7 @@ function setupIPCHandlers() {
 // =============================================================================
 function setupAppEvents() {
   app.whenReady().then(() => {
-    createWindow();
-    registerAllShortcuts();
-    
+    createWindow();    
     app.on('activate', function () {
       if (BrowserWindow.getAllWindows().length === 0) {
         createWindow();
@@ -98,11 +71,6 @@ function setupAppEvents() {
 // =============================================================================
 // INICIALIZACIÓN DE LA APLICACIÓN
 // =============================================================================
-function initializeApp() {
-  setupWebSocketEvents();
-  setupIPCHandlers();
-  setupAppEvents();
-}
 
-// Ejecutar la aplicación
-initializeApp();
+setupIPCHandlers();
+setupAppEvents();

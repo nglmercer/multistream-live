@@ -17,6 +17,7 @@ const {
 
 const { io, essapp, httpServer } = require('./routers/index.js');
 const { emitter } = require('./routers/Emitter.js');
+const { initializeIO } = require('./routers/socket.js');
 
 let p2pTcpServerInstance = null;
 let p2pTcpPort = 0;
@@ -80,6 +81,7 @@ async function main() {
         expresspapInstance.listen(API_PORT, () => {
             console.log(`Server running at http://localhost:${API_PORT}`);
         });
+        initializeIO(io);
         // Conectar eventos de PeerManager al emitter global
         peerManager.on('peerUp', (service) => {
             console.log(`[P2P SYS] Peer ARRIBA: ${service.name}`);
