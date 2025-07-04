@@ -26,7 +26,8 @@ const io = new Server(httpServer, {
 const port = parseInt(process.env.PORT) || 9001;
 
 essapp.get('/media/*', (req, res) => {
-    const relativePathFromUrl = decodeURIComponent(req.params[0]);
+    // En lugar de req.params[0], usa req.path y remueve '/media'
+    const relativePathFromUrl = decodeURIComponent(req.path.replace('/media/', ''));
     // Construye la ruta absoluta en el servidor Linux
     // Anteponemos '/' para que path.resolve entienda que es desde la raíz del sistema de archivos.
     const filePath = path.resolve('/', relativePathFromUrl);

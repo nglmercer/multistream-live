@@ -1,0 +1,544 @@
+<!DOCTYPE html><html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="stylesheet" href="/materialSymbols.css"><meta name="color-scheme" content="light dark"><script src="https://code.responsivevoice.org/responsivevoice.js?key=VyUT4i1M"></script><title>multistreamASTRO - Documentación</title><link rel="stylesheet" href="/_astro/Docs.K5FtcfPn.css">
+<style>.markdown-dropdown[data-astro-cid-u2zup5cr]{border:1px solid #e2e8f0;border-radius:8px;margin:1rem 0;background:#fff;box-shadow:0 1px 3px #0000001a;transition:all .2s ease}.markdown-dropdown[data-astro-cid-u2zup5cr]:hover{box-shadow:0 4px 6px #0000001a}.dropdown-title[data-astro-cid-u2zup5cr]{padding:1rem 1.25rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#374151;background:#f8fafc;border-radius:7px 7px 0 0;transition:background-color .2s ease;user-select:none}.dropdown-title[data-astro-cid-u2zup5cr]:hover{background:#f1f5f9}.dropdown-title[data-astro-cid-u2zup5cr]::-webkit-details-marker{display:none}.title-text[data-astro-cid-u2zup5cr]{flex:1;font-size:1.1rem}.dropdown-icon[data-astro-cid-u2zup5cr]{transition:transform .2s ease;font-size:.8rem;color:#6b7280}.markdown-dropdown[data-astro-cid-u2zup5cr][open] .dropdown-icon[data-astro-cid-u2zup5cr]{transform:rotate(180deg)}.dropdown-content[data-astro-cid-u2zup5cr]{padding:.25rem;border-top:1px solid #e5e7eb;background:#fff;border-radius:0 0 7px 7px}.dropdown-content[data-astro-cid-u2zup5cr] h1,.dropdown-content[data-astro-cid-u2zup5cr] h2,.dropdown-content[data-astro-cid-u2zup5cr] h3,.dropdown-content[data-astro-cid-u2zup5cr] h4,.dropdown-content[data-astro-cid-u2zup5cr] h5,.dropdown-content[data-astro-cid-u2zup5cr] h6{margin-top:0;margin-bottom:.75rem}.dropdown-content[data-astro-cid-u2zup5cr] p{margin:0 0 1rem;line-height:1.6}.dropdown-content[data-astro-cid-u2zup5cr] ul,.dropdown-content[data-astro-cid-u2zup5cr] ol{margin:0 0 1rem}.dropdown-content[data-astro-cid-u2zup5cr] li{margin-bottom:.5rem}.dropdown-content[data-astro-cid-u2zup5cr] code{background:#f3f4f6;border-radius:3px;font-size:.875rem}.dropdown-content[data-astro-cid-u2zup5cr] pre{background:#f8fafc;border:1px solid #e5e7eb;border-radius:6px;overflow-x:auto;margin:1rem 0}.dropdown-content[data-astro-cid-u2zup5cr] blockquote{border-left:4px solid #e5e7eb;padding-left:1rem;margin:1rem 0;font-style:italic;color:#6b7280}@media (prefers-color-scheme: dark){.markdown-dropdown[data-astro-cid-u2zup5cr]{background:#1f2937;border-color:#374151}.dropdown-title[data-astro-cid-u2zup5cr]{background:#374151;color:#f9fafb}.dropdown-title[data-astro-cid-u2zup5cr]:hover{background:#4b5563}.dropdown-content[data-astro-cid-u2zup5cr]{background:#1f2937;border-top-color:#4b5563}.dropdown-content[data-astro-cid-u2zup5cr] code{background:#374151;color:#f9fafb}.dropdown-content[data-astro-cid-u2zup5cr] pre{background:#111827;border-color:#374151}.dropdown-content[data-astro-cid-u2zup5cr] blockquote{border-left-color:#4b5563;color:#9ca3af}}
+</style>
+<link rel="stylesheet" href="/_astro/Docs.ZztAOc5B.css">
+<style>.action-form{--form-bg: #f9f9f9;--form-border: #eee;--text-color: #333;--border-color: #ddd;--error-color: #dc3545;--success-color: #28a745;--primary-color: #007bff;--secondary-color: #6c757d;display:block;font-family:system-ui,-apple-system,sans-serif;background-color:var(--form-bg);border:1px solid var(--form-border);border-radius:12px;padding:24px;margin-bottom:16px;color:var(--text-color);box-shadow:0 2px 8px #0000001a;width:80%;max-height:90dvh;overflow:auto}.action-form.dark{--form-bg: #1a1a1a;--form-border: #333;--text-color: #e0e0e0;--border-color: #444}.form-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-color)}.form-title{margin:0 0 8px;font-size:1.5rem;font-weight:600;color:var(--text-color)}.form-description{margin:0;color:var(--text-color);opacity:.8;font-size:.9rem;line-height:1.4}.fields-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px 24px;margin-bottom:24px}.field-wrapper{display:flex;flex-direction:column;gap:8px;transition:opacity .2s ease;grid-column:span 2}.field-wrapper.invalid{border-left:3px solid var(--error-color);padding-left:12px;margin-left:-15px}.field-label{font-weight:500;font-size:.9rem;color:var(--text-color);margin-bottom:4px;display:flex;align-items:center;gap:4px}.required-indicator{color:var(--error-color);font-weight:700}.field-error{display:none;font-size:.8rem;color:var(--error-color);margin-top:4px}.custom-fields{margin-bottom:24px}.form-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:16px;border-top:1px solid var(--border-color)}.btn{padding:10px 20px;border:none;border-radius:6px;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s ease;min-width:100px}.btn:focus{outline:2px solid var(--primary-color);outline-offset:2px}.btn-primary{background-color:var(--primary-color);color:#fff}.btn-primary:hover{background-color:#0056b3;transform:translateY(-1px)}.btn-secondary{background-color:transparent;color:var(--secondary-color);border:1px solid var(--secondary-color)}.btn-secondary:hover{background-color:var(--secondary-color);color:#fff}.field-wrapper[data-field-type=range],.field-wrapper[data-field-type=textarea]{grid-column:span 2}@media (max-width: 768px){.action-form{padding:16px}.fields-container{grid-template-columns:1fr;gap:16px}.field-wrapper[data-field-type=range],.field-wrapper[data-field-type=textarea]{grid-column:span 1}.form-actions{flex-direction:column-reverse}.btn{width:100%}}
+</style><script>/** @license Copyright 2020 Google LLC (BSD-3-Clause) */
+/** Bundled JS generated from "@astrojs/lit/client-shim.js" */
+var N = Object.defineProperty;
+var i = (t, n) => () => (t && (n = t((t = 0))), n);
+var b = (t, n) => {
+	for (var a in n) N(t, a, { get: n[a], enumerable: !0 });
+};
+function s() {
+	if (d === void 0) {
+		let t = document.createElement('div');
+		(t.innerHTML = '<div><template shadowrootmode="open"></template></div>'),
+			(d = !!t.firstElementChild.shadowRoot);
+	}
+	return d;
+}
+var d,
+	m = i(() => {});
+var p,
+	c,
+	f,
+	u = i(() => {
+		(p = (t) => t.parentElement === null),
+			(c = (t) => t.tagName === 'TEMPLATE'),
+			(f = (t) => t.nodeType === Node.ELEMENT_NODE);
+	});
+var h,
+	E = i(() => {
+		m();
+		u();
+		h = (t) => {
+			var n;
+			if (s()) return;
+			let a = [],
+				e = t.firstElementChild;
+			for (; e !== t && e !== null; )
+				if (c(e)) a.push(e), (e = e.content);
+				else if (e.firstElementChild !== null) e = e.firstElementChild;
+				else if (f(e) && e.nextElementSibling !== null) e = e.nextElementSibling;
+				else {
+					let o;
+					for (; e !== t && e !== null; )
+						if (p(e)) {
+							o = a.pop();
+							let r = o.parentElement,
+								l = o.getAttribute('shadowroot');
+							if (((e = o), l === 'open' || l === 'closed')) {
+								let y = o.hasAttribute('shadowrootdelegatesfocus');
+								try {
+									r.attachShadow({ mode: l, delegatesFocus: y }).append(o.content);
+								} catch {}
+							} else o = void 0;
+						} else {
+							let r = e.nextElementSibling;
+							if (r != null) {
+								(e = r), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							let l =
+								(n = e.parentElement) === null || n === void 0 ? void 0 : n.nextElementSibling;
+							if (l != null) {
+								(e = l), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							(e = e.parentElement), o !== void 0 && (o.parentElement.removeChild(o), (o = void 0));
+						}
+				}
+		};
+	});
+var w = i(() => {
+	E();
+});
+var v = {};
+b(v, { hasNativeDeclarativeShadowRoots: () => s, hydrateShadowRoots: () => h });
+var S = i(() => {
+	m();
+	w();
+});
+async function g() {
+	let { hydrateShadowRoots: t } = await Promise.resolve().then(() => (S(), v));
+	window.addEventListener('DOMContentLoaded', () => t(document.body), { once: true });
+}
+var x = Document.parseHTMLUnsafe(
+	'<p><template shadowrootmode="open"></template></p>'
+).querySelector('p');
+(!x || !x.shadowRoot) && g();
+</script></head> <body>  <div class="layout">  <nav class="mobile-nav"> <div class="nav-content"> <div class="login-mobile"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link "><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link "><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link "><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link active"><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> </div> </nav>  <aside class="sidebar"> <div class="sidebar-content"> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <!--           <div class="login-desktop relative">
+            <UserLogin></UserLogin>
+          </div> -->  <div class="docs-section-title"> <span class="material-symbols-outlined">menu_book</span> <span>Documentación</span> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link "><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link "><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link "><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link active"><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> </div> </aside>  <main class="main-content"> <div class="documentation-wrapper">  <article>   <div class="content grid gap-10"> <article class="markdown-body p-10 m-10"> <h1 id="integración-de-comandos-de-minecraft">Integración de Comandos de Minecraft</h1>
+<p>Esta documentación describe cómo interactuar con un servidor de Minecraft utilizando una API REST basada en el repositorio <a href="https://github.com/nglmercer/server-minecraft-dashboard">Minecraft-server</a>.</p>
+<h2 id="descripción-general">Descripción General</h2>
+<p>La API REST permite gestionar servidores de Minecraft mediante diferentes acciones, como iniciar, detener, reiniciar, enviar comandos, obtener logs, información del servidor, jugadores, métricas, y más.</p>
+<h3 id="documentación-y-pruebas-de-reemplazo-de-valores">Documentación y Pruebas de Reemplazo de Valores</h3>
+<p>Para más detalles sobre el reemplazo de valores, consulta <a href="/docs/replacevalues">Reemplazar Variables</a>.</p>
+<h3 id="api-rest">API REST</h3>
+<h4 id="endpoint-servermanagerservernameaction">Endpoint: <code>/servermanager/:serverName/:action</code></h4>
+<ul>
+<li><strong>Métodos HTTP</strong>: GET, POST</li>
+</ul>
+<h4 id="parámetros">Parámetros</h4>
+<ul>
+<li><code>:serverName</code>: Nombre del servidor.</li>
+<li><code>:action</code>: Acción a realizar. Las acciones válidas son: <code>start</code>, <code>stop</code>, <code>restart</code>, <code>send</code>, <code>sendMultiple</code>, <code>log</code>, <code>info</code>, <code>players</code>, <code>metrics</code>, <code>kill</code>.</li>
+</ul>
+<h3 id="variables-y-constantes">Variables y Constantes</h3>
+<h4 id="variables-disponibles">Variables Disponibles</h4>
+<ul>
+<li><code>:serverName</code>: Nombre del servidor.</li>
+<li><code>:action</code>: Acción a realizar.</li>
+</ul>
+<h4 id="constantes-disponibles">Constantes Disponibles</h4>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.y0rd3.css"><script type="module" src="/_astro/ec.8zarh.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="typescript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">actions</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'start'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'stop'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'restart'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'send'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'sendMultiple'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'log'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'info'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'players'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'metrics'</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'kill'</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="type actions = &#x27;start&#x27; | &#x27;stop&#x27; | &#x27;restart&#x27; | &#x27;send&#x27; | &#x27;sendMultiple&#x27; | &#x27;log&#x27; | &#x27;info&#x27; | &#x27;players&#x27; | &#x27;metrics&#x27; | &#x27;kill&#x27;;"><div></div></button></div></figure></div> <details class="markdown-dropdown" data-astro-cid-u2zup5cr> <summary class="dropdown-title" data-astro-cid-u2zup5cr> <span class="title-text" data-astro-cid-u2zup5cr>Ejemplos de Uso</span> <span class="dropdown-icon" data-astro-cid-u2zup5cr>▼</span> </summary> <div class="dropdown-content" data-astro-cid-u2zup5cr>  <h4 id="get">GET</h4>
+<ul>
+<li>
+<p><strong>Ejemplo para <code>send</code>:</strong></p>
+<ul>
+<li>URL: <code>/servermanager/NombreDelServidor/send?cmd=say%20hello</code></li>
+<li>Descripción: Envía el comando <code>say hello</code> al servidor especificado.</li>
+</ul>
+</li>
+<li>
+<p><strong>Ejemplo para <code>sendMultiple</code>:</strong></p>
+<ul>
+<li>URL: <code>/servermanager/NombreDelServidor/sendMultiple?cmds=["say%20hello", "give%20player1%20diamond"]</code></li>
+<li>Descripción: Envía múltiples comandos al servidor especificado.</li>
+</ul>
+</li>
+</ul>
+<h4 id="post">POST</h4>
+<ul>
+<li>
+<p><strong>Ejemplo para <code>send</code>:</strong></p>
+<ul>
+<li>URL: <code>/servermanager/NombreDelServidor/send</code></li>
+<li>Cuerpo de la solicitud (Body):
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.y0rd3.css"><script type="module" src="/_astro/ec.8zarh.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">"cmd"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">"say hello"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="{  &#x22;cmd&#x22;: &#x22;say hello&#x22;}"><div></div></button></div></figure></div>
+</li>
+<li>Descripción: Envía el comando <code>say hello</code> al servidor especificado.</li>
+</ul>
+</li>
+<li>
+<p><strong>Ejemplo para <code>sendMultiple</code>:</strong></p>
+<ul>
+<li>URL: <code>/servermanager/NombreDelServidor/sendMultiple</code></li>
+<li>Cuerpo de la solicitud (Body):
+<div class="expressive-code"><figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">"cmds"</span><span style="--0:#E1E4E8;--1:#24292E">: [</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"say uniqueId say hello"</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"say uniqueId say comment"</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"say uniqueId give {likes} likes"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="{  &#x22;cmds&#x22;: [    &#x22;say uniqueId say hello&#x22;,    &#x22;say uniqueId say comment&#x22;,    &#x22;say uniqueId give {likes} likes&#x22;  ]}"><div></div></button></div></figure></div>
+</li>
+<li>Descripción: Envía múltiples comandos al servidor especificado.</li>
+</ul>
+</li>
+</ul>
+<h5 id="import-with-import-actions">import with <a href="/Actions?import=action&#x26;data=%7B%7D">import actions</a></h5>  </div> </details>  <details class="markdown-dropdown" data-astro-cid-u2zup5cr> <summary class="dropdown-title" data-astro-cid-u2zup5cr> <span class="title-text" data-astro-cid-u2zup5cr>Generar comando con AI o MCP</span> <span class="dropdown-icon" data-astro-cid-u2zup5cr>▼</span> </summary> <div class="dropdown-content" data-astro-cid-u2zup5cr>  <p><strong>Copia y pega lo siguiente:</strong></p>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.y0rd3.css"><script type="module" src="/_astro/ec.8zarh.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="markdown"><code><div class="ec-line"><div class="code"><span style="--0:#79B8FF;--0fw:bold;--1:#005CC5;--1fw:bold">### Instrucciones</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">generame multiples comandos en formato json en este formato </span><span style="--0:#E1E4E8;--0fw:bold;--1:#24292E;--1fw:bold">**Ejemplo:**</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">"cmds": [</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">"execute at @p run title @a title {\"text\":\"uniqueId\",\"color\":\"gold\"}",</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">"execute at @p run title @a subtitle {\"text\":\"gifted giftName xrepeatCount\",\"color\":\"gold\"}",</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">"execute at @p run summon zombie ~ ~ ~ {CustomName:'{\"text\":\"uniqueId\",\"color\":\"red\"}',CustomNameVisible:1b}"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">ademas utiliza los valores como  este ejemplo para generar y respeta la siguientes reglas</span></div></div><div class="ec-line"><div class="code"><span style="--0:#FFAB70;--1:#AE4B07">-</span><span style="--0:#E1E4E8;--1:#24292E"> PARA INVOCAR UN CREEPER</span></div></div><div class="ec-line"><div class="code"><span style="--0:#FFAB70;--1:#AE4B07">-</span><span style="--0:#E1E4E8;--1:#24292E"> PARA OTORGAR AL JUGADOR UN TOTEM</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="### Instruccionesgenerame multiples comandos en formato json en este formato **Ejemplo:**{  &#x22;cmds&#x22;: [    &#x22;execute at @p run title @a title {\&#x22;text\&#x22;:\&#x22;uniqueId\&#x22;,\&#x22;color\&#x22;:\&#x22;gold\&#x22;}&#x22;,    &#x22;execute at @p run title @a subtitle {\&#x22;text\&#x22;:\&#x22;gifted giftName xrepeatCount\&#x22;,\&#x22;color\&#x22;:\&#x22;gold\&#x22;}&#x22;,    &#x22;execute at @p run summon zombie ~ ~ ~ {CustomName:&#x27;{\&#x22;text\&#x22;:\&#x22;uniqueId\&#x22;,\&#x22;color\&#x22;:\&#x22;red\&#x22;}&#x27;,CustomNameVisible:1b}&#x22;  ]}ademas utiliza los valores como  este ejemplo para generar y respeta la siguientes reglas- PARA INVOCAR UN CREEPER- PARA OTORGAR AL JUGADOR UN TOTEM"><div></div></button></div></figure></div>  </div> </details>  </article> <dialog-container class="ActionModal" id="ActionModal"> <div class="action-form dark" data-form-id="actionForm"> <form id="actionForm" class="form-container" novalidate> <header class="form-header"> <h3 class="form-title">Configurar Acción</h3>  </header> <div class="fields-container"> <div class="field-wrapper" data-field="name" data-field-type="text"> <label for="actionForm-field-name" class="field-label"> Nombre <span class="required-indicator" aria-label="Campo requerido">*</span> </label> <c-input id="actionForm-field-name" name="name" type="text" value="Nueva Acción" placeholder="Ingresa el nombre de la acción" required darkmode="true" data-field-name="name"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="minecraft_check" data-field-type="switch"> <label for="actionForm-field-minecraft_check" class="field-label"> Minecraft  </label> <c-input id="actionForm-field-minecraft_check" name="minecraft_check" type="switch" value="false" darkmode="true" data-field-name="minecraft_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="minecraft_command" data-show-if="{&#34;field&#34;:&#34;minecraft_check&#34;,&#34;value&#34;:true}" data-field-type="textarea"> <label for="actionForm-field-minecraft_command" class="field-label"> Comando Minecraft  </label> <c-input id="actionForm-field-minecraft_command" name="minecraft_command" type="textarea" value="/say hola" placeholder="/say hola mundo" darkmode="true" data-field-name="minecraft_command"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="tts_check" data-field-type="switch"> <label for="actionForm-field-tts_check" class="field-label"> Texto-a-Voz  </label> <c-input id="actionForm-field-tts_check" name="tts_check" type="switch" value="false" darkmode="true" data-field-name="tts_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="tts_text" data-show-if="{&#34;field&#34;:&#34;tts_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-tts_text" class="field-label"> Texto a leer  </label> <c-input id="actionForm-field-tts_text" name="tts_text" type="text" value="Texto de ejemplo" placeholder="Texto que será leído en voz alta" darkmode="true" data-field-name="tts_text"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_check" data-field-type="switch"> <label for="actionForm-field-overlay_check" class="field-label"> Superposición  </label> <c-input id="actionForm-field-overlay_check" name="overlay_check" type="switch" value="false" darkmode="true" data-field-name="overlay_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_src" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-overlay_src" class="field-label"> Fuente(s) (IDs/URLs)  </label> <c-input id="actionForm-field-overlay_src" name="overlay_src" type="text" value="https://example.com/image.png" placeholder="https://example.com/image.png" darkmode="true" data-field-name="overlay_src"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_content" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-overlay_content" class="field-label"> Texto Contenido  </label> <c-input id="actionForm-field-overlay_content" name="overlay_content" type="text" value="Contenido de ejemplo" placeholder="Texto a mostrar en la superposición" darkmode="true" data-field-name="overlay_content"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_duration" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="number"> <label for="actionForm-field-overlay_duration" class="field-label"> Duración (segundos)  </label> <c-input id="actionForm-field-overlay_duration" name="overlay_duration" type="number" value="60" min="1" step="1" darkmode="true" data-field-name="overlay_duration"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="overlay_volume" data-show-if="{&#34;field&#34;:&#34;overlay_check&#34;,&#34;value&#34;:true}" data-field-type="range"> <label for="actionForm-field-overlay_volume" class="field-label"> Volumen (%)  </label> <c-input id="actionForm-field-overlay_volume" name="overlay_volume" type="range" value="50" min="0" max="100" step="1" darkmode="true" data-field-name="overlay_volume"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="keypress_check" data-field-type="switch"> <label for="actionForm-field-keypress_check" class="field-label"> Pulsación de Tecla  </label> <c-input id="actionForm-field-keypress_check" name="keypress_check" type="switch" value="false" darkmode="true" data-field-name="keypress_check"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="keypress_key" data-show-if="{&#34;field&#34;:&#34;keypress_check&#34;,&#34;value&#34;:true}" data-field-type="text"> <label for="actionForm-field-keypress_key" class="field-label"> Tecla(s)  </label> <c-input id="actionForm-field-keypress_key" name="keypress_key" type="text" value="space" placeholder="space, ctrl+c, alt+tab" darkmode="true" data-field-name="keypress_key"></c-input> <div class="field-error" role="alert"></div> </div><div class="field-wrapper" data-field="id" data-field-type="text"> <label for="actionForm-field-id" class="field-label"> ID  </label> <c-input id="actionForm-field-id" name="id" type="text" value readonly darkmode="true" data-field-name="id"></c-input> <div class="field-error" role="alert"></div> </div> </div> <div class="custom-fields"> <div> <label for="fetchForm" class="field-label"> Habilitar Configuración HTTP </label> <c-input type="switch" id="fetchForm_check" name="fetchForm_check" value="off" class="switch"></c-input> <div class="field-wrapper hidden" data-field="fetchForm" data-field-type="Habilitar Configuración HTTP">  <http-request-config id="fetchForm_config"></http-request-config>  </div> <script>(function(){const id = "fetchForm";
+const label = "Habilitar Configuración HTTP";
+const checked = false;
+const switchId = "fetchForm_check";
+
+  // This script can be used to handle any additional logic related to the switch component.
+  // For example, you could add event listeners or manipulate the DOM based on the switch state.
+
+  document.addEventListener("DOMContentLoaded", () => {
+  const switchElement = document.getElementById(switchId);
+  const elementWrapper = document.querySelector(`[data-field="${id}"]`);
+  function initlistenersform(){
+    if (!switchElement) return;
+      switchElement.addEventListener("change", (event) => {
+        const valuesw = (event.detail?.value || switchElement.value)
+        const IsChecked = (valuesw === "on" || valuesw === true || valuesw === "true");
+        if (!elementWrapper) return;
+        elementWrapper.classList.toggle("hidden",!IsChecked);
+        console.log(`Switch ${id} changed to ${IsChecked}`, elementWrapper);
+      });
+    //  console.log(`Switch ${id} initialized with checked=${checked}`, switchElement, elementWrapper);
+
+      return elementWrapper;
+    }
+    initlistenersform()
+  });
+})();</script> </div> </div> <footer class="form-actions"> <div class="ActionForm-buttons"> <button type="button" class="btn btn-secondary" data-action="reset">
+Reiniciar
+</button> <button type="button" class="btn btn-secondary" data-action="export">
+Exportar
+</button> <button type="button" class="btn btn-secondary" data-action="import">
+Importar
+</button> <button type="button" class="btn btn-primary" data-action="submit">
+Guardar
+</button> </div> </footer> </form> </div> <script>(function(){const initialData = {};
+const id = "actionForm";
+const formConfig = {"name":{"label":"Nombre","type":"text","required":true,"placeholder":"Ingresa el nombre de la acción"},"minecraft_check":{"label":"Minecraft","type":"switch"},"minecraft_command":{"label":"Comando Minecraft","type":"textarea","placeholder":"/say hola mundo","showIf":{"field":"minecraft_check","value":true}},"tts_check":{"label":"Texto-a-Voz","type":"switch"},"tts_text":{"label":"Texto a leer","type":"text","placeholder":"Texto que será leído en voz alta","showIf":{"field":"tts_check","value":true}},"overlay_check":{"label":"Superposición","type":"switch"},"overlay_src":{"label":"Fuente(s) (IDs/URLs)","type":"text","placeholder":"https://example.com/image.png","showIf":{"field":"overlay_check","value":true}},"overlay_content":{"label":"Texto Contenido","type":"text","placeholder":"Texto a mostrar en la superposición","showIf":{"field":"overlay_check","value":true}},"overlay_duration":{"label":"Duración (segundos)","type":"number","min":1,"step":1,"showIf":{"field":"overlay_check","value":true}},"overlay_volume":{"label":"Volumen (%)","type":"range","min":0,"max":100,"step":1,"showIf":{"field":"overlay_check","value":true}},"keypress_check":{"label":"Pulsación de Tecla","type":"switch"},"keypress_key":{"label":"Tecla(s)","type":"text","placeholder":"space, ctrl+c, alt+tab","showIf":{"field":"keypress_check","value":true}},"id":{"label":"ID","type":"text","readonly":true},"type":{"hidden":true}};
+
+  function safeParse(value) {
+    if (value == null || typeof value !== 'string') {
+        return value;
+    }
+
+    const trimmed = value.trim();
+    if (!(trimmed.startsWith('{') || trimmed.startsWith('['))) {
+        return value;
+    }
+
+    try {
+        return JSON.parse(trimmed);
+    } catch {
+        try {
+            const fixedJson = trimmed
+                .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":')
+                .replace(/:\s*'([^']+)'/g, ': "$1"');
+            return JSON.parse(fixedJson);
+        } catch (error) {
+            console.error("Error al parsear JSON:", error, "Valor recibido:", value);
+            return value;
+        }
+    }
+  }
+  class ActionFormManager {
+    constructor(formId) {
+      this.formId = formId;
+      this.form = document.getElementById(formId);
+      this.formData = new Map();
+      this.fieldConfigs = new Map();
+      this.validationErrors = new Map();
+      
+      if (!this.form) {
+        console.error(`Form with id "${formId}" not found`);
+        return;
+      }
+      
+      this.initialize();
+    }
+
+    initialize() {
+      this.parseFieldConfigs();
+      this.initializeFormData();
+      this.bindEvents();
+      this.evaluateAllFieldVisibility();
+    }
+
+    parseFieldConfigs() {
+      Object.entries(formConfig).forEach(([key, config]) => {
+        this.fieldConfigs.set(key, config);
+      });
+    }
+
+    initializeFormData() {
+      const inputs = this.form.querySelectorAll('c-input');
+      inputs.forEach(input => {
+        const fieldName = input.getAttribute('data-field-name');
+        const value = input.getAttribute('value') || '';
+        const parsedValue = this.parseValueByType(value, input.getAttribute('type'));
+        this.formData.set(fieldName, parsedValue);
+      });
+    }
+
+    bindEvents() {
+      // Event delegation para cambios en los inputs
+      this.form.addEventListener('change', this.handleFieldChange.bind(this));
+      
+      // Eventos de botones
+      this.form.addEventListener('click', this.handleButtonClick.bind(this));
+            
+    }
+
+    handleFieldChange(event) {
+      const input = event.target.closest('c-input');
+      if (!input) return;
+      
+      const fieldName = input.getAttribute('data-field-name');
+      if (!fieldName) return;
+      
+      const newValue = input.getVal ? input.getVal() : input.getAttribute('value');
+      this.updateFieldValue(fieldName, newValue);
+    }
+
+    updateFieldValue(fieldName, value) {
+      const oldValue = this.formData.get(fieldName);
+      this.formData.set(fieldName, value);
+      
+      // Re-evaluar visibilidad si el campo cambió
+      if (oldValue !== value) {
+        this.evaluateAllFieldVisibility();
+        this.validateField(fieldName);
+        this.emitFormDataChange(fieldName, value, oldValue);
+      }
+    }
+
+    evaluateAllFieldVisibility() {
+      const fieldWrappers = this.form.querySelectorAll('.field-wrapper[data-show-if]');
+      
+      fieldWrappers.forEach(wrapper => {
+        const showIfData = wrapper.getAttribute('data-show-if');
+        if (!showIfData) return;
+        try {
+          const condition = safeParse(showIfData);
+          const shouldShow = this.evaluateShowCondition(condition);
+          this.toggleFieldVisibility(wrapper, shouldShow);
+        } catch (error) {
+          console.error('Error evaluating show condition:', error, showIfData);
+        } 
+      });
+    }
+
+    evaluateShowCondition(condition) {
+      if (!condition?.field) return true;
+      
+      const triggerValue = this.formData.get(condition.field);
+      const expectedValue = condition.value;
+      const negate = condition.negate === true;
+      
+      let matches;
+      if (Array.isArray(expectedValue)) {
+        matches = expectedValue.some(val => this.compareValues(triggerValue, val));
+      } else {
+        matches = this.compareValues(triggerValue, expectedValue);
+      }
+      
+      return negate ? !matches : matches;
+    }
+
+    compareValues(actual, expected) {
+      // Comparación para booleanos
+      if (typeof expected === 'boolean') {
+        const actualBool = this.coerceToBoolean(actual);
+        return String(actualBool) === String(expected);
+      }
+      
+      // Comparación para null/undefined
+      if (actual == null) {
+        return expected == null || expected === '';
+      }
+      
+      // Comparación de strings
+      return String(actual) === String(expected);
+    }
+
+    coerceToBoolean(value) {
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'string') {
+        return !['false', '0', '', 'null', 'undefined'].includes(value.toLowerCase());
+      }
+      return Boolean(value);
+    }
+
+    toggleFieldVisibility(wrapper, isVisible) {
+      wrapper.classList.toggle('hidden', !isVisible);
+      
+      // Limpiar errores de validación si se oculta
+      if (!isVisible) {
+        const fieldName = wrapper.getAttribute('data-field');
+        this.clearFieldError(fieldName);
+      }
+    }
+
+    parseValueByType(value, type) {
+      if (!value && value !== '0' && value !== 0) {
+        return type === 'number' ? null : '';
+      }
+      
+      switch (type) {
+        case 'switch':
+        case 'checkbox':
+        case 'boolean':
+          return this.coerceToBoolean(value);
+        case 'number':
+        case 'range':
+          const num = Number(value);
+          return isNaN(num) ? null : num;
+        default:
+          return String(value);
+      }
+    }
+
+    validateField(fieldName) {
+      const input = this.form.querySelector(`c-input[data-field-name="${fieldName}"]`);
+      const wrapper = this.form.querySelector(`.field-wrapper[data-field="${fieldName}"]`);
+      
+      if (!input || !wrapper || wrapper.classList.contains('hidden')) {
+        this.validationErrors.delete(fieldName);
+        return true;
+      }
+      
+      const isValid = input.isValid ? input.isValid() : true;
+      console.log("isValid for field:", fieldName, isValid);
+      if (isValid || (typeof isValid === 'boolean')) {
+        this.clearFieldError(fieldName);
+      } else {
+        this.showFieldError(fieldName);
+      }
+      
+      return isValid;
+    }
+
+    getVisibleFields() {
+      const visibleWrappers = this.form.querySelectorAll('.field-wrapper:not(.hidden)');
+      return Array.from(visibleWrappers).map(wrapper => wrapper.getAttribute('data-field'));
+    }
+
+    showFieldError(fieldName, message) {
+      const wrapper = this.form.querySelector(`.field-wrapper[data-field="${fieldName}"]`);
+      if (!wrapper) return;
+      
+      const errorContainer = wrapper.querySelector('.field-error');
+      if (errorContainer) {
+        errorContainer.textContent = message;
+        errorContainer.style.display = 'block';
+      }
+      
+      wrapper.classList.add('invalid');
+      this.validationErrors.set(fieldName, message);
+    }
+
+    clearFieldError(fieldName) {
+      const wrapper = this.form.querySelector(`.field-wrapper[data-field="${fieldName}"]`);
+      if (!wrapper) return;
+      
+      const errorContainer = wrapper.querySelector('.field-error');
+      if (errorContainer) {
+        errorContainer.textContent = '';
+        errorContainer.style.display = 'none';
+      }
+      
+      wrapper.classList.remove('invalid');
+      this.validationErrors.delete(fieldName);
+    }
+
+    handleButtonClick(event) {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      
+      const action = button.getAttribute('data-action');
+      
+      switch (action) {
+        case 'reset':
+          event.preventDefault();
+          this.resetForm();
+          break;
+        case 'submit':
+          // Let the form submit event handle this
+          break;
+      }
+    }
+
+    resetForm() {
+      const inputs = this.form.querySelectorAll('c-input');
+      inputs.forEach(input => {
+        if (input.reset) {
+          input.reset();
+        }
+      });
+      
+      this.initializeFormData();
+      this.evaluateAllFieldVisibility();
+      this.clearAllErrors();
+      this.emitFormReset();
+    }
+
+    clearAllErrors() {
+      this.validationErrors.clear();
+      const errorContainers = this.form.querySelectorAll('.field-error');
+      errorContainers.forEach(container => {
+        container.textContent = '';
+        container.style.display = 'none';
+      });
+      
+      const invalidWrappers = this.form.querySelectorAll('.field-wrapper.invalid');
+      invalidWrappers.forEach(wrapper => wrapper.classList.remove('invalid'));
+    }
+
+    focusFirstInvalidField() {
+      const firstInvalidWrapper = this.form.querySelector('.field-wrapper.invalid:not(.hidden)');
+      if (firstInvalidWrapper) {
+        const input = firstInvalidWrapper.querySelector('c-input');
+        if (input && input.focus) {
+          input.focus();
+        }
+      }
+    }
+
+    // Public API methods
+    getFormData() {
+      return Object.fromEntries(this.formData.entries());
+    }
+
+    setFormData(data) {
+      Object.entries(data).forEach(([key, value]) => {
+        const input = this.form.querySelector(`c-input[data-field-name="${key}"]`);
+        if (input && input.setVal) {
+          input.setVal(value);
+          this.formData.set(key, value);
+        }
+      });
+      
+      this.evaluateAllFieldVisibility();
+    }
+
+    getFieldValue(fieldName) {
+      return this.formData.get(fieldName);
+    }
+
+    setFieldValue(fieldName, value) {
+      const input = this.form.querySelector(`c-input[data-field-name="${fieldName}"]`);
+      if (input && input.setVal) {
+        input.setVal(value);
+        this.updateFieldValue(fieldName, value);
+      }
+    }
+
+    // Event emitters
+    emitFormDataChange(fieldName, newValue, oldValue) {
+      this.form.dispatchEvent(new CustomEvent('form-data-change', {
+        detail: { fieldName, newValue, oldValue, formData: this.getFormData() },
+        bubbles: true
+      }));
+    }
+
+    emitFormSubmit() {
+      this.form.dispatchEvent(new CustomEvent('form-submit', {
+        detail: { formData: this.getFormData(), formId: this.formId },
+        bubbles: true
+      }));
+    }
+
+    emitFormReset() {
+      this.form.dispatchEvent(new CustomEvent('form-reset', {
+        detail: { formId: this.formId },
+        bubbles: true
+      }));
+    }
+  }
+
+  const formManager = new ActionFormManager(id);
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log(`ActionFormManager initialized for form: ${id}`);
+    // Initialize form manager
+    
+    // Expose to global scope for external access
+    window[`formManager_${id}`] = formManager;
+  });
+})();</script>  </dialog-container> <script type="module" src="/_astro/Actions.astro_astro_type_script_index_0_lang.BZa8Y_2j.js"></script> </div>  </article> <nav class="pagination" aria-label="Navegación de páginas" data-astro-cid-h5yqmaqv> <div class="pagination-container" data-astro-cid-h5yqmaqv> <a href="/docs/widget/tts" class="pagination-link prev" rel="prev" data-astro-cid-h5yqmaqv> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_back</span> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Anterior</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>Text to Speech</span> </div> </a> <a href="/docs/apiReference" class="pagination-link next" rel="next" data-astro-cid-h5yqmaqv> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Siguiente</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>API Reference</span> </div> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_forward</span> </a> </div> </nav>  </div> </main> </div> <script type="module" src="/_astro/DocsLayout.astro_astro_type_script_index_0_lang.COL8Zqqn.js"></script> </body> </html> 

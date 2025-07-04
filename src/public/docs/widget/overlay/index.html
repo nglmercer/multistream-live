@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="stylesheet" href="/materialSymbols.css"><meta name="color-scheme" content="light dark"><script src="https://code.responsivevoice.org/responsivevoice.js?key=VyUT4i1M"></script><title>multistreamASTRO - Documentación</title><link rel="stylesheet" href="/_astro/Docs.ZztAOc5B.css">
+<link rel="stylesheet" href="/_astro/Docs.K5FtcfPn.css"><script>/** @license Copyright 2020 Google LLC (BSD-3-Clause) */
+/** Bundled JS generated from "@astrojs/lit/client-shim.js" */
+var N = Object.defineProperty;
+var i = (t, n) => () => (t && (n = t((t = 0))), n);
+var b = (t, n) => {
+	for (var a in n) N(t, a, { get: n[a], enumerable: !0 });
+};
+function s() {
+	if (d === void 0) {
+		let t = document.createElement('div');
+		(t.innerHTML = '<div><template shadowrootmode="open"></template></div>'),
+			(d = !!t.firstElementChild.shadowRoot);
+	}
+	return d;
+}
+var d,
+	m = i(() => {});
+var p,
+	c,
+	f,
+	u = i(() => {
+		(p = (t) => t.parentElement === null),
+			(c = (t) => t.tagName === 'TEMPLATE'),
+			(f = (t) => t.nodeType === Node.ELEMENT_NODE);
+	});
+var h,
+	E = i(() => {
+		m();
+		u();
+		h = (t) => {
+			var n;
+			if (s()) return;
+			let a = [],
+				e = t.firstElementChild;
+			for (; e !== t && e !== null; )
+				if (c(e)) a.push(e), (e = e.content);
+				else if (e.firstElementChild !== null) e = e.firstElementChild;
+				else if (f(e) && e.nextElementSibling !== null) e = e.nextElementSibling;
+				else {
+					let o;
+					for (; e !== t && e !== null; )
+						if (p(e)) {
+							o = a.pop();
+							let r = o.parentElement,
+								l = o.getAttribute('shadowroot');
+							if (((e = o), l === 'open' || l === 'closed')) {
+								let y = o.hasAttribute('shadowrootdelegatesfocus');
+								try {
+									r.attachShadow({ mode: l, delegatesFocus: y }).append(o.content);
+								} catch {}
+							} else o = void 0;
+						} else {
+							let r = e.nextElementSibling;
+							if (r != null) {
+								(e = r), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							let l =
+								(n = e.parentElement) === null || n === void 0 ? void 0 : n.nextElementSibling;
+							if (l != null) {
+								(e = l), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							(e = e.parentElement), o !== void 0 && (o.parentElement.removeChild(o), (o = void 0));
+						}
+				}
+		};
+	});
+var w = i(() => {
+	E();
+});
+var v = {};
+b(v, { hasNativeDeclarativeShadowRoots: () => s, hydrateShadowRoots: () => h });
+var S = i(() => {
+	m();
+	w();
+});
+async function g() {
+	let { hydrateShadowRoots: t } = await Promise.resolve().then(() => (S(), v));
+	window.addEventListener('DOMContentLoaded', () => t(document.body), { once: true });
+}
+var x = Document.parseHTMLUnsafe(
+	'<p><template shadowrootmode="open"></template></p>'
+).querySelector('p');
+(!x || !x.shadowRoot) && g();
+</script></head> <body>  <div class="layout">  <nav class="mobile-nav"> <div class="nav-content"> <div class="login-mobile"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link "><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link active"><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link "><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link "><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> </div> </nav>  <aside class="sidebar"> <div class="sidebar-content"> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <!--           <div class="login-desktop relative">
+            <UserLogin></UserLogin>
+          </div> -->  <div class="docs-section-title"> <span class="material-symbols-outlined">menu_book</span> <span>Documentación</span> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link "><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link active"><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link "><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link "><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> </div> </aside>  <main class="main-content"> <div class="documentation-wrapper">  <article>   <div class="content grid gap-10"> <article class="markdown-body p-10 m-10"> <h1 id="integración-de-overlays">Integración de Overlays</h1>
+<p>Esta documentación describe cómo integrar overlays.</p>
+<h2 id="descripción-general">Descripción General</h2>
+<p>Los actions overlay permite enviar a una cola de overlays <code>tasks []</code> y se procesan uno por uno.</p>
+<h3 id="documentación-y-pruebas-de-reemplazo-de-valores">Documentación y Pruebas de Reemplazo de Valores</h3>
+<p>Para más detalles sobre el reemplazo de valores, consulta <a href="/Setconfig">Reemplazar Variables</a>.</p>
+<ul>
+<li>configurar un overlay
+<a href="/Actions">Reemplazar Variables</a>
+en el formulario de acciones (Superposición||overlay) se puede configurar tanto imagenes como videos</li>
+</ul>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.y0rd3.css"><script type="module" src="/_astro/ec.8zarh.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="yaml"><code><div class="ec-line"><div class="code"><span style="--0:#85E89D;--1:#1E7734">overlay</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">- </span><span style="--0:#9ECBFF;--1:#032F62">Fuente  Fuente(s) (IDs/URLs)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">- </span><span style="--0:#9ECBFF;--1:#032F62">Texto Contenido</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">- </span><span style="--0:#9ECBFF;--1:#032F62">Duración (segundos)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">- </span><span style="--0:#9ECBFF;--1:#032F62">Volumen (%)</span></div></div></code></pre><div class="copy"><button title="Copy to clipboard" data-copied="Copied!" data-code="overlay:    - Fuente  Fuente(s) (IDs/URLs)    - Texto Contenido    - Duración (segundos)    - Volumen (%)"><div></div></button></div></figure></div>
+<ul>
+<li>Fuente(s) (IDs/URLs) : puede ser una imagen o un video:
+la url externa solo copia y pega una,O si es local siempre coloca <code>/media/URL DEL ARCHIVO</code></li>
+<li>ejemplos:
+<ul>
+<li>local : <code>/media/d:/imagen.jpg</code> || <code>/media/home/melser/imagen.jpg</code></li>
+<li>url : <code>https://example.com/imagen.jpg</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="salida-o-url-del-overlay">Salida o URL del Overlay</h4>
+<p>puede utilizar tanto la url local como la url remota</p>
+<ul>
+<li>url local : <code>localhost:9001/widgets/overlay</code></li>
+<li>url remota : <code>https://nglmercer.github.io/multistreamASTRO/widgets/overlay/?host=http://localhost:9001</code></li>
+</ul> </article> </div>  </article> <nav class="pagination" aria-label="Navegación de páginas" data-astro-cid-h5yqmaqv> <div class="pagination-container" data-astro-cid-h5yqmaqv> <a href="/docs/componentes" class="pagination-link prev" rel="prev" data-astro-cid-h5yqmaqv> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_back</span> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Anterior</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>Componentes</span> </div> </a> <a href="/docs/widget/tts" class="pagination-link next" rel="next" data-astro-cid-h5yqmaqv> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Siguiente</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>Text to Speech</span> </div> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_forward</span> </a> </div> </nav>  </div> </main> </div> <script type="module" src="/_astro/DocsLayout.astro_astro_type_script_index_0_lang.COL8Zqqn.js"></script> </body> </html> 

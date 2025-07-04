@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="stylesheet" href="/materialSymbols.css"><meta name="color-scheme" content="light dark"><script src="https://code.responsivevoice.org/responsivevoice.js?key=VyUT4i1M"></script><title>multistreamASTRO - Documentación</title><link rel="stylesheet" href="/_astro/Docs.ZztAOc5B.css">
+<link rel="stylesheet" href="/_astro/Docs.K5FtcfPn.css"><script>/** @license Copyright 2020 Google LLC (BSD-3-Clause) */
+/** Bundled JS generated from "@astrojs/lit/client-shim.js" */
+var N = Object.defineProperty;
+var i = (t, n) => () => (t && (n = t((t = 0))), n);
+var b = (t, n) => {
+	for (var a in n) N(t, a, { get: n[a], enumerable: !0 });
+};
+function s() {
+	if (d === void 0) {
+		let t = document.createElement('div');
+		(t.innerHTML = '<div><template shadowrootmode="open"></template></div>'),
+			(d = !!t.firstElementChild.shadowRoot);
+	}
+	return d;
+}
+var d,
+	m = i(() => {});
+var p,
+	c,
+	f,
+	u = i(() => {
+		(p = (t) => t.parentElement === null),
+			(c = (t) => t.tagName === 'TEMPLATE'),
+			(f = (t) => t.nodeType === Node.ELEMENT_NODE);
+	});
+var h,
+	E = i(() => {
+		m();
+		u();
+		h = (t) => {
+			var n;
+			if (s()) return;
+			let a = [],
+				e = t.firstElementChild;
+			for (; e !== t && e !== null; )
+				if (c(e)) a.push(e), (e = e.content);
+				else if (e.firstElementChild !== null) e = e.firstElementChild;
+				else if (f(e) && e.nextElementSibling !== null) e = e.nextElementSibling;
+				else {
+					let o;
+					for (; e !== t && e !== null; )
+						if (p(e)) {
+							o = a.pop();
+							let r = o.parentElement,
+								l = o.getAttribute('shadowroot');
+							if (((e = o), l === 'open' || l === 'closed')) {
+								let y = o.hasAttribute('shadowrootdelegatesfocus');
+								try {
+									r.attachShadow({ mode: l, delegatesFocus: y }).append(o.content);
+								} catch {}
+							} else o = void 0;
+						} else {
+							let r = e.nextElementSibling;
+							if (r != null) {
+								(e = r), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							let l =
+								(n = e.parentElement) === null || n === void 0 ? void 0 : n.nextElementSibling;
+							if (l != null) {
+								(e = l), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							(e = e.parentElement), o !== void 0 && (o.parentElement.removeChild(o), (o = void 0));
+						}
+				}
+		};
+	});
+var w = i(() => {
+	E();
+});
+var v = {};
+b(v, { hasNativeDeclarativeShadowRoots: () => s, hydrateShadowRoots: () => h });
+var S = i(() => {
+	m();
+	w();
+});
+async function g() {
+	let { hydrateShadowRoots: t } = await Promise.resolve().then(() => (S(), v));
+	window.addEventListener('DOMContentLoaded', () => t(document.body), { once: true });
+}
+var x = Document.parseHTMLUnsafe(
+	'<p><template shadowrootmode="open"></template></p>'
+).querySelector('p');
+(!x || !x.shadowRoot) && g();
+</script></head> <body>  <div class="layout">  <nav class="mobile-nav"> <div class="nav-content"> <div class="login-mobile"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link "><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link "><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link active"><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link "><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> </div> </nav>  <aside class="sidebar"> <div class="sidebar-content"> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <!--           <div class="login-desktop relative">
+            <UserLogin></UserLogin>
+          </div> -->  <div class="docs-section-title"> <span class="material-symbols-outlined">menu_book</span> <span>Documentación</span> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link "><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link "><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link active"><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link "><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> </div> </aside>  <main class="main-content"> <div class="documentation-wrapper">  <article>   <div class="content grid gap-10"> <article class="markdown-body p-10 m-10"> <h1 id="integración-de-bot-de-texto-a-voz">Integración de bot de texto a voz</h1>
+<p>Esta documentación describe cómo integrar bot de texto a voz.</p>
+<h2 id="descripción-general">Descripción General</h2>
+<p>Existen 3 proveedores de audio integrados:</p>
+<ul>
+<li>StreamElementsApi : <a href="https://streamelements.com/">StreamElements</a></li>
+<li>ResponsiveVoiceApi : <a href="https://responsivevoice.org/">ResponsiveVoice</a></li>
+<li>webSpeechApi : <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API">Web Speech API</a></li>
+</ul>
+<p>tanto StreamElementsApi como ResponsiveVoiceApi son API de terceros tienen limites y siempre consumen datos y trafico en la red, mientras que la webSpeechApi es una API nativa de la web, pero depende del navegador y la compatibilidad del sistema.</p>
+<h2 id="integracion-inicial">Integracion inicial</h2>
+<p>por defecto no se habilita ningun proveedor de audio, para habilitarlo haga esto:</p>
+<ul>
+<li>Añada una accion con la opcion de  Texto-a-Voz</li>
+<li>Añada algun evento y selecciona la accion creada</li>
+<li>si no funciona seleccione algun proveedor de audio diferente</li>
+</ul>
+<h3 id="documentación-y-pruebas-de-reemplazo-de-valores">Documentación y Pruebas de Reemplazo de Valores</h3>
+<p>Para más detalles sobre el reemplazo de valores, consulta <a href="/Setconfig">Reemplazar Variables</a>.</p>
+<ul>
+<li>recomiendo utilizar <code>uniqueId dice comment</code> o directamente solo <code>comment</code></li>
+</ul> </article> </div>  </article> <nav class="pagination" aria-label="Navegación de páginas" data-astro-cid-h5yqmaqv> <div class="pagination-container" data-astro-cid-h5yqmaqv> <a href="/docs/widget/overlay" class="pagination-link prev" rel="prev" data-astro-cid-h5yqmaqv> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_back</span> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Anterior</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>Overlay</span> </div> </a> <a href="/docs/widget/minecraft" class="pagination-link next" rel="next" data-astro-cid-h5yqmaqv> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Siguiente</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>Minecraft</span> </div> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_forward</span> </a> </div> </nav>  </div> </main> </div> <script type="module" src="/_astro/DocsLayout.astro_astro_type_script_index_0_lang.COL8Zqqn.js"></script> </body> </html> 

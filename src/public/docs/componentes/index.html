@@ -1,0 +1,202 @@
+<!DOCTYPE html><html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="./favicon.svg"><link rel="stylesheet" href="/materialSymbols.css"><meta name="color-scheme" content="light dark"><script src="https://code.responsivevoice.org/responsivevoice.js?key=VyUT4i1M"></script><title>multistreamASTRO - Documentación</title><link rel="stylesheet" href="/_astro/Docs.ZztAOc5B.css">
+<link rel="stylesheet" href="/_astro/Docs.K5FtcfPn.css"><script>/** @license Copyright 2020 Google LLC (BSD-3-Clause) */
+/** Bundled JS generated from "@astrojs/lit/client-shim.js" */
+var N = Object.defineProperty;
+var i = (t, n) => () => (t && (n = t((t = 0))), n);
+var b = (t, n) => {
+	for (var a in n) N(t, a, { get: n[a], enumerable: !0 });
+};
+function s() {
+	if (d === void 0) {
+		let t = document.createElement('div');
+		(t.innerHTML = '<div><template shadowrootmode="open"></template></div>'),
+			(d = !!t.firstElementChild.shadowRoot);
+	}
+	return d;
+}
+var d,
+	m = i(() => {});
+var p,
+	c,
+	f,
+	u = i(() => {
+		(p = (t) => t.parentElement === null),
+			(c = (t) => t.tagName === 'TEMPLATE'),
+			(f = (t) => t.nodeType === Node.ELEMENT_NODE);
+	});
+var h,
+	E = i(() => {
+		m();
+		u();
+		h = (t) => {
+			var n;
+			if (s()) return;
+			let a = [],
+				e = t.firstElementChild;
+			for (; e !== t && e !== null; )
+				if (c(e)) a.push(e), (e = e.content);
+				else if (e.firstElementChild !== null) e = e.firstElementChild;
+				else if (f(e) && e.nextElementSibling !== null) e = e.nextElementSibling;
+				else {
+					let o;
+					for (; e !== t && e !== null; )
+						if (p(e)) {
+							o = a.pop();
+							let r = o.parentElement,
+								l = o.getAttribute('shadowroot');
+							if (((e = o), l === 'open' || l === 'closed')) {
+								let y = o.hasAttribute('shadowrootdelegatesfocus');
+								try {
+									r.attachShadow({ mode: l, delegatesFocus: y }).append(o.content);
+								} catch {}
+							} else o = void 0;
+						} else {
+							let r = e.nextElementSibling;
+							if (r != null) {
+								(e = r), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							let l =
+								(n = e.parentElement) === null || n === void 0 ? void 0 : n.nextElementSibling;
+							if (l != null) {
+								(e = l), o !== void 0 && o.parentElement.removeChild(o);
+								break;
+							}
+							(e = e.parentElement), o !== void 0 && (o.parentElement.removeChild(o), (o = void 0));
+						}
+				}
+		};
+	});
+var w = i(() => {
+	E();
+});
+var v = {};
+b(v, { hasNativeDeclarativeShadowRoots: () => s, hydrateShadowRoots: () => h });
+var S = i(() => {
+	m();
+	w();
+});
+async function g() {
+	let { hydrateShadowRoots: t } = await Promise.resolve().then(() => (S(), v));
+	window.addEventListener('DOMContentLoaded', () => t(document.body), { once: true });
+}
+var x = Document.parseHTMLUnsafe(
+	'<p><template shadowrootmode="open"></template></p>'
+).querySelector('p');
+(!x || !x.shadowRoot) && g();
+</script></head> <body>  <div class="layout">  <nav class="mobile-nav"> <div class="nav-content"> <div class="login-mobile"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link active"><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link "><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link "><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link "><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> </div> </nav>  <aside class="sidebar"> <div class="sidebar-content"> <div class="logo"> <a href="/" class="nav-link"> <span class="material-symbols-outlined">home</span> <span class="nav-text">Inicio</span> </a> </div> <!--           <div class="login-desktop relative">
+            <UserLogin></UserLogin>
+          </div> -->  <div class="docs-section-title"> <span class="material-symbols-outlined">menu_book</span> <span>Documentación</span> </div> <div class="nav-buttons"> <a href="/docs/introduccion" class="nav-link "><span class="material-symbols-outlined">menu_book</span><span class="nav-text">Introducción</span></a><a href="/docs/instalacion" class="nav-link "><span class="material-symbols-outlined">download</span><span class="nav-text">Instalación</span></a><a href="/docs/configuracion" class="nav-link "><span class="material-symbols-outlined">settings</span><span class="nav-text">Configuración</span></a><a href="/docs/componentes" class="nav-link active"><span class="material-symbols-outlined">widgets</span><span class="nav-text">Componentes</span></a><a href="/docs/widget/overlay" class="nav-link "><span class="material-symbols-outlined">filter</span><span class="nav-text">Overlay</span></a><a href="/docs/widget/tts" class="nav-link "><span class="material-symbols-outlined">volume_down</span><span class="nav-text">Text to Speech</span></a><a href="/docs/widget/minecraft" class="nav-link "><span class="material-symbols-outlined">package_2</span><span class="nav-text">Minecraft</span></a><a href="/docs/apiReference" class="nav-link "><span class="material-symbols-outlined">code</span><span class="nav-text">API Reference</span></a></div> </div> </aside>  <main class="main-content"> <div class="documentation-wrapper">  <article>   <div class="content grid gap-10"> <article class="markdown-body p-10 m-10"> <h2 id="-secciones-principales">📱 Secciones Principales</h2>
+<h3 id="-página-principal">🏠 <strong>Página Principal</strong></h3>
+<p><strong>Función</strong>: Centro de información y recursos</p>
+<ul>
+<li><strong>Información General</strong>: Descripción detallada de la aplicación</li>
+<li><strong>Introducción Interactiva</strong>: Tutorial paso a paso para nuevos usuarios</li>
+<li><strong>Recursos</strong>: Documentación, tutoriales y enlaces útiles</li>
+<li><strong>Actualizaciones</strong>: Novedades y mejoras recientes</li>
+</ul>
+<h3 id="-chat-chat">💬 <strong>CHAT</strong> <a href="/chat">Chat</a></h3>
+<p><strong>Función</strong>: Monitor y respuesta de eventos en tiempo real</p>
+<ul>
+<li><strong>Visualización de Eventos</strong>: Ve todos los eventos del canal en tiempo real
+<ul>
+<li>👍 Likes</li>
+<li>💬 Comentarios</li>
+<li>👥 Follows/Seguidores</li>
+<li>🎁 Regalos (Gifts)</li>
+<li>⭐ Suscripciones</li>
+<li>🔔 Notificaciones especiales</li>
+</ul>
+</li>
+<li><strong>Respuesta Automática</strong>: Configura respuestas automáticas para cada tipo de evento</li>
+<li><strong>Filtros</strong>: Organiza eventos por tipo, usuario o importancia</li>
+<li><strong>Historial</strong>: Revisa eventos pasados y estadísticas</li>
+</ul>
+<h3 id="-acciones-y-eventos-actions">⚡ <strong>Acciones y Eventos</strong> <a href="/Actions">Actions</a></h3>
+<p><strong>Función</strong>: Centro de control para automatización</p>
+<ul>
+<li><strong>Crear Acciones Personalizadas</strong>:
+<ul>
+<li>Define condiciones específicas</li>
+<li>Configura respuestas automáticas</li>
+<li>Establece temporizadores y límites</li>
+</ul>
+</li>
+<li><strong>Gestión de Eventos</strong>:
+<ul>
+<li>Habilitar/deshabilitar eventos específicos</li>
+<li>Priorizar tipos de eventos</li>
+<li>Configurar cooldowns entre respuestas</li>
+</ul>
+</li>
+<li><strong>Plantillas Predefinidas</strong>: Usa plantillas listas para usar</li>
+<li><strong>Sistema de Comandos</strong>: Crea comandos personalizados para moderadores</li>
+</ul>
+<h3 id="-tts-text-to-speech-tts">🔊 <strong>TTS (Text-to-Speech)</strong> <a href="/voice">TTS</a></h3>
+<p><strong>Función</strong>: Configuración avanzada de síntesis de voz</p>
+<ul>
+<li><strong>Selección de Voces</strong>: Elige entre múltiples voces disponibles</li>
+<li><strong>Configuración de Parámetros</strong>:
+<ul>
+<li>Velocidad de habla</li>
+<li>Tono y pitch</li>
+<li>Volumen</li>
+<li>Idioma</li>
+</ul>
+</li>
+<li><strong>Vista Previa</strong>: Prueba configuraciones antes de aplicar</li>
+<li><strong>Voces Personalizadas</strong>: Importa voces adicionales</li>
+<li><strong>Filtros de Contenido</strong>: Configura qué mensajes se leen en voz alta</li>
+</ul>
+<h3 id="-favoritos-favoritos">⭐ <strong>Favoritos</strong> <a href="/Docs">Favoritos</a></h3>
+<p><strong>Función</strong>: Biblioteca personal de recursos y complementos</p>
+<ul>
+<li><strong>Gestión de Favoritos</strong>:
+<ul>
+<li>Guarda complementos útiles</li>
+<li>Organiza por categorías</li>
+<li>Acceso rápido a funciones frecuentes</li>
+</ul>
+</li>
+<li><strong>Documentación Integrada</strong>:
+<ul>
+<li>Guías de uso detalladas</li>
+<li>Ejemplos prácticos paso a paso</li>
+<li>Videos tutoriales</li>
+</ul>
+</li>
+<li><strong>Biblioteca de Complementos</strong>:
+<ul>
+<li>Explora nuevos complementos</li>
+<li>Descarga e instala extensiones</li>
+<li>Comparte complementos con la comunidad</li>
+</ul>
+</li>
+<li><strong>Backup y Sincronización</strong>:
+<ul>
+<li>Respalda tu configuración</li>
+<li>Sincroniza entre dispositivos</li>
+</ul>
+</li>
+</ul>
+<h3 id="configurador-de-reemplazos-replacer">Configurador de Reemplazos <a href="/Setconfig">Replacer</a></h3>
+<p><strong>Función</strong>: Configuración avanzada de reemplazos</p>
+<ul>
+<li><strong>Configuración de Reemplazos</strong>:
+Gestiona patrones de reemplazo dinámicamente</li>
+<li><strong>Prueba y testear</strong>: Prueba patrones de reemplazo
+<ul>
+<li>Entrada de Prueba string o objeto a modificar y reemplazar los valores</li>
+<li>Datos de prueba para cada patrón de reemplazo</li>
+<li>Resultado de la prueba</li>
+</ul>
+</li>
+<li><strong>Configuración de Reemplazos</strong>:
+<ul>
+<li>Configura patrones, clave de datos y valor por defecto</li>
+<li>agrega nuevas configuraciones</li>
+<li>elimina configuraciones</li>
+<li>exporta e importa configuraciones</li>
+</ul>
+</li>
+</ul> </article> </div>  </article> <nav class="pagination" aria-label="Navegación de páginas" data-astro-cid-h5yqmaqv> <div class="pagination-container" data-astro-cid-h5yqmaqv> <a href="/docs/configuracion" class="pagination-link prev" rel="prev" data-astro-cid-h5yqmaqv> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_back</span> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Anterior</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>Configuración</span> </div> </a> <a href="/docs/widget/overlay" class="pagination-link next" rel="next" data-astro-cid-h5yqmaqv> <div class="pagination-text" data-astro-cid-h5yqmaqv> <span class="pagination-label" data-astro-cid-h5yqmaqv>Siguiente</span> <span class="pagination-title" data-astro-cid-h5yqmaqv>Overlay</span> </div> <span class="material-symbols-outlined" data-astro-cid-h5yqmaqv>arrow_forward</span> </a> </div> </nav>  </div> </main> </div> <script type="module" src="/_astro/DocsLayout.astro_astro_type_script_index_0_lang.COL8Zqqn.js"></script> </body> </html> 
